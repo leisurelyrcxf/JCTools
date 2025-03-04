@@ -60,7 +60,7 @@ public class ProducerBlockingBoundedMpscQueue<E> implements BlockingQueue<E> {
                 }
                 if (waitingIsNotFullThreadCount.get() > 0) {
                     // Don't use notifyAll to avoid the thundering herd problem.
-                    isNotFull.notifyAll();
+                    isNotFull.notify();
                 }
             }
         }
