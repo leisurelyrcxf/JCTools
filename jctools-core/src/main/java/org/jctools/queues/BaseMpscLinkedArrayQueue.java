@@ -117,6 +117,11 @@ abstract class BaseMpscLinkedArrayQueueConsumerFields<E> extends BaseMpscLinkedA
     {
         UNSAFE.putOrderedLong(this, C_INDEX_OFFSET, newValue);
     }
+
+    final void svConsumerIndex(long newValue)
+    {
+        consumerIndex = newValue;
+    }
 }
 
 abstract class BaseMpscLinkedArrayQueuePad3<E> extends BaseMpscLinkedArrayQueueConsumerFields<E>
@@ -320,7 +325,7 @@ abstract class BaseMpscLinkedArrayQueue<E> extends BaseMpscLinkedArrayQueueColdP
         }
 
         soRefElement(buffer, offset, null); // release element null
-        soConsumerIndex(cIndex + 2); // release cIndex
+        svConsumerIndex(cIndex + 2); // set volatile cIndex
         return (E) e;
     }
 

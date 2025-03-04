@@ -89,6 +89,10 @@ abstract class BaseMpscLinkedAtomicUnpaddedArrayQueueConsumerFields<E> extends B
     final void soConsumerIndex(long newValue) {
         C_INDEX_UPDATER.lazySet(this, newValue);
     }
+
+    final void svConsumerIndex(long newValue) {
+        consumerIndex = newValue;
+    }
 }
 
 /**
@@ -263,8 +267,8 @@ abstract class BaseMpscLinkedAtomicUnpaddedArrayQueue<E> extends BaseMpscLinkedA
         }
         // release element null
         soRefElement(buffer, offset, null);
-        // release cIndex
-        soConsumerIndex(cIndex + 2);
+        // set volatile cIndex
+        svConsumerIndex(cIndex + 2);
         return (E) e;
     }
 

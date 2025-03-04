@@ -91,6 +91,10 @@ abstract class BaseMpscLinkedUnpaddedArrayQueueConsumerFields<E> extends BaseMps
     final void soConsumerIndex(long newValue) {
         UNSAFE.putOrderedLong(this, C_INDEX_OFFSET, newValue);
     }
+
+    final void svConsumerIndex(long newValue) {
+        consumerIndex = newValue;
+    }
 }
 
 /**
@@ -265,8 +269,8 @@ abstract class BaseMpscLinkedUnpaddedArrayQueue<E> extends BaseMpscLinkedUnpadde
         }
         // release element null
         soRefElement(buffer, offset, null);
-        // release cIndex
-        soConsumerIndex(cIndex + 2);
+        // set volatile cIndex
+        svConsumerIndex(cIndex + 2);
         return (E) e;
     }
 
