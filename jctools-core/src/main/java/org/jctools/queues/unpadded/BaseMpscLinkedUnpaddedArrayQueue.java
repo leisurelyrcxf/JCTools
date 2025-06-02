@@ -53,6 +53,10 @@ abstract class BaseMpscLinkedUnpaddedArrayQueueProducerFields<E> extends BaseMps
         UNSAFE.putOrderedLong(this, P_INDEX_OFFSET, newValue);
     }
 
+    final void svProducerIndex(long newValue) {
+        this.producerIndex = newValue;
+    }
+
     final boolean casProducerIndex(long expect, long newValue) {
         return UNSAFE.compareAndSwapLong(this, P_INDEX_OFFSET, expect, newValue);
     }
@@ -631,7 +635,7 @@ abstract class BaseMpscLinkedUnpaddedArrayQueue<E> extends BaseMpscLinkedUnpadde
         // We never set the limit beyond the bounds of a buffer
         soProducerLimit(pIndex + Math.min(newMask, availableInQueue));
         // make resize visible to the other producers
-        soProducerIndex(pIndex + 2);
+        svProducerIndex(pIndex + 2);
         // INDEX visible before ELEMENT, consistent with consumer expectation
         // make resize visible to consumer
         soRefElement(oldBuffer, offsetInOld, JUMP);

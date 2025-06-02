@@ -98,6 +98,10 @@ abstract class BaseMpscLinkedAtomicArrayQueueProducerFields<E> extends BaseMpscL
         P_INDEX_UPDATER.lazySet(this, newValue);
     }
 
+    final void svProducerIndex(long newValue) {
+        producerIndex = newValue;
+    }
+
     final boolean casProducerIndex(long expect, long newValue) {
         return P_INDEX_UPDATER.compareAndSet(this, expect, newValue);
     }
@@ -776,7 +780,7 @@ abstract class BaseMpscLinkedAtomicArrayQueue<E> extends BaseMpscLinkedAtomicArr
         // We never set the limit beyond the bounds of a buffer
         soProducerLimit(pIndex + Math.min(newMask, availableInQueue));
         // make resize visible to the other producers
-        soProducerIndex(pIndex + 2);
+        svProducerIndex(pIndex + 2);
         // INDEX visible before ELEMENT, consistent with consumer expectation
         // make resize visible to consumer
         soRefElement(oldBuffer, offsetInOld, JUMP);
