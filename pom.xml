@@ -65,6 +65,8 @@
         <junit.version>4.13.2</junit.version>
         <guava-testlib.version>33.5.0-jre</guava-testlib.version>
         <lincheck.version>2.39</lincheck.version>
+
+        <spotless.version>2.44.5</spotless.version>
     </properties>
 
     <modules>
@@ -214,12 +216,41 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.7</version>
             </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <java>
+                        <includes>
+                            <include>src/main/java/**/*.java</include>
+                            <include>src/test/java/**/*.java</include>
+                        </includes>
+                        <eclipse>
+                            <file>${maven.multiModuleProjectDirectory}/SpotlessStyle.xml</file>
+                        </eclipse>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotless-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
