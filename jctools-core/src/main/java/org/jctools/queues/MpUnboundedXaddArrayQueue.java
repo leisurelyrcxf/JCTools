@@ -34,7 +34,7 @@ abstract class MpUnboundedXaddArrayQueuePad1<E> extends AbstractQueue<E> impleme
 // $gen:ordered-fields
 abstract class MpUnboundedXaddArrayQueueProducerFields<E> extends MpUnboundedXaddArrayQueuePad1<E>
 {
-    private final static long P_INDEX_OFFSET =
+    private static final long P_INDEX_OFFSET =
         fieldOffset(MpUnboundedXaddArrayQueueProducerFields.class, "producerIndex");
     private volatile long producerIndex;
 
@@ -139,9 +139,9 @@ abstract class MpUnboundedXaddArrayQueuePad3<R extends MpUnboundedXaddChunk<R, E
 abstract class MpUnboundedXaddArrayQueueConsumerFields<R extends MpUnboundedXaddChunk<R, E>, E>
     extends MpUnboundedXaddArrayQueuePad3<R, E>
 {
-    private final static long C_INDEX_OFFSET =
+    private static final long C_INDEX_OFFSET =
         fieldOffset(MpUnboundedXaddArrayQueueConsumerFields.class, "consumerIndex");
-    private final static long C_CHUNK_OFFSET =
+    private static final long C_CHUNK_OFFSET =
         fieldOffset(MpUnboundedXaddArrayQueueConsumerFields.class, "consumerChunk");
 
     private long consumerIndex;

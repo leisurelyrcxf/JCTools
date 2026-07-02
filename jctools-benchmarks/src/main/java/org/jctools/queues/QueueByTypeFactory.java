@@ -138,7 +138,7 @@ public class QueueByTypeFactory
         throw new IllegalArgumentException("Failed to construct queue:" + qClass.getName(), ex);
     }
 
-    final static String[] KNOWN_QUEUES_PACKAGES =
+    static final String[] KNOWN_QUEUES_PACKAGES =
         {"org.jctools.queues.", "org.jctools.queues.varhandle.", "org.jctools.queues.atomic.", "java.util.", "java.util.concurrent."
         };
 

@@ -41,7 +41,7 @@ abstract class GoldenSampleUnpaddedArrayQueueL1Pad<E> extends GoldenSampleUnpadd
  */
 abstract class GoldenSampleUnpaddedArrayQueueProducerIndexFields<E> extends GoldenSampleUnpaddedArrayQueueL1Pad<E>
 {
-    private final static long P_INDEX_OFFSET =
+    private static final long P_INDEX_OFFSET =
             fieldOffset(GoldenSampleUnpaddedArrayQueueProducerIndexFields.class, "producerIndex");
 
     private long producerIndex;

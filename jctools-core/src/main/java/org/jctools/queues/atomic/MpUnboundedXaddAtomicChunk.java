@@ -19,7 +19,7 @@ public class MpUnboundedXaddAtomicChunk<R, E>
     
     private static final AtomicReferenceFieldUpdater<MpUnboundedXaddAtomicChunk, Object> NEXT_UPDATER = AtomicReferenceFieldUpdater.newUpdater(MpUnboundedXaddAtomicChunk.class, Object.class, "next");
     
-    public final static int NOT_USED = -1;
+    public static final int NOT_USED = -1;
 
     private final boolean pooled;
     private final AtomicReferenceArray<E> buffer;

@@ -50,7 +50,7 @@ abstract class BaseSpscLinkedUnpaddedArrayQueueConsumerColdFields<E> extends Bas
  */
 abstract class BaseSpscLinkedUnpaddedArrayQueueConsumerField<E> extends BaseSpscLinkedUnpaddedArrayQueueConsumerColdFields<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(BaseSpscLinkedUnpaddedArrayQueueConsumerField.class, "consumerIndex");
+    private static final long C_INDEX_OFFSET = fieldOffset(BaseSpscLinkedUnpaddedArrayQueueConsumerField.class, "consumerIndex");
 
     private long consumerIndex;
 
@@ -86,7 +86,7 @@ abstract class BaseSpscLinkedUnpaddedArrayQueueL2Pad<E> extends BaseSpscLinkedUn
  */
 abstract class BaseSpscLinkedUnpaddedArrayQueueProducerFields<E> extends BaseSpscLinkedUnpaddedArrayQueueL2Pad<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(BaseSpscLinkedUnpaddedArrayQueueProducerFields.class, "producerIndex");
+    private static final long P_INDEX_OFFSET = fieldOffset(BaseSpscLinkedUnpaddedArrayQueueProducerFields.class, "producerIndex");
 
     private long producerIndex;
 

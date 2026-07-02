@@ -445,9 +445,9 @@ public class perf_hashlong_test extends Thread
     // Fairly fast random numbers
     public static final class SimpleRandom
     {
-        private final static long multiplier = 0x5DEECE66DL;
-        private final static long addend = 0xBL;
-        private final static long mask = (1L << 48) - 1;
+        private static final long multiplier = 0x5DEECE66DL;
+        private static final long addend = 0xBL;
+        private static final long mask = (1L << 48) - 1;
         static final AtomicLong seq = new AtomicLong(-715159705);
         private long seed;
 

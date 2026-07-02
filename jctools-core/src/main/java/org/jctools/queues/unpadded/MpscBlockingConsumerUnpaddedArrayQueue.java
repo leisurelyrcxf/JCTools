@@ -44,7 +44,7 @@ abstract class MpscBlockingConsumerUnpaddedArrayQueuePad1<E> extends AbstractQue
  */
 abstract class MpscBlockingConsumerUnpaddedArrayQueueColdProducerFields<E> extends MpscBlockingConsumerUnpaddedArrayQueuePad1<E>
 {
-    private final static long P_LIMIT_OFFSET = fieldOffset(MpscBlockingConsumerUnpaddedArrayQueueColdProducerFields.class,
+    private static final long P_LIMIT_OFFSET = fieldOffset(MpscBlockingConsumerUnpaddedArrayQueueColdProducerFields.class,
         "producerLimit");
 
     private volatile long producerLimit;
@@ -93,7 +93,7 @@ abstract class MpscBlockingConsumerUnpaddedArrayQueuePad2<E> extends MpscBlockin
  */
 abstract class MpscBlockingConsumerUnpaddedArrayQueueProducerFields<E> extends MpscBlockingConsumerUnpaddedArrayQueuePad2<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(MpscBlockingConsumerUnpaddedArrayQueueProducerFields.class, "producerIndex");
+    private static final long P_INDEX_OFFSET = fieldOffset(MpscBlockingConsumerUnpaddedArrayQueueProducerFields.class, "producerIndex");
 
     private volatile long producerIndex;
 
@@ -138,8 +138,8 @@ abstract class MpscBlockingConsumerUnpaddedArrayQueuePad3<E> extends MpscBlockin
  */
 abstract class MpscBlockingConsumerUnpaddedArrayQueueConsumerFields<E> extends MpscBlockingConsumerUnpaddedArrayQueuePad3<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(MpscBlockingConsumerUnpaddedArrayQueueConsumerFields.class, "consumerIndex");
-    private final static long BLOCKED_OFFSET = fieldOffset(MpscBlockingConsumerUnpaddedArrayQueueConsumerFields.class, "blocked");
+    private static final long C_INDEX_OFFSET = fieldOffset(MpscBlockingConsumerUnpaddedArrayQueueConsumerFields.class, "consumerIndex");
+    private static final long BLOCKED_OFFSET = fieldOffset(MpscBlockingConsumerUnpaddedArrayQueueConsumerFields.class, "blocked");
 
     private long consumerIndex;
     protected final long consumerMask;

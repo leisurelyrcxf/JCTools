@@ -26,7 +26,7 @@ abstract class MpUnboundedXaddUnpaddedArrayQueuePad1<E> extends AbstractQueue<E>
  */
 abstract class MpUnboundedXaddUnpaddedArrayQueueProducerFields<E> extends MpUnboundedXaddUnpaddedArrayQueuePad1<E>
 {
-    private final static long P_INDEX_OFFSET =
+    private static final long P_INDEX_OFFSET =
         fieldOffset(MpUnboundedXaddUnpaddedArrayQueueProducerFields.class, "producerIndex");
     private volatile long producerIndex;
 
@@ -113,9 +113,9 @@ abstract class MpUnboundedXaddUnpaddedArrayQueuePad3<R extends MpUnboundedXaddUn
 abstract class MpUnboundedXaddUnpaddedArrayQueueConsumerFields<R extends MpUnboundedXaddUnpaddedChunk<R, E>, E>
     extends MpUnboundedXaddUnpaddedArrayQueuePad3<R, E>
 {
-    private final static long C_INDEX_OFFSET =
+    private static final long C_INDEX_OFFSET =
         fieldOffset(MpUnboundedXaddUnpaddedArrayQueueConsumerFields.class, "consumerIndex");
-    private final static long C_CHUNK_OFFSET =
+    private static final long C_CHUNK_OFFSET =
         fieldOffset(MpUnboundedXaddUnpaddedArrayQueueConsumerFields.class, "consumerChunk");
 
     private long consumerIndex;

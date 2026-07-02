@@ -40,7 +40,7 @@ public class MpscLinkedQueue<E> extends BaseLinkedQueue<E>
 // $gen:ordered-fields
 abstract class BaseLinkedQueueProducerNodeRef<E> extends AbstractQueue<E>
 {
-    private final static long P_NODE_OFFSET =
+    private static final long P_NODE_OFFSET =
             fieldOffset(BaseLinkedQueueProducerNodeRef.class, "producerNode");
 
     private LinkedQueueNode<E> producerNode;

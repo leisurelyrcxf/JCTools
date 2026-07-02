@@ -45,7 +45,7 @@ abstract class MpscArrayQueueL1Pad<E> extends ConcurrentCircularArrayQueue<E>
 //$gen:ordered-fields
 abstract class MpscArrayQueueProducerIndexField<E> extends MpscArrayQueueL1Pad<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(MpscArrayQueueProducerIndexField.class, "producerIndex");
+    private static final long P_INDEX_OFFSET = fieldOffset(MpscArrayQueueProducerIndexField.class, "producerIndex");
 
     private volatile long producerIndex;
 
@@ -94,7 +94,7 @@ abstract class MpscArrayQueueMidPad<E> extends MpscArrayQueueProducerIndexField<
 //$gen:ordered-fields
 abstract class MpscArrayQueueProducerLimitField<E> extends MpscArrayQueueMidPad<E>
 {
-    private final static long P_LIMIT_OFFSET = fieldOffset(MpscArrayQueueProducerLimitField.class, "producerLimit");
+    private static final long P_LIMIT_OFFSET = fieldOffset(MpscArrayQueueProducerLimitField.class, "producerLimit");
 
     // First unavailable index the producer may claim up to before rereading the consumer index
     private volatile long producerLimit;
@@ -144,7 +144,7 @@ abstract class MpscArrayQueueL2Pad<E> extends MpscArrayQueueProducerLimitField<E
 //$gen:ordered-fields
 abstract class MpscArrayQueueConsumerIndexField<E> extends MpscArrayQueueL2Pad<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(MpscArrayQueueConsumerIndexField.class, "consumerIndex");
+    private static final long C_INDEX_OFFSET = fieldOffset(MpscArrayQueueConsumerIndexField.class, "consumerIndex");
 
     private long consumerIndex;
 

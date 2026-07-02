@@ -60,7 +60,7 @@ abstract class SpscArrayQueueL1Pad<E> extends SpscArrayQueueColdField<E>
 // $gen:ordered-fields
 abstract class SpscArrayQueueProducerIndexFields<E> extends SpscArrayQueueL1Pad<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(SpscArrayQueueProducerIndexFields.class, "producerIndex");
+    private static final long P_INDEX_OFFSET = fieldOffset(SpscArrayQueueProducerIndexFields.class, "producerIndex");
 
     private long producerIndex;
     protected long producerLimit;
@@ -116,7 +116,7 @@ abstract class SpscArrayQueueL2Pad<E> extends SpscArrayQueueProducerIndexFields<
 //$gen:ordered-fields
 abstract class SpscArrayQueueConsumerIndexField<E> extends SpscArrayQueueL2Pad<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(SpscArrayQueueConsumerIndexField.class, "consumerIndex");
+    private static final long C_INDEX_OFFSET = fieldOffset(SpscArrayQueueConsumerIndexField.class, "consumerIndex");
 
     private long consumerIndex;
 

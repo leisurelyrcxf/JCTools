@@ -21,7 +21,7 @@ import static org.jctools.util.UnsafeAccess.fieldOffset;
 @InternalAPI
 public final class LinkedQueueNode<E>
 {
-    private final static long NEXT_OFFSET = fieldOffset(LinkedQueueNode.class, "next");
+    private static final long NEXT_OFFSET = fieldOffset(LinkedQueueNode.class, "next");
 
     private E value;
     private volatile LinkedQueueNode<E> next;

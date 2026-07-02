@@ -151,7 +151,7 @@ abstract class MpmcConcurrentQueueSML1Pad<E> extends MpmcConcurrentQueueSMBuffer
 
 abstract class MpmcConcurrentQueueSMTailField<E> extends MpmcConcurrentQueueSML1Pad<E>
 {
-    private final static long TAIL_OFFSET = fieldOffset(MpmcConcurrentQueueSMTailField.class, "tail");
+    private static final long TAIL_OFFSET = fieldOffset(MpmcConcurrentQueueSMTailField.class, "tail");
 
     private volatile long tail;
 
@@ -198,7 +198,7 @@ abstract class MpmcConcurrentQueueSML2Pad<E> extends MpmcConcurrentQueueSMTailFi
 
 abstract class MpmcConcurrentQueueSMHeadField<E> extends MpmcConcurrentQueueSML2Pad<E>
 {
-    private final static long HEAD_OFFSET = fieldOffset(MpmcConcurrentQueueSMHeadField.class, "head");
+    private static final long HEAD_OFFSET = fieldOffset(MpmcConcurrentQueueSMHeadField.class, "head");
 
     private volatile long head;
 

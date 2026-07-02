@@ -30,7 +30,7 @@ public class MpUnboundedXaddVarHandleUnpaddedChunk<R, E>
         }
     }
     
-    public final static int NOT_USED = -1;
+    public static final int NOT_USED = -1;
 
     private final boolean pooled;
     private final E[] buffer;

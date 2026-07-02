@@ -32,7 +32,7 @@ abstract class GoldenSampleArrayQueueL1Pad<E> extends GoldenSampleArrayQueueCold
 // $gen:ordered-fields
 abstract class GoldenSampleArrayQueueProducerIndexFields<E> extends GoldenSampleArrayQueueL1Pad<E>
 {
-    private final static long P_INDEX_OFFSET =
+    private static final long P_INDEX_OFFSET =
             fieldOffset(GoldenSampleArrayQueueProducerIndexFields.class, "producerIndex");
 
     private long producerIndex;

@@ -14,7 +14,7 @@ import org.jctools.queues.*;
 @InternalAPI
 public class MpUnboundedXaddUnpaddedChunk<R, E>
 {
-    public final static int NOT_USED = -1;
+    public static final int NOT_USED = -1;
 
     private static final long PREV_OFFSET = fieldOffset(MpUnboundedXaddUnpaddedChunk.class, "prev");
     private static final long NEXT_OFFSET = fieldOffset(MpUnboundedXaddUnpaddedChunk.class, "next");

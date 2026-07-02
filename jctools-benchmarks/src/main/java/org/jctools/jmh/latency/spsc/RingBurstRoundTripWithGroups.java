@@ -65,13 +65,13 @@ public class RingBurstRoundTripWithGroups
     private static final int BURST_SIZE = Integer.getInteger("burst.size", 1);
     private static final Integer DUMMY_MESSAGE = 1;
     @SuppressWarnings("unchecked")
-    private final static Queue<Integer>[] chain = new Queue[CHAIN_LENGTH];
+    private static final Queue<Integer>[] chain = new Queue[CHAIN_LENGTH];
     /**
      * This is a bit annoying, I need the threads to keep their queues, so each thread needs an index. The id
      * is used to pick the in/out queues.
      */
-    private final static AtomicInteger idx = new AtomicInteger();
-    private final static ThreadLocal<Integer> tlIndex = new ThreadLocal<Integer>()
+    private static final AtomicInteger idx = new AtomicInteger();
+    private static final ThreadLocal<Integer> tlIndex = new ThreadLocal<Integer>()
     {
         protected Integer initialValue()
         {

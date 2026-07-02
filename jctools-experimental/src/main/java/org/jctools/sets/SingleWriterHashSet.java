@@ -360,9 +360,9 @@ public class SingleWriterHashSet<E> extends AbstractSet<E>
         }
     }
 
-    private final static long BUFFER_OFFSET = fieldOffset(SingleWriterHashSet.class, "buffer");
-    private final static long SIZE_OFFSET = fieldOffset(SingleWriterHashSet.class, "size");
-    private final static long MC_OFFSET = fieldOffset(SingleWriterHashSet.class, "modCount");
+    private static final long BUFFER_OFFSET = fieldOffset(SingleWriterHashSet.class, "buffer");
+    private static final long SIZE_OFFSET = fieldOffset(SingleWriterHashSet.class, "size");
+    private static final long MC_OFFSET = fieldOffset(SingleWriterHashSet.class, "modCount");
 
     private void soBuffer(final E[] buffer)
     {

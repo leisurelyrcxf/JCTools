@@ -44,7 +44,7 @@ abstract class BaseMpscLinkedUnpaddedArrayQueuePad1<E> extends AbstractQueue<E> 
  */
 abstract class BaseMpscLinkedUnpaddedArrayQueueProducerFields<E> extends BaseMpscLinkedUnpaddedArrayQueuePad1<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(BaseMpscLinkedUnpaddedArrayQueueProducerFields.class, "producerIndex");
+    private static final long P_INDEX_OFFSET = fieldOffset(BaseMpscLinkedUnpaddedArrayQueueProducerFields.class, "producerIndex");
 
     private volatile long producerIndex;
 
@@ -79,7 +79,7 @@ abstract class BaseMpscLinkedUnpaddedArrayQueuePad2<E> extends BaseMpscLinkedUnp
  */
 abstract class BaseMpscLinkedUnpaddedArrayQueueConsumerFields<E> extends BaseMpscLinkedUnpaddedArrayQueuePad2<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(BaseMpscLinkedUnpaddedArrayQueueConsumerFields.class, "consumerIndex");
+    private static final long C_INDEX_OFFSET = fieldOffset(BaseMpscLinkedUnpaddedArrayQueueConsumerFields.class, "consumerIndex");
 
     private long consumerIndex;
     protected long consumerMask;
@@ -116,7 +116,7 @@ abstract class BaseMpscLinkedUnpaddedArrayQueuePad3<E> extends BaseMpscLinkedUnp
  */
 abstract class BaseMpscLinkedUnpaddedArrayQueueColdProducerFields<E> extends BaseMpscLinkedUnpaddedArrayQueuePad3<E>
 {
-    private final static long P_LIMIT_OFFSET = fieldOffset(BaseMpscLinkedUnpaddedArrayQueueColdProducerFields.class, "producerLimit");
+    private static final long P_LIMIT_OFFSET = fieldOffset(BaseMpscLinkedUnpaddedArrayQueueColdProducerFields.class, "producerLimit");
 
     private volatile long producerLimit;
     protected long producerMask;

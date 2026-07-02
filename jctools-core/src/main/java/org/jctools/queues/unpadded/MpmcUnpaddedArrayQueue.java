@@ -40,7 +40,7 @@ abstract class MpmcUnpaddedArrayQueueL1Pad<E> extends ConcurrentSequencedCircula
  */
 abstract class MpmcUnpaddedArrayQueueProducerIndexField<E> extends MpmcUnpaddedArrayQueueL1Pad<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(MpmcUnpaddedArrayQueueProducerIndexField.class, "producerIndex");
+    private static final long P_INDEX_OFFSET = fieldOffset(MpmcUnpaddedArrayQueueProducerIndexField.class, "producerIndex");
 
     private volatile long producerIndex;
 
@@ -79,7 +79,7 @@ abstract class MpmcUnpaddedArrayQueueL2Pad<E> extends MpmcUnpaddedArrayQueueProd
  */
 abstract class MpmcUnpaddedArrayQueueConsumerIndexField<E> extends MpmcUnpaddedArrayQueueL2Pad<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(MpmcUnpaddedArrayQueueConsumerIndexField.class, "consumerIndex");
+    private static final long C_INDEX_OFFSET = fieldOffset(MpmcUnpaddedArrayQueueConsumerIndexField.class, "consumerIndex");
 
     private volatile long consumerIndex;
 

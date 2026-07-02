@@ -17,7 +17,7 @@ import java.util.concurrent.BlockingQueue;
 @RunWith(Parameterized.class)
 public class BlockingQueueTest
 {
-    protected final static int CAPACITY = 32768; // better to have a size power of 2 to test boundaries
+    protected static final int CAPACITY = 32768; // better to have a size power of 2 to test boundaries
 
     private BlockingQueue<Integer> q;
     private final ConcurrentQueueSpec spec;

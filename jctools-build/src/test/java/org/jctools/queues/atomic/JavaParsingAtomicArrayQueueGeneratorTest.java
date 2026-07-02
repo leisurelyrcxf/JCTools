@@ -98,7 +98,7 @@ public class JavaParsingAtomicArrayQueueGeneratorTest
             "package org.jctools.queues;\n" +
                 "// $gen:ordered-fields\n" +
                 "class SpscArrayQueueProducerIndexFields<E> extends ConcurrentCircularArrayQueue<E> {\n" +
-                "  private final static long P_INDEX_OFFSET = 0;\n" +
+                "  private static final long P_INDEX_OFFSET = 0;\n" +
                 "  private long producerIndex;\n" +
                 "  SpscArrayQueueProducerIndexFields(int c) { super(c); }\n" +
                 "  public final long lvProducerIndex() { return 0; }\n" +

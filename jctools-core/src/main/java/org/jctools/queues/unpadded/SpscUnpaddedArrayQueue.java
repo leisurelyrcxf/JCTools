@@ -55,7 +55,7 @@ abstract class SpscUnpaddedArrayQueueL1Pad<E> extends SpscUnpaddedArrayQueueCold
  */
 abstract class SpscUnpaddedArrayQueueProducerIndexFields<E> extends SpscUnpaddedArrayQueueL1Pad<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(SpscUnpaddedArrayQueueProducerIndexFields.class, "producerIndex");
+    private static final long P_INDEX_OFFSET = fieldOffset(SpscUnpaddedArrayQueueProducerIndexFields.class, "producerIndex");
 
     private long producerIndex;
     protected long producerLimit;
@@ -101,7 +101,7 @@ abstract class SpscUnpaddedArrayQueueL2Pad<E> extends SpscUnpaddedArrayQueueProd
  */
 abstract class SpscUnpaddedArrayQueueConsumerIndexField<E> extends SpscUnpaddedArrayQueueL2Pad<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(SpscUnpaddedArrayQueueConsumerIndexField.class, "consumerIndex");
+    private static final long C_INDEX_OFFSET = fieldOffset(SpscUnpaddedArrayQueueConsumerIndexField.class, "consumerIndex");
 
     private long consumerIndex;
 

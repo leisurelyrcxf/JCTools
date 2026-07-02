@@ -10,7 +10,7 @@ import static org.jctools.util.UnsafeRefArrayAccess.*;
 @InternalAPI
 public class MpUnboundedXaddChunk<R, E>
 {
-    public final static int NOT_USED = -1;
+    public static final int NOT_USED = -1;
 
     private static final long PREV_OFFSET = fieldOffset(MpUnboundedXaddChunk.class, "prev");
     private static final long NEXT_OFFSET = fieldOffset(MpUnboundedXaddChunk.class, "next");

@@ -39,7 +39,7 @@ public class JavaParsingAtomicUnpaddedArrayQueueGeneratorTest
                 "class SpscArrayQueueProducerIndexFields<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b\n" +
                 "  byte b170,b171,b172,b173,b174,b175,b176,b177;//128b\n" +
-                "  private final static long P_INDEX_OFFSET = 0;\n" +
+                "  private static final long P_INDEX_OFFSET = 0;\n" +
                 "  private long producerIndex;\n" +
                 "  SpscArrayQueueProducerIndexFields(int c) { super(c); }\n" +
                 "  public final long lvProducerIndex() { return 0; }\n" +

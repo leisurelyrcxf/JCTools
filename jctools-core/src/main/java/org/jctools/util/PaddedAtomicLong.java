@@ -43,7 +43,7 @@ abstract class PaddedAtomicLongL1Pad extends Number implements java.io.Serializa
 
 abstract class PaddedAtomicLongL1Field extends PaddedAtomicLongL1Pad
 {
-    private final static long VALUE_OFFSET = fieldOffset(PaddedAtomicLongL1Field.class, "value");
+    private static final long VALUE_OFFSET = fieldOffset(PaddedAtomicLongL1Field.class, "value");
     private volatile long value;
 
     public void spVal(long v)

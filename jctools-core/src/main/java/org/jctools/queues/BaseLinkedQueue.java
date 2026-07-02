@@ -44,7 +44,7 @@ abstract class BaseLinkedQueuePad0<E> extends AbstractQueue<E> implements Messag
 // $gen:ordered-fields
 abstract class BaseLinkedQueueProducerNodeRef<E> extends BaseLinkedQueuePad0<E>
 {
-    final static long P_NODE_OFFSET = fieldOffset(BaseLinkedQueueProducerNodeRef.class, "producerNode");
+    static final long P_NODE_OFFSET = fieldOffset(BaseLinkedQueueProducerNodeRef.class, "producerNode");
 
     private volatile LinkedQueueNode<E> producerNode;
 
@@ -97,7 +97,7 @@ abstract class BaseLinkedQueuePad1<E> extends BaseLinkedQueueProducerNodeRef<E>
 //$gen:ordered-fields
 abstract class BaseLinkedQueueConsumerNodeRef<E> extends BaseLinkedQueuePad1<E>
 {
-    private final static long C_NODE_OFFSET = fieldOffset(BaseLinkedQueueConsumerNodeRef.class, "consumerNode");
+    private static final long C_NODE_OFFSET = fieldOffset(BaseLinkedQueueConsumerNodeRef.class, "consumerNode");
 
     private LinkedQueueNode<E> consumerNode;
 

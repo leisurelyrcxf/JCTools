@@ -44,7 +44,7 @@ abstract class MpscIntrusiveLinkedQueuePad0
 
 abstract class MpscIntrusiveLinkedQueueProducerNodeRef extends MpscIntrusiveLinkedQueuePad0
 {
-    private final static long P_NODE_OFFSET = fieldOffset(MpscIntrusiveLinkedQueueProducerNodeRef.class, "producerNode");
+    private static final long P_NODE_OFFSET = fieldOffset(MpscIntrusiveLinkedQueueProducerNodeRef.class, "producerNode");
 
     private volatile Node producerNode;
 
@@ -82,7 +82,7 @@ abstract class MpscIntrusiveLinkedQueuePad1 extends MpscIntrusiveLinkedQueueProd
 
 abstract class MpscIntrusiveLinkedQueueConsumerNodeRef extends MpscIntrusiveLinkedQueuePad1
 {
-    private final static long C_NODE_OFFSET = fieldOffset(MpscIntrusiveLinkedQueueConsumerNodeRef.class, "consumerNode");
+    private static final long C_NODE_OFFSET = fieldOffset(MpscIntrusiveLinkedQueueConsumerNodeRef.class, "consumerNode");
 
     private Node consumerNode;
 

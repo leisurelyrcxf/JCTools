@@ -26,8 +26,8 @@ import static org.jctools.util.UnsafeDirectByteBuffer.*;
 
 public final class SpscOffHeapIntQueue extends AbstractQueue<Integer>
 {
-    public final static byte PRODUCER = 1;
-    public final static byte CONSUMER = 2;
+    public static final byte PRODUCER = 1;
+    public static final byte CONSUMER = 2;
     public static final int INT_ELEMENT_SCALE = 2 + Integer.getInteger("sparse.shift", 0);
     // 24b,8b,8b,24b | pad | 24b,8b,8b,24b | pad
     private final ByteBuffer buffy;

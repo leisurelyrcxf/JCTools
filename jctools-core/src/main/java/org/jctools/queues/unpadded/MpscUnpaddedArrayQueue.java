@@ -37,7 +37,7 @@ abstract class MpscUnpaddedArrayQueueL1Pad<E> extends ConcurrentCircularUnpadded
  */
 abstract class MpscUnpaddedArrayQueueProducerIndexField<E> extends MpscUnpaddedArrayQueueL1Pad<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(MpscUnpaddedArrayQueueProducerIndexField.class, "producerIndex");
+    private static final long P_INDEX_OFFSET = fieldOffset(MpscUnpaddedArrayQueueProducerIndexField.class, "producerIndex");
 
     private volatile long producerIndex;
 
@@ -76,7 +76,7 @@ abstract class MpscUnpaddedArrayQueueMidPad<E> extends MpscUnpaddedArrayQueuePro
  */
 abstract class MpscUnpaddedArrayQueueProducerLimitField<E> extends MpscUnpaddedArrayQueueMidPad<E>
 {
-    private final static long P_LIMIT_OFFSET = fieldOffset(MpscUnpaddedArrayQueueProducerLimitField.class, "producerLimit");
+    private static final long P_LIMIT_OFFSET = fieldOffset(MpscUnpaddedArrayQueueProducerLimitField.class, "producerLimit");
 
     // First unavailable index the producer may claim up to before rereading the consumer index
     private volatile long producerLimit;
@@ -117,7 +117,7 @@ abstract class MpscUnpaddedArrayQueueL2Pad<E> extends MpscUnpaddedArrayQueueProd
  */
 abstract class MpscUnpaddedArrayQueueConsumerIndexField<E> extends MpscUnpaddedArrayQueueL2Pad<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(MpscUnpaddedArrayQueueConsumerIndexField.class, "consumerIndex");
+    private static final long C_INDEX_OFFSET = fieldOffset(MpscUnpaddedArrayQueueConsumerIndexField.class, "consumerIndex");
 
     private long consumerIndex;
 

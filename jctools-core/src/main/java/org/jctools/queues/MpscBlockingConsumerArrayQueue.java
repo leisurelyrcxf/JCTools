@@ -52,7 +52,7 @@ abstract class MpscBlockingConsumerArrayQueuePad1<E> extends AbstractQueue<E> im
 // $gen:ordered-fields
 abstract class MpscBlockingConsumerArrayQueueColdProducerFields<E> extends MpscBlockingConsumerArrayQueuePad1<E>
 {
-    private final static long P_LIMIT_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueColdProducerFields.class,
+    private static final long P_LIMIT_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueColdProducerFields.class,
         "producerLimit");
 
     private volatile long producerLimit;
@@ -102,7 +102,7 @@ abstract class MpscBlockingConsumerArrayQueuePad2<E> extends MpscBlockingConsume
 // $gen:ordered-fields
 abstract class MpscBlockingConsumerArrayQueueProducerFields<E> extends MpscBlockingConsumerArrayQueuePad2<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueProducerFields.class, "producerIndex");
+    private static final long P_INDEX_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueProducerFields.class, "producerIndex");
 
     private volatile long producerIndex;
 
@@ -157,8 +157,8 @@ abstract class MpscBlockingConsumerArrayQueuePad3<E> extends MpscBlockingConsume
 // $gen:ordered-fields
 abstract class MpscBlockingConsumerArrayQueueConsumerFields<E> extends MpscBlockingConsumerArrayQueuePad3<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueConsumerFields.class, "consumerIndex");
-    private final static long BLOCKED_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueConsumerFields.class, "blocked");
+    private static final long C_INDEX_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueConsumerFields.class, "consumerIndex");
+    private static final long BLOCKED_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueConsumerFields.class, "blocked");
 
     private long consumerIndex;
     protected final long consumerMask;

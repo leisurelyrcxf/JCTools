@@ -116,8 +116,8 @@ abstract class FFBufferL3Pad<E> extends FFBufferConsumerField<E>
 
 public final class FFBuffer<E> extends FFBufferL3Pad<E> implements Queue<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(FFBufferProducerField.class, "pIndex");
-    private final static long C_INDEX_OFFSET = fieldOffset(FFBufferConsumerField.class, "cIndex");
+    private static final long P_INDEX_OFFSET = fieldOffset(FFBufferProducerField.class, "pIndex");
+    private static final long C_INDEX_OFFSET = fieldOffset(FFBufferConsumerField.class, "cIndex");
 
     public FFBuffer(final int capacity)
     {

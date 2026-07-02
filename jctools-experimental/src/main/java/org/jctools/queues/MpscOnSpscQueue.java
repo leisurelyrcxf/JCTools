@@ -51,7 +51,7 @@ abstract class MpscOnSpscL0Pad<E> extends AbstractQueue<E>
 
 abstract class MpscOnSpscFields<E> extends MpscOnSpscL0Pad<E>
 {
-    private final static long QUEUES_OFFSET = fieldOffset(MpscOnSpscFields.class, "queues");
+    private static final long QUEUES_OFFSET = fieldOffset(MpscOnSpscFields.class, "queues");
 
     protected final ThreadLocal<Queue<E>> producerQueue;
     ReferenceQueue<Thread> refQ = new ReferenceQueue<Thread>();

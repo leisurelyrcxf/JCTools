@@ -166,8 +166,8 @@ abstract class InlinedRingBufferL3Pad<E> extends InlinedRingBufferPollFields<E>
 
 public final class InlinedCountersSpscConcurrentArrayQueue<E> extends InlinedRingBufferL3Pad<E> implements Queue<E>
 {
-    private final static long TAIL_OFFSET;
-    private final static long HEAD_OFFSET;
+    private static final long TAIL_OFFSET;
+    private static final long HEAD_OFFSET;
     private static final long ARRAY_BASE;
     private static final int ELEMENT_SHIFT;
     static

@@ -35,7 +35,7 @@ abstract class BaseLinkedUnpaddedQueuePad0<E> extends AbstractQueue<E> implement
  */
 abstract class BaseLinkedUnpaddedQueueProducerNodeRef<E> extends BaseLinkedUnpaddedQueuePad0<E>
 {
-    final static long P_NODE_OFFSET = fieldOffset(BaseLinkedUnpaddedQueueProducerNodeRef.class, "producerNode");
+    static final long P_NODE_OFFSET = fieldOffset(BaseLinkedUnpaddedQueueProducerNodeRef.class, "producerNode");
 
     private volatile LinkedQueueNode<E> producerNode;
 
@@ -79,7 +79,7 @@ abstract class BaseLinkedUnpaddedQueuePad1<E> extends BaseLinkedUnpaddedQueuePro
  */
 abstract class BaseLinkedUnpaddedQueueConsumerNodeRef<E> extends BaseLinkedUnpaddedQueuePad1<E>
 {
-    private final static long C_NODE_OFFSET = fieldOffset(BaseLinkedUnpaddedQueueConsumerNodeRef.class, "consumerNode");
+    private static final long C_NODE_OFFSET = fieldOffset(BaseLinkedUnpaddedQueueConsumerNodeRef.class, "consumerNode");
 
     private LinkedQueueNode<E> consumerNode;
 
