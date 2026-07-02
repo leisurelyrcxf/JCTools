@@ -12,3 +12,6 @@
 # dominated by LexicalPreservingPrinter reformatting and *Updater field-order
 # shifts; semantically a no-op (verified via check-codegen-semantics.sh).
 4f7cf4436dc89430fb20ec8796d69f0222c3935c
+
+# Apply Spotless formatting to codebase
+d28e8249682c8f3c550c56719d0abbb5a5180b47
