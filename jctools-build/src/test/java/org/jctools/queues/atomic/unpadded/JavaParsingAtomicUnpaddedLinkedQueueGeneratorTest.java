@@ -14,19 +14,27 @@ import static org.junit.Assert.assertTrue;
  * {@code LinkedQueueAtomicNode} import unconditionally, so verify it shows up exactly once and the
  * other rewrites still run.
  */
-public class JavaParsingAtomicUnpaddedLinkedQueueGeneratorTest {
+public class JavaParsingAtomicUnpaddedLinkedQueueGeneratorTest
+{
 
-    private static String generate(String source) {
-        CompilationUnit cu = new JavaParser().parse(source).getResult().orElseThrow(
+    private static String generate(String source)
+    {
+        CompilationUnit cu = new JavaParser()
+            .parse(source)
+            .getResult()
+            .orElseThrow(
                 () -> new AssertionError("parse failed"));
-        return GeneratorUtils.applyGenerator(
-                new JavaParsingAtomicUnpaddedLinkedQueueGenerator("Synthetic.java"), cu);
+        return GeneratorUtils
+            .applyGenerator(
+                new JavaParsingAtomicUnpaddedLinkedQueueGenerator("Synthetic.java"),
+                cu);
     }
 
     @Test
-    public void rewritesPackageInfixAndAddsLinkedNodeImport() {
+    public void rewritesPackageInfixAndAddsLinkedNodeImport()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class FooLinkedQueue<E> extends BaseLinkedQueue<E> {\n" +
                 "  byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b\n" +
                 "  FooLinkedQueue() {}\n" +
@@ -37,7 +45,7 @@ public class JavaParsingAtomicUnpaddedLinkedQueueGeneratorTest {
         assertTrue("package retargeted: " + out, out.contains("package org.jctools.queues.atomic.unpadded"));
         assertTrue("class infix is AtomicUnpadded: " + out, out.contains("class FooLinkedAtomicUnpaddedQueue"));
         assertTrue("LinkedQueueAtomicNode import added: " + out,
-                out.contains("import org.jctools.queues.atomic.LinkedQueueAtomicNode;"));
+            out.contains("import org.jctools.queues.atomic.LinkedQueueAtomicNode;"));
         // Ensure exactly one occurrence of the import line.
         int firstImport = out.indexOf("import org.jctools.queues.atomic.LinkedQueueAtomicNode;");
         int lastImport = out.lastIndexOf("import org.jctools.queues.atomic.LinkedQueueAtomicNode;");
@@ -46,9 +54,10 @@ public class JavaParsingAtomicUnpaddedLinkedQueueGeneratorTest {
     }
 
     @Test
-    public void outputReParsesAsValidJava() {
+    public void outputReParsesAsValidJava()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class FooLinkedQueue<E> extends BaseLinkedQueue<E> {\n" +
                 "  byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b\n" +
                 "  FooLinkedQueue() {}\n" +
@@ -57,6 +66,6 @@ public class JavaParsingAtomicUnpaddedLinkedQueueGeneratorTest {
         String out = generate(src);
         ParseResult<CompilationUnit> result = new JavaParser().parse(out);
         assertTrue("output must re-parse without problems: " + result.getProblems() + "\n" + out,
-                result.getProblems().isEmpty() && result.getResult().isPresent());
+            result.getProblems().isEmpty() && result.getResult().isPresent());
     }
 }

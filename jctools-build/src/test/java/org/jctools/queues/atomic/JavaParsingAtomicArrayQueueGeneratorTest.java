@@ -13,23 +13,31 @@ import static org.junit.Assert.assertTrue;
  * a minimal, hand-built source through the generator and asserts on a single intended outcome —
  * directive handling, naming, comment preservation, and the LPP bug regressions.
  */
-public class JavaParsingAtomicArrayQueueGeneratorTest {
+public class JavaParsingAtomicArrayQueueGeneratorTest
+{
 
     /**
      * Run the array-queue generator with a synthetic source name (the file name only feeds the
      * "NOTE" javadoc, so any sensible value works).
      */
-    private static String generate(String source) {
-        CompilationUnit cu = new JavaParser().parse(source).getResult().orElseThrow(
+    private static String generate(String source)
+    {
+        CompilationUnit cu = new JavaParser()
+            .parse(source)
+            .getResult()
+            .orElseThrow(
                 () -> new AssertionError("parse failed"));
-        return GeneratorUtils.applyGenerator(
-                new JavaParsingAtomicArrayQueueGenerator("Synthetic.java"), cu);
+        return GeneratorUtils
+            .applyGenerator(
+                new JavaParsingAtomicArrayQueueGenerator("Synthetic.java"),
+                cu);
     }
 
     @Test
-    public void renamesClassAndConstructorAndExtendsClause() {
+    public void renamesClassAndConstructorAndExtendsClause()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class SpscArrayQueueColdField<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  SpscArrayQueueColdField(int capacity) { super(capacity); }\n" +
                 "}";
@@ -43,9 +51,10 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
     }
 
     @Test
-    public void prependsGenerationNoteJavadocPreservingOriginal() {
+    public void prependsGenerationNoteJavadocPreservingOriginal()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "/** Original docs. */\n" +
                 "class SpscArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  SpscArrayQueue(int c) { super(c); }\n" +
@@ -59,12 +68,13 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
     }
 
     @Test
-    public void preservesPaddingFieldCommentsVerbatim() {
+    public void preservesPaddingFieldCommentsVerbatim()
+    {
         // The padding line is the highest-pain comment shape: an inline `// 8b` after a field that
         // declares 8 byte variables. Earlier the generator detached this and reconstructed it via
         // regex post-processing; LPP now keeps it intact.
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class SpscArrayQueueL1Pad<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b\n" +
                 "  byte b140,b141,b142,b143,b144,b145,b146,b147;//104b\n" +
@@ -74,17 +84,18 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
         String out = generate(src);
 
         assertTrue("first padding line preserved: " + out,
-                out.contains("byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b"));
+            out.contains("byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b"));
         assertTrue("dense padding line preserved: " + out,
-                out.contains("byte b140,b141,b142,b143,b144,b145,b146,b147;//104b"));
+            out.contains("byte b140,b141,b142,b143,b144,b145,b146,b147;//104b"));
     }
 
     @Test
-    public void consumesGenOrderedFieldsDirectiveAndPatchesAccessors() {
+    public void consumesGenOrderedFieldsDirectiveAndPatchesAccessors()
+    {
         // $gen:ordered-fields tells the atomic generator to swap UNSAFE accessors for
         // AtomicLongFieldUpdater calls. The directive comment itself must be removed from output.
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "// $gen:ordered-fields\n" +
                 "class SpscArrayQueueProducerIndexFields<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  private final static long P_INDEX_OFFSET = 0;\n" +
@@ -102,15 +113,16 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
         assertTrue("offset field removed: " + out, !out.contains("P_INDEX_OFFSET"));
         assertTrue("soProducerIndex now uses updater: " + out, out.contains("P_INDEX_UPDATER.lazySet(this, newValue)"));
         assertTrue("lvProducerIndex returns the field: " + out,
-                out.replaceAll("\\s+", " ").contains("public final long lvProducerIndex() { return producerIndex; }"));
+            out.replaceAll("\\s+", " ").contains("public final long lvProducerIndex() { return producerIndex; }"));
     }
 
     @Test
-    public void replacesEArrayBufferWithAtomicReferenceArray() {
+    public void replacesEArrayBufferWithAtomicReferenceArray()
+    {
         // Regression for the LPP VariableDeclarator bracket-leak bug. Pre-fix, output was
         // `AtomicReferenceArray<E>[] buffer` (uncompilable). With replaceType the brackets vanish.
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class SpscArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  protected final E[] buffer;\n" +
                 "  SpscArrayQueue(int c) { super(c); buffer = null; }\n" +
@@ -124,7 +136,8 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
     }
 
     @Test
-    public void translatesQueueNamesViaTranslateQueueName() {
+    public void translatesQueueNamesViaTranslateQueueName()
+    {
         JavaParsingAtomicArrayQueueGenerator g = new JavaParsingAtomicArrayQueueGenerator("x.java");
         // ArrayQueue takes precedence over Chunk
         org.junit.Assert.assertEquals("MpscAtomicArrayQueue", g.translateQueueName("MpscArrayQueue"));
@@ -140,9 +153,10 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
      * also got an updater. After the per-variable scope fix, only accessed variables get one.
      */
     @Test
-    public void multiVariableFieldDoesNotEmitStrayUpdaterForUnaccessedVariable() {
+    public void multiVariableFieldDoesNotEmitStrayUpdaterForUnaccessedVariable()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "// $gen:ordered-fields\n" +
                 "class FooArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  private long producerIndex, unrelated;\n" +
@@ -169,11 +183,12 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
      * volatile semantics in the generated atomic variant.
      */
     @Test
-    public void lvSvOnlyFieldGetsVolatileWithoutDeclaringUpdater() {
+    public void lvSvOnlyFieldGetsVolatileWithoutDeclaringUpdater()
+    {
         // producerLimit is in the atomic field map (P_LIMIT_UPDATER), so the latent bug isn't
         // masked by an "Unhandled field" throw. Source field is plain long, only lv + sv exist.
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "// $gen:ordered-fields\n" +
                 "class FooArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  private long producerLimit;\n" +
@@ -185,14 +200,16 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
         String out = generate(src);
 
         assertTrue("producerLimit becomes volatile: " + out,
-                out.contains("volatile long producerLimit"));
+            out.contains("volatile long producerLimit"));
         assertFalse("no stray P_LIMIT_UPDATER declaration: " + out,
-                out.contains("P_LIMIT_UPDATER"));
+            out.contains("P_LIMIT_UPDATER"));
         // Bodies are plain field reads/writes, not updater calls.
         assertTrue("lv body returns the field directly: " + out,
-                out.replaceAll("\\s+", " ").contains("public final long lvProducerLimit() { return producerLimit; }"));
+            out.replaceAll("\\s+", " ").contains("public final long lvProducerLimit() { return producerLimit; }"));
         assertTrue("sv body assigns the field directly: " + out,
-                out.replaceAll("\\s+", " ").contains("final void svProducerLimit(final long newValue) { producerLimit = newValue; }"));
+            out
+                .replaceAll("\\s+", " ")
+                .contains("final void svProducerLimit(final long newValue) { producerLimit = newValue; }"));
     }
 
     /**
@@ -201,9 +218,10 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
      * {@code n.getMembers().add(0, ...)} per field, which reversed the order.
      */
     @Test
-    public void updaterDeclarationsFollowSourceFieldOrder() {
+    public void updaterDeclarationsFollowSourceFieldOrder()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "// $gen:ordered-fields\n" +
                 "class FooArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  private long producerIndex;\n" +
@@ -226,14 +244,16 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
         assertTrue("P_INDEX_UPDATER before P_LIMIT_UPDATER: " + out, pIdx < pLim);
         assertTrue("P_LIMIT_UPDATER before C_INDEX_UPDATER: " + out, pLim < cIdx);
     }
+
     /**
      * Bug 7: removeStaticFieldsAndInitialisers used to drop ALL static initializer blocks. Only
      * blocks that reference Unsafe / *_OFFSET infrastructure should be removed.
      */
     @Test
-    public void unrelatedStaticInitializerSurvives() {
+    public void unrelatedStaticInitializerSurvives()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "// $gen:ordered-fields\n" +
                 "class FooArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  static int sentinel;\n" +
@@ -255,9 +275,10 @@ public class JavaParsingAtomicArrayQueueGeneratorTest {
      * any other long stays long. Pin both halves so a regression that flips the rule is caught.
      */
     @Test
-    public void longNamedMaskBecomesIntButOtherLongsStayLong() {
+    public void longNamedMaskBecomesIntButOtherLongsStayLong()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class FooArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  long mask = 0L;\n" +
                 "  long unrelated = 0L;\n" +

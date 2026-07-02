@@ -6,7 +6,8 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.LockSupport;
 
-public final class ScParkTakeStrategy<E> implements TakeStrategy<E> {
+public final class ScParkTakeStrategy<E> implements TakeStrategy<E>
+{
 
     private static final AtomicReferenceFieldUpdater<ScParkTakeStrategy, Thread> WAITING_UPDATER =
         AtomicReferenceFieldUpdater.newUpdater(ScParkTakeStrategy.class, Thread.class, "waiting");
@@ -25,19 +26,23 @@ public final class ScParkTakeStrategy<E> implements TakeStrategy<E> {
     }
 
     @Override
-    public E waitPoll(Queue<E> q) throws InterruptedException {
+    public E waitPoll(Queue<E> q) throws InterruptedException
+    {
         E e = q.poll();
-        if (e != null) {
+        if (e != null)
+        {
             return e;
         }
 
         Thread currentThread = Thread.currentThread();
         waiting = currentThread;
 
-        while ((e = q.poll()) == null) {
+        while ((e = q.poll()) == null)
+        {
             LockSupport.park();
 
-            if (currentThread.isInterrupted()) {
+            if (currentThread.isInterrupted())
+            {
                 throw new InterruptedException("Interrupted while waiting for the queue to become non-empty.");
             }
         }
@@ -48,7 +53,8 @@ public final class ScParkTakeStrategy<E> implements TakeStrategy<E> {
     }
 
     @Override
-    public boolean supportsSpec(ConcurrentQueueSpec qs) {
+    public boolean supportsSpec(ConcurrentQueueSpec qs)
+    {
         return qs.consumers == 1;
     }
 

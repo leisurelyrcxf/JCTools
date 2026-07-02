@@ -96,7 +96,7 @@ abstract class BaseMpscLinkedArrayQueuePad2<E> extends BaseMpscLinkedArrayQueueP
 // $gen:ordered-fields
 abstract class BaseMpscLinkedArrayQueueConsumerFields<E> extends BaseMpscLinkedArrayQueuePad2<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(BaseMpscLinkedArrayQueueConsumerFields.class,"consumerIndex");
+    private final static long C_INDEX_OFFSET = fieldOffset(BaseMpscLinkedArrayQueueConsumerFields.class, "consumerIndex");
 
     private long consumerIndex;
     protected long consumerMask;
@@ -142,7 +142,7 @@ abstract class BaseMpscLinkedArrayQueuePad3<E> extends BaseMpscLinkedArrayQueueC
 // $gen:ordered-fields
 abstract class BaseMpscLinkedArrayQueueColdProducerFields<E> extends BaseMpscLinkedArrayQueuePad3<E>
 {
-    private final static long P_LIMIT_OFFSET = fieldOffset(BaseMpscLinkedArrayQueueColdProducerFields.class,"producerLimit");
+    private final static long P_LIMIT_OFFSET = fieldOffset(BaseMpscLinkedArrayQueueColdProducerFields.class, "producerLimit");
 
     private volatile long producerLimit;
     protected long producerMask;
@@ -600,6 +600,7 @@ abstract class BaseMpscLinkedArrayQueue<E> extends BaseMpscLinkedArrayQueueColdP
     {
         MessagePassingQueueUtil.fill(this, s, wait, exit);
     }
+
     @Override
     public int drain(Consumer<E> c)
     {
@@ -629,7 +630,8 @@ abstract class BaseMpscLinkedArrayQueue<E> extends BaseMpscLinkedArrayQueueColdP
      * @return The iterator.
      */
     @Override
-    public Iterator<E> iterator() {
+    public Iterator<E> iterator()
+    {
         return new WeakIterator(consumerBuffer, lvConsumerIndex(), lvProducerIndex());
     }
 
@@ -650,7 +652,8 @@ abstract class BaseMpscLinkedArrayQueue<E> extends BaseMpscLinkedArrayQueueColdP
         }
 
         @Override
-        public void remove() {
+        public void remove()
+        {
             throw new UnsupportedOperationException("remove");
         }
 
@@ -699,7 +702,7 @@ abstract class BaseMpscLinkedArrayQueue<E> extends BaseMpscLinkedArrayQueueColdP
                 // need to jump to the next buffer
                 int nextBufferIndex = mask + 1;
                 Object nextBuffer = lvRefElement(currentBuffer,
-                                              calcRefElementOffset(nextBufferIndex));
+                    calcRefElementOffset(nextBufferIndex));
 
                 if (nextBuffer == BUFFER_CONSUMED || nextBuffer == null)
                 {

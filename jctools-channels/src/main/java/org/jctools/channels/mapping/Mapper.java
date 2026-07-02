@@ -25,14 +25,16 @@ import org.jctools.util.SimpleCompiler;
 import org.jctools.util.StringWrappingJavaFile;
 import org.jctools.util.Template;
 
-public class Mapper<S> {
+public class Mapper<S>
+{
 
     private final boolean debugEnabled;
     private final TypeInspector inspector;
     private final Class<S> structInterface;
     private final SimpleCompiler compiler;
 
-    public Mapper(Class<S> structInterface, boolean debugEnabled) {
+    public Mapper(Class<S> structInterface, boolean debugEnabled)
+    {
         this.debugEnabled = debugEnabled;
         this.structInterface = structInterface;
         inspector = new TypeInspector(structInterface);
@@ -42,19 +44,24 @@ public class Mapper<S> {
     /**
      * @return the size that each message takes up in bytes
      */
-    public int getSizeInBytes() {
+    public int getSizeInBytes()
+    {
         return Primitive.INT.sizeInBytes + inspector.getSizeInBytes();
     }
 
-    public <I> I newFlyweight(Class<I> implementationParent, String templateFileName, Object... args) {
+    public <I> I newFlyweight(Class<I> implementationParent, String templateFileName, Object... args)
+    {
         Template template = Template.fromFile(implementationParent, templateFileName);
         return newFlyweight(implementationParent, templateFileName, template, args);
     }
 
-    public <I> I newFlyweight(Class<I> implementationParent, String templateFileName, Template template, Object... args) {
+    public <I> I newFlyweight(Class<I> implementationParent, String templateFileName, Template template, Object... args)
+    {
         Class<?>[] constructorParameterTypes = getTypes(args);
-        ClassViewModel model = new ClassViewModel(implementationParent, constructorParameterTypes, structInterface,
-                inspector);
+        ClassViewModel model = new ClassViewModel(implementationParent,
+            constructorParameterTypes,
+            structInterface,
+            inspector);
         String source = template.render(model);
         debugLogSource(source);
         CompilationResult result = compiler.compile(model.className(), source);
@@ -62,8 +69,10 @@ public class Mapper<S> {
         return instantiateImplementation(constructorParameterTypes, model.className(), result, args);
     }
 
-    private void debugLogSource(String source) {
-        if (debugEnabled) {
+    private void debugLogSource(String source)
+    {
+        if (debugEnabled)
+        {
             System.err.println("---------------------------------------");
             System.err.println("Source: ");
             System.err.println(source);
@@ -72,28 +81,42 @@ public class Mapper<S> {
     }
 
     @SuppressWarnings("unchecked")
-    private <I> I instantiateImplementation(Class<?>[] constructorParameterTypes, String name,
-            CompilationResult result, Object[] args) {
+    private <I> I instantiateImplementation(
+        Class<?>[] constructorParameterTypes,
+        String name,
+        CompilationResult result,
+        Object[] args
+    )
+    {
 
-        try {
+        try
+        {
             Class<I> implementation = (Class<I>) result.getClassLoader().loadClass(name);
             Constructor<I> constructor = implementation.getConstructor(constructorParameterTypes);
             return constructor.newInstance(args);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new RuntimeException(e);
         }
     }
 
-    private void checkCompileFailures(String templateFile, CompilationResult result) {
+    private void checkCompileFailures(String templateFile, CompilationResult result)
+    {
         List<Diagnostic<StringWrappingJavaFile>> diagnostics = result.getDiagnostics();
 
-        if (debugEnabled) {
-            if (diagnostics.isEmpty()) {
+        if (debugEnabled)
+        {
+            if (diagnostics.isEmpty())
+            {
                 System.err.println("No compile diagnostics for: " + templateFile);
-            } else {
+            }
+            else
+            {
                 System.err.println("---------------------------------------");
                 System.err.println("Compile diagnostics for: " + templateFile);
-                for (Diagnostic<StringWrappingJavaFile> diagnostic : diagnostics) {
+                for (Diagnostic<StringWrappingJavaFile> diagnostic : diagnostics)
+                {
                     System.err.println(diagnostic);
                     System.err.println();
                 }
@@ -101,14 +124,17 @@ public class Mapper<S> {
             }
         }
 
-        if (!result.isSuccessful()) {
+        if (!result.isSuccessful())
+        {
             throw new IllegalArgumentException("Unable to compile " + templateFile);
         }
     }
 
-    private Class<?>[] getTypes(Object... args) {
+    private Class<?>[] getTypes(Object... args)
+    {
         Class<?>[] types = new Class<?>[args.length];
-        for (int i = 0; i < args.length; i++) {
+        for (int i = 0; i < args.length; i++)
+        {
             types[i] = simplifyType(args[i].getClass());
         }
         return types;

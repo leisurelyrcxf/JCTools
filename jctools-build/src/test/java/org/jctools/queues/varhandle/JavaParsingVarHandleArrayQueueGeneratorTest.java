@@ -17,13 +17,20 @@ import static org.junit.Assert.assertTrue;
 /**
  * Regression tests for {@link JavaParsingVarHandleArrayQueueGenerator}.
  */
-public class JavaParsingVarHandleArrayQueueGeneratorTest {
+public class JavaParsingVarHandleArrayQueueGeneratorTest
+{
 
-    private static String generate(String source) {
-        CompilationUnit cu = new JavaParser().parse(source).getResult().orElseThrow(
+    private static String generate(String source)
+    {
+        CompilationUnit cu = new JavaParser()
+            .parse(source)
+            .getResult()
+            .orElseThrow(
                 () -> new AssertionError("parse failed"));
-        return GeneratorUtils.applyGenerator(
-                new JavaParsingVarHandleArrayQueueGenerator("Synthetic.java"), cu);
+        return GeneratorUtils
+            .applyGenerator(
+                new JavaParsingVarHandleArrayQueueGenerator("Synthetic.java"),
+                cu);
     }
 
     /**
@@ -35,9 +42,10 @@ public class JavaParsingVarHandleArrayQueueGeneratorTest {
      * fix, re-parsing the generator output should yield a {@code LongLiteralExpr} for the delta.
      */
     @Test
-    public void getAndIncrementUsesLongLiteralExprNotNameExpr() {
+    public void getAndIncrementUsesLongLiteralExprNotNameExpr()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "// $gen:ordered-fields\n" +
                 "abstract class FooArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  private long producerIndex;\n" +
@@ -49,22 +57,27 @@ public class JavaParsingVarHandleArrayQueueGeneratorTest {
         String out = generate(src);
 
         // Re-parse the generator output and inspect the AST shape of the getAndAdd call.
-        CompilationUnit reparsed = new JavaParser().parse(out).getResult().orElseThrow(
+        CompilationUnit reparsed = new JavaParser()
+            .parse(out)
+            .getResult()
+            .orElseThrow(
                 () -> new AssertionError("regenerated source did not parse: " + out));
-        List<MethodCallExpr> getAndAddCalls = reparsed.findAll(MethodCallExpr.class).stream()
-                .filter(m -> "getAndAdd".equals(m.getNameAsString()))
-                .collect(Collectors.toList());
+        List<MethodCallExpr> getAndAddCalls = reparsed
+            .findAll(MethodCallExpr.class)
+            .stream()
+            .filter(m -> "getAndAdd".equals(m.getNameAsString()))
+            .collect(Collectors.toList());
         assertEquals("expected one getAndAdd call: " + out, 1, getAndAddCalls.size());
 
         MethodCallExpr getAndAdd = getAndAddCalls.get(0);
         assertEquals("expected (this, 1L) arguments: " + getAndAdd, 2, getAndAdd.getArguments().size());
         assertTrue(
-                "second argument must be a LongLiteralExpr (was " + getAndAdd.getArgument(1).getClass().getSimpleName() + "): " + out,
-                getAndAdd.getArgument(1) instanceof LongLiteralExpr);
+            "second argument must be a LongLiteralExpr (was " + getAndAdd.getArgument(1).getClass().getSimpleName() + "): " + out,
+            getAndAdd.getArgument(1) instanceof LongLiteralExpr);
         assertEquals("1L", ((LongLiteralExpr) getAndAdd.getArgument(1)).getValue());
 
         assertFalse("output should not have NameExpr-style 1L: " + out,
-                out.contains("getAndAdd(this, 1)") && !out.contains("getAndAdd(this, 1L)"));
+            out.contains("getAndAdd(this, 1)") && !out.contains("getAndAdd(this, 1L)"));
     }
 
     /**
@@ -75,9 +88,10 @@ public class JavaParsingVarHandleArrayQueueGeneratorTest {
      * initializer follows them as a contiguous prefix.
      */
     @Test
-    public void varHandleStaticInitializerComesAfterAllVarHandleFieldDeclarations() {
+    public void varHandleStaticInitializerComesAfterAllVarHandleFieldDeclarations()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "// $gen:ordered-fields\n" +
                 "abstract class FooArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  private long producerIndex;\n" +
@@ -105,10 +119,10 @@ public class JavaParsingVarHandleArrayQueueGeneratorTest {
         assertTrue("static block present: " + out, idxStaticBlock >= 0);
 
         assertTrue("static initializer must come after all VH field declarations (producer): " + out,
-                idxStaticBlock > idxProducer);
+            idxStaticBlock > idxProducer);
         assertTrue("static initializer must come after all VH field declarations (consumer): " + out,
-                idxStaticBlock > idxConsumer);
+            idxStaticBlock > idxConsumer);
         assertTrue("static initializer must come after all VH field declarations (limit): " + out,
-                idxStaticBlock > idxLimit);
+            idxStaticBlock > idxLimit);
     }
 }

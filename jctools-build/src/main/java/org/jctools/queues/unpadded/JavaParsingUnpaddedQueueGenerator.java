@@ -29,36 +29,44 @@ import static org.jctools.queues.util.GeneratorUtils.runJCToolsGenerator;
  * — useful where memory footprint matters more than the false-sharing protection that the padded
  * variant provides.
  */
-public class JavaParsingUnpaddedQueueGenerator extends JavaParsingQueueGeneratorBase {
+public class JavaParsingUnpaddedQueueGenerator extends JavaParsingQueueGeneratorBase
+{
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         runJCToolsGenerator(JavaParsingUnpaddedQueueGenerator.class, args);
     }
 
-    public JavaParsingUnpaddedQueueGenerator(String sourceFileName) {
+    public JavaParsingUnpaddedQueueGenerator(String sourceFileName)
+    {
         super(sourceFileName, "org.jctools.queues.unpadded", "Unpadded");
     }
 
     @Override
-    protected boolean stripsPadding() {
+    protected boolean stripsPadding()
+    {
         return true;
     }
 
     @Override
-    public void organiseImports(CompilationUnit cu) {
+    public void organiseImports(CompilationUnit cu)
+    {
         List<ImportDeclaration> importDecls = new ArrayList<>();
-        for (ImportDeclaration importDeclaration : cu.getImports()) {
+        for (ImportDeclaration importDeclaration : cu.getImports())
+        {
             importDecls.add(translateChunkStaticImportOrSelf(importDeclaration));
         }
         cu.getImports().clear();
-        for (ImportDeclaration importDecl : importDecls) {
+        for (ImportDeclaration importDecl : importDecls)
+        {
             cu.addImport(importDecl);
         }
         cu.addImport(new ImportDeclaration("org.jctools.queues", false, true));
     }
 
     @Override
-    protected void visitClass(ClassOrInterfaceDeclaration node, Void arg) {
+    protected void visitClass(ClassOrInterfaceDeclaration node, Void arg)
+    {
         String nameAsString = node.getNameAsString();
         if (!nameAsString.contains("Queue") && !nameAsString.endsWith("Chunk"))
             return;
@@ -76,33 +84,40 @@ public class JavaParsingUnpaddedQueueGenerator extends JavaParsingQueueGenerator
      * field) far from the cause.
      */
     @Override
-    public void visit(MethodCallExpr n, Void arg) {
+    public void visit(MethodCallExpr n, Void arg)
+    {
         super.visit(n, arg);
         boolean isFieldOffset = "fieldOffset".equals(n.getName().getIdentifier());
-        for (Expression argument : n.getArguments()) {
-            if (!argument.isClassExpr()) {
+        for (Expression argument : n.getArguments())
+        {
+            if (!argument.isClassExpr())
+            {
                 continue;
             }
             ClassExpr classExpr = argument.asClassExpr();
             String type = classExpr.getTypeAsString();
-            if (type.contains(queueClassNamePrefix) || !isQueueOrChunkName(type)) {
+            if (type.contains(queueClassNamePrefix) || !isQueueOrChunkName(type))
+            {
                 continue;
             }
-            if (!isFieldOffset) {
-                throw new IllegalStateException("Unpadded generator does not know how to rewrite '"
-                        + type + ".class' passed to '" + n.getName().getIdentifier()
-                        + "(...)'. Add explicit handling in JavaParsingUnpaddedQueueGenerator.");
+            if (!isFieldOffset)
+            {
+                throw new IllegalStateException("Unpadded generator does not know how to rewrite '" + type +
+                    ".class' passed to '" + n.getName().getIdentifier() +
+                    "(...)'. Add explicit handling in JavaParsingUnpaddedQueueGenerator.");
             }
             classExpr.setType(translateQueueName(type));
         }
     }
 
-    private static boolean isQueueOrChunkName(String name) {
+    private static boolean isQueueOrChunkName(String name)
+    {
         return name.contains("LinkedQueue") || name.contains("ArrayQueue") || name.endsWith("Chunk");
     }
 
     @Override
-    public void visit(ConstructorDeclaration n, Void arg) {
+    public void visit(ConstructorDeclaration n, Void arg)
+    {
         super.visit(n, arg);
         // Update the ctor to match the class name
         String nameAsString = n.getNameAsString();
@@ -117,11 +132,13 @@ public class JavaParsingUnpaddedQueueGenerator extends JavaParsingQueueGenerator
      * leaking a padded reference into the unpadded variant.
      */
     @Override
-    public void visit(ObjectCreationExpr n, Void arg) {
+    public void visit(ObjectCreationExpr n, Void arg)
+    {
         super.visit(n, arg);
         ClassOrInterfaceType type = n.getType();
         String name = type.getNameAsString();
-        if (name.contains(queueClassNamePrefix) || !isOuterQueueOrChunkType(name)) {
+        if (name.contains(queueClassNamePrefix) || !isOuterQueueOrChunkType(name))
+        {
             return;
         }
         ClassOrInterfaceType newType = new ClassOrInterfaceType(null, translateQueueName(name));
@@ -130,24 +147,29 @@ public class JavaParsingUnpaddedQueueGenerator extends JavaParsingQueueGenerator
     }
 
     @Override
-    public void visit(VariableDeclarator n, Void arg) {
+    public void visit(VariableDeclarator n, Void arg)
+    {
         super.visit(n, arg);
         translateQueueOrChunkType(n);
     }
 
     @Override
-    public void visit(Parameter n, Void arg) {
+    public void visit(Parameter n, Void arg)
+    {
         super.visit(n, arg);
         translateQueueOrChunkType(n);
     }
 
-    private void translateQueueOrChunkType(NodeWithType<?, Type> holder) {
+    private void translateQueueOrChunkType(NodeWithType<?, Type> holder)
+    {
         Type type = holder.getType();
-        if (!(type instanceof ClassOrInterfaceType)) {
+        if (!(type instanceof ClassOrInterfaceType))
+        {
             return;
         }
         String name = ((ClassOrInterfaceType) type).getNameAsString();
-        if (name.contains(queueClassNamePrefix) || !isOuterQueueOrChunkType(name)) {
+        if (name.contains(queueClassNamePrefix) || !isOuterQueueOrChunkType(name))
+        {
             return;
         }
         ClassOrInterfaceType newType = new ClassOrInterfaceType(null, translateQueueName(name));
@@ -160,7 +182,8 @@ public class JavaParsingUnpaddedQueueGenerator extends JavaParsingQueueGenerator
      * helpers like {@code LinkedQueueNode}). Used for type references where translating a
      * helper-class name would be wrong.
      */
-    private static boolean isOuterQueueOrChunkType(String name) {
+    private static boolean isOuterQueueOrChunkType(String name)
+    {
         return name.endsWith("Queue") || name.endsWith("Chunk");
     }
 }

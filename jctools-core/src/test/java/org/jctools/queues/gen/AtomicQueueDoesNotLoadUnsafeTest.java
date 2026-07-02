@@ -20,17 +20,21 @@ import java.util.Arrays;
  * AtomicReferenceFieldUpdater / AtomicLongFieldUpdater instead. Inherited tests verify it remains
  * Unsafe-free at both load-time and source-import level.
  */
-public class AtomicQueueDoesNotLoadUnsafeTest extends AbstractUnsafeFreeQueueTest {
+public class AtomicQueueDoesNotLoadUnsafeTest extends AbstractUnsafeFreeQueueTest
+{
 
-    public AtomicQueueDoesNotLoadUnsafeTest() {
+    public AtomicQueueDoesNotLoadUnsafeTest()
+    {
         super(
-                Arrays.asList(
-                        "org.jctools.queues.atomic",
-                        "org.jctools.queues.atomic.unpadded"),
-                Arrays.asList(
-                        "src/main/java/org/jctools/queues/atomic",
-                        "src/main/java/org/jctools/queues/atomic/unpadded"),
-                "atomic",
-                10);
+            Arrays
+                .asList(
+                    "org.jctools.queues.atomic",
+                    "org.jctools.queues.atomic.unpadded"),
+            Arrays
+                .asList(
+                    "src/main/java/org/jctools/queues/atomic",
+                    "src/main/java/org/jctools/queues/atomic/unpadded"),
+            "atomic",
+            10);
     }
 }

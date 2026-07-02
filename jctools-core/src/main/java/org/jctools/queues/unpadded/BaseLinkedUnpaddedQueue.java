@@ -79,7 +79,7 @@ abstract class BaseLinkedUnpaddedQueuePad1<E> extends BaseLinkedUnpaddedQueuePro
  */
 abstract class BaseLinkedUnpaddedQueueConsumerNodeRef<E> extends BaseLinkedUnpaddedQueuePad1<E>
 {
-    private final static long C_NODE_OFFSET = fieldOffset(BaseLinkedUnpaddedQueueConsumerNodeRef.class,"consumerNode");
+    private final static long C_NODE_OFFSET = fieldOffset(BaseLinkedUnpaddedQueueConsumerNodeRef.class, "consumerNode");
 
     private LinkedQueueNode<E> consumerNode;
 

@@ -28,71 +28,92 @@ import static java.util.Collections.singletonList;
  *
  * Not Threadsafe.
  */
-public class Template {
+public class Template
+{
 
     private final String template;
     private int index;
     private int previousIndex;
 
-    public static Template fromFile(final Class<?> resourceRoot, final String fileName) {
+    public static Template fromFile(final Class<?> resourceRoot, final String fileName)
+    {
         InputStream templateStream = resourceRoot.getResourceAsStream(fileName);
-        if(templateStream == null) {
-            throw new IllegalArgumentException("Template file of the name: \'"+fileName+"\' was not found.");
+        if (templateStream == null)
+        {
+            throw new IllegalArgumentException("Template file of the name: \'" + fileName + "\' was not found.");
         }
         return fromStream(templateStream);
     }
 
-    private static Template fromStream(InputStream templateStream) {
-        if(templateStream == null) {
+    private static Template fromStream(InputStream templateStream)
+    {
+        if (templateStream == null)
+        {
             throw new IllegalArgumentException("Null template stream");
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(templateStream));
-        try {
-            try {
+        try
+        {
+            try
+            {
                 StringBuilder buffer = new StringBuilder();
                 String line;
-                while ((line = reader.readLine()) != null) {
+                while ((line = reader.readLine()) != null)
+                {
                     buffer.append(line);
                     buffer.append('\n');
                 }
                 return new Template(buffer.toString());
-            } finally {
+            }
+            finally
+            {
                 reader.close();
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new IllegalArgumentException(e);
         }
     }
 
-    public Template(final String template) {
+    public Template(final String template)
+    {
         this.template = template;
     }
 
-    public String render(Object o) {
+    public String render(Object o)
+    {
         StringBuilder result = new StringBuilder(template.length());
         render(o, result);
         return result.toString();
     }
 
-    private void render(Object obj, StringBuilder result) {
+    private void render(Object obj, StringBuilder result)
+    {
         render(obj, result, false);
     }
 
-    private void render(Object obj, StringBuilder result, boolean last) {
+    private void render(Object obj, StringBuilder result, boolean last)
+    {
         index = 0;
-        while(scanNextTag()) {
+        while (scanNextTag())
+        {
             copyPrefixTo(result);
             index += 2;
-            if (isLoopTag()) {
+            if (isLoopTag())
+            {
                 index++;
                 String tagName = readTagName();
                 Template body = extractLoopBody(tagName);
                 List<?> values = (List<?>) readTagValue(tagName, obj, last);
                 int lastIndex = values.size() - 1;
-                for (int i = 0; i < values.size(); i++) {
+                for (int i = 0; i < values.size(); i++)
+                {
                     body.render(values.get(i), result, i == lastIndex);
                 }
-            } else {
+            }
+            else
+            {
                 String tagName = readTagName();
                 result.append(readTagValue(tagName, obj, false));
             }
@@ -100,7 +121,8 @@ public class Template {
         copySuffixTo(result);
     }
 
-    private Template extractLoopBody(String tagName) {
+    private Template extractLoopBody(String tagName)
+    {
         String closingTag = "{{/" + tagName + "}}";
         int endOfBody = template.indexOf(closingTag, index);
         Template body = new Template(template.substring(index, endOfBody));
@@ -108,21 +130,25 @@ public class Template {
         return body;
     }
 
-    private boolean isLoopTag() {
+    private boolean isLoopTag()
+    {
         return template.charAt(index) == '#';
     }
 
-    private boolean scanNextTag() {
+    private boolean scanNextTag()
+    {
         previousIndex = index;
         index = template.indexOf("{{", index);
         return index != -1;
     }
 
-    private void copyPrefixTo(StringBuilder result) {
+    private void copyPrefixTo(StringBuilder result)
+    {
         result.append(template, previousIndex, index);
     }
 
-    private Object readTagValue(String tagName, Object obj, boolean last) {
+    private Object readTagValue(String tagName, Object obj, boolean last)
+    {
         Object value = readBuiltinTag(tagName, obj, last);
         if (value != null)
             return value;
@@ -130,11 +156,16 @@ public class Template {
         return readField(tagName, obj);
     }
 
-    private Object readBuiltinTag(String tagName, Object obj, boolean last) {
-        if ("notLast".equals(tagName)) {
-            if (last) {
+    private Object readBuiltinTag(String tagName, Object obj, boolean last)
+    {
+        if ("notLast".equals(tagName))
+        {
+            if (last)
+            {
                 return emptyList();
-            } else {
+            }
+            else
+            {
                 return singletonList(obj);
             }
         }
@@ -142,35 +173,52 @@ public class Template {
         return null;
     }
 
-    private Object readField(String tagName, Object obj) {
+    private Object readField(String tagName, Object obj)
+    {
         Class<?> cls = obj.getClass();
-        try {
-            return cls.getField(tagName)
-                      .get(obj);
-        } catch (NoSuchFieldException ignored) {
-            try {
-                return cls.getMethod(tagName)
-                          .invoke(obj);
-            } catch (NoSuchMethodException e) {
-                throw new IllegalArgumentException(e);
-            } catch (InvocationTargetException e) {
-                throw new IllegalArgumentException(e);
-            } catch (IllegalAccessException e) {
+        try
+        {
+            return cls
+                .getField(tagName)
+                .get(obj);
+        }
+        catch (NoSuchFieldException ignored)
+        {
+            try
+            {
+                return cls
+                    .getMethod(tagName)
+                    .invoke(obj);
+            }
+            catch (NoSuchMethodException e)
+            {
                 throw new IllegalArgumentException(e);
             }
-        } catch (IllegalAccessException e) {
+            catch (InvocationTargetException e)
+            {
+                throw new IllegalArgumentException(e);
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new IllegalArgumentException(e);
+            }
+        }
+        catch (IllegalAccessException e)
+        {
             throw new IllegalArgumentException(e);
         }
     }
 
-    private String readTagName() {
+    private String readTagName()
+    {
         int endTagIndex = template.indexOf("}}", index);
         String tagName = template.substring(index, endTagIndex);
         index = endTagIndex + 2;
         return tagName;
     }
 
-    private void copySuffixTo(StringBuilder result) {
+    private void copySuffixTo(StringBuilder result)
+    {
         // Copy from previousIndex because index will be -1 at this point
         result.append(template, previousIndex, template.length());
     }

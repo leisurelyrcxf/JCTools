@@ -5,7 +5,8 @@ import org.jctools.util.UnsafeAccess;
 
 import static org.jctools.util.UnsafeAccess.UNSAFE;
 
-abstract class ConcurrentCircularArrayL0Pad<E> {
+abstract class ConcurrentCircularArrayL0Pad<E>
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -24,90 +25,111 @@ abstract class ConcurrentCircularArrayL0Pad<E> {
     byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 }
 
-public abstract class ConcurrentCircularArray<E> extends ConcurrentCircularArrayL0Pad<E> {
+public abstract class ConcurrentCircularArray<E> extends ConcurrentCircularArrayL0Pad<E>
+{
     protected static final int SPARSE_SHIFT = Integer.getInteger("sparse.shift", 0);
     protected static final int BUFFER_PAD = 32;
     private static final long REF_ARRAY_BASE;
     private static final int REF_ELEMENT_SHIFT;
-    static {
+    static
+    {
         final int scale = UnsafeAccess.UNSAFE.arrayIndexScale(Object[].class);
-        if (4 == scale) {
+        if (4 == scale)
+        {
             REF_ELEMENT_SHIFT = 2 + SPARSE_SHIFT;
-        } else if (8 == scale) {
+        }
+        else if (8 == scale)
+        {
             REF_ELEMENT_SHIFT = 3 + SPARSE_SHIFT;
-        } else {
+        }
+        else
+        {
             throw new IllegalStateException("Unknown pointer size");
         }
         // Including the buffer pad in the array base offset
-        REF_ARRAY_BASE = UnsafeAccess.UNSAFE.arrayBaseOffset(Object[].class)
-                + (BUFFER_PAD << (REF_ELEMENT_SHIFT - SPARSE_SHIFT));
+        REF_ARRAY_BASE = UnsafeAccess.UNSAFE.arrayBaseOffset(Object[].class) + (BUFFER_PAD << (REF_ELEMENT_SHIFT - SPARSE_SHIFT));
     }
     protected final long mask;
     // @Stable :(
     protected final E[] buffer;
 
     @SuppressWarnings("unchecked")
-    public ConcurrentCircularArray(int capacity) {
+    public ConcurrentCircularArray(int capacity)
+    {
         int actualCapacity = Pow2.roundToPowerOfTwo(capacity);
         mask = actualCapacity - 1;
         // pad data on either end with some empty slots.
         buffer = (E[]) new Object[(actualCapacity << SPARSE_SHIFT) + BUFFER_PAD * 2];
     }
 
-    public ConcurrentCircularArray(ConcurrentCircularArray<E> c) {
+    public ConcurrentCircularArray(ConcurrentCircularArray<E> c)
+    {
         this.mask = c.mask;
         // pad data on either end with some empty slots.
         this.buffer = c.buffer;
     }
 
-    protected final long calcOffset(long index) {
-        return REF_ARRAY_BASE + ((index & mask) << REF_ELEMENT_SHIFT);
-    }
-    protected final long calcOffset(long index, long mask) {
+    protected final long calcOffset(long index)
+    {
         return REF_ARRAY_BASE + ((index & mask) << REF_ELEMENT_SHIFT);
     }
 
-    protected final void spElement(long offset, E e) {
+    protected final long calcOffset(long index, long mask)
+    {
+        return REF_ARRAY_BASE + ((index & mask) << REF_ELEMENT_SHIFT);
+    }
+
+    protected final void spElement(long offset, E e)
+    {
         UNSAFE.putObject(buffer, offset, e);
     }
 
-    protected final void soElement(long offset, E e) {
+    protected final void soElement(long offset, E e)
+    {
         UNSAFE.putOrderedObject(buffer, offset, e);
     }
 
-    protected final void svElement(long offset, E e) {
+    protected final void svElement(long offset, E e)
+    {
         UNSAFE.putObjectVolatile(buffer, offset, e);
     }
 
     @SuppressWarnings("unchecked")
-    protected final E lpElement(long offset) {
+    protected final E lpElement(long offset)
+    {
         return (E) UNSAFE.getObject(buffer, offset);
     }
 
     @SuppressWarnings("unchecked")
-    protected final E lvElement(long offset) {
+    protected final E lvElement(long offset)
+    {
         return (E) UNSAFE.getObjectVolatile(buffer, offset);
     }
 
-    protected final void spElement(E[] buffer, long offset, E e) {
+    protected final void spElement(E[] buffer, long offset, E e)
+    {
         UNSAFE.putObject(buffer, offset, e);
     }
 
-    protected final void soElement(E[] buffer, long offset, E e) {
+    protected final void soElement(E[] buffer, long offset, E e)
+    {
         UNSAFE.putOrderedObject(buffer, offset, e);
     }
 
-    protected final void svElement(E[] buffer, long offset, E e) {
+    protected final void svElement(E[] buffer, long offset, E e)
+    {
         UNSAFE.putObjectVolatile(buffer, offset, e);
     }
 
     @SuppressWarnings("unchecked")
-    protected final E lpElement(E[] buffer, long offset) {
+    protected final E lpElement(E[] buffer, long offset)
+    {
         return (E) UNSAFE.getObject(buffer, offset);
     }
 
     @SuppressWarnings("unchecked")
-    protected final E lvElement(E[] buffer, long offset) {
+    protected final E lvElement(E[] buffer, long offset)
+    {
         return (E) UNSAFE.getObjectVolatile(buffer, offset);
     }
 }

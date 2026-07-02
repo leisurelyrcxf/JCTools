@@ -35,7 +35,11 @@ public abstract class LincheckMapTest extends VerifierState
     }
 
     @Operation
-    public boolean replace(@Param(name = "key") long key, @Param(name = "value") int previousValue, @Param(name = "value") int nextValue)
+    public boolean replace(
+        @Param(name = "key") long key,
+        @Param(name = "value") int previousValue,
+        @Param(name = "value") int nextValue
+    )
     {
         return map.replace(key, previousValue, nextValue);
     }

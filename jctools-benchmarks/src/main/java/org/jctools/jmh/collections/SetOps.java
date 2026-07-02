@@ -18,23 +18,28 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-@BenchmarkMode({ Mode.AverageTime })
+@BenchmarkMode({Mode.AverageTime})
 @Warmup(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @State(Scope.Thread)
-public class SetOps {
-    static class Key {
+public class SetOps
+{
+    static class Key
+    {
         final int hash;
 
-        Key(int i) {
+        Key(int i)
+        {
             hash = i;
         }
 
-        public int hashCode() {
+        public int hashCode()
+        {
             return hash;
         }
 
-        public boolean equals(Object obj) {
+        public boolean equals(Object obj)
+        {
             return this == obj;
         }
     }
@@ -45,17 +50,19 @@ public class SetOps {
     int occupancy;
     @Param("2048")
     int keyBound;
-    @Param({ "java.util.HashSet", "org.jctools.sets.OpenHashSet"})//, "koloboke" })
+    @Param({"java.util.HashSet", "org.jctools.sets.OpenHashSet"})//, "koloboke" })
     String type;
     private Set<Key> set;
     private Key key;
 
     @Setup(Level.Trial)
-    public void prepare() throws Exception {
+    public void prepare() throws Exception
+    {
         set = createSet(type, size);
         Random r = new Random(666);
 
-        for (int i = 0; i < occupancy - 1; i++) {
+        for (int i = 0; i < occupancy - 1; i++)
+        {
             set.add(new Key(r.nextInt(keyBound)));
         }
         key = new Key(r.nextInt(keyBound));
@@ -63,31 +70,37 @@ public class SetOps {
     }
 
     @Benchmark
-    public boolean add() {
+    public boolean add()
+    {
         return set.add(key);
     }
 
     @Benchmark
-    public boolean remove() {
+    public boolean remove()
+    {
         return set.remove(key);
     }
 
     @Benchmark
-    public boolean contains() {
+    public boolean contains()
+    {
         return set.contains(key);
     }
 
     @Benchmark
-    public int sum() {
+    public int sum()
+    {
         int sum = 0;
-        for(Key k : set) {
+        for (Key k : set)
+        {
             sum += k.hash;
         }
         return sum;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Set<Key> createSet(String queueType, final int capacity) throws Exception {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static Set<Key> createSet(String queueType, final int capacity) throws Exception
+    {
 //        if(queueType.equals("koloboke")) {
 //            return HashObjSets.newMutableSet(capacity);
 //        }

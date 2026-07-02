@@ -4,37 +4,44 @@ import static java.lang.System.out;
 
 import org.objectweb.asm.Type;
 
-public final class LocalsHelper {
+public final class LocalsHelper
+{
     private int nextLocalIndex = 0;
 
-    private LocalsHelper() {
+    private LocalsHelper()
+    {
     };
 
-    public int newLocal(Class<?> cls) {
+    public int newLocal(Class<?> cls)
+    {
         Type type = Type.getType(cls);
         return newLocal(type);
     }
-    
 
-    private int newLocal(Type type) {
+
+    private int newLocal(Type type)
+    {
         final int myIndex = nextLocalIndex;
         nextLocalIndex += type.getSize();
         return myIndex;
     }
 
-    public static LocalsHelper forStaticMethod() {
+    public static LocalsHelper forStaticMethod()
+    {
         return new LocalsHelper();
     }
 
-    public static LocalsHelper forInstanceMethod() {
+    public static LocalsHelper forInstanceMethod()
+    {
         LocalsHelper helper = new LocalsHelper();
         helper.newLocal(Object.class);
         return helper;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         LocalsHelper helper =
-                LocalsHelper.forInstanceMethod();
+            LocalsHelper.forInstanceMethod();
         out.println(helper.newLocal(int.class));
         out.println(helper.newLocal(int.class));
         out.println(helper.newLocal(long.class));

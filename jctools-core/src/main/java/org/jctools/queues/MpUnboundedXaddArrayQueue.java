@@ -76,7 +76,7 @@ abstract class MpUnboundedXaddArrayQueuePad2<E> extends MpUnboundedXaddArrayQueu
 }
 
 // $gen:ordered-fields
-abstract class MpUnboundedXaddArrayQueueProducerChunk<R extends MpUnboundedXaddChunk<R,E>, E>
+abstract class MpUnboundedXaddArrayQueueProducerChunk<R extends MpUnboundedXaddChunk<R, E>, E>
     extends MpUnboundedXaddArrayQueuePad2<E>
 {
     private static final long P_CHUNK_OFFSET =
@@ -114,7 +114,7 @@ abstract class MpUnboundedXaddArrayQueueProducerChunk<R extends MpUnboundedXaddC
     }
 }
 
-abstract class MpUnboundedXaddArrayQueuePad3<R extends MpUnboundedXaddChunk<R,E>, E>
+abstract class MpUnboundedXaddArrayQueuePad3<R extends MpUnboundedXaddChunk<R, E>, E>
     extends MpUnboundedXaddArrayQueueProducerChunk<R, E>
 {
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
@@ -184,7 +184,7 @@ abstract class MpUnboundedXaddArrayQueueConsumerFields<R extends MpUnboundedXadd
     }
 }
 
-abstract class MpUnboundedXaddArrayQueuePad5<R extends MpUnboundedXaddChunk<R,E>, E>
+abstract class MpUnboundedXaddArrayQueuePad5<R extends MpUnboundedXaddChunk<R, E>, E>
     extends MpUnboundedXaddArrayQueueConsumerFields<R, E>
 {
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
@@ -210,7 +210,7 @@ abstract class MpUnboundedXaddArrayQueuePad5<R extends MpUnboundedXaddChunk<R,E>
  *
  * @author https://github.com/franz1981
  */
-abstract class MpUnboundedXaddArrayQueue<R extends MpUnboundedXaddChunk<R,E>, E>
+abstract class MpUnboundedXaddArrayQueue<R extends MpUnboundedXaddChunk<R, E>, E>
     extends MpUnboundedXaddArrayQueuePad5<R, E>
     implements MessagePassingQueue<E>, QueueProgressIndicators
 {
@@ -229,7 +229,7 @@ abstract class MpUnboundedXaddArrayQueue<R extends MpUnboundedXaddChunk<R,E>, E>
     {
         if (maxPooledChunks < 0)
         {
-            throw new IllegalArgumentException("Expecting a positive maxPooledChunks, but got:"+maxPooledChunks);
+            throw new IllegalArgumentException("Expecting a positive maxPooledChunks, but got:" + maxPooledChunks);
         }
         chunkSize = Pow2.roundToPowerOfTwo(chunkSize);
 
@@ -282,7 +282,8 @@ abstract class MpUnboundedXaddArrayQueue<R extends MpUnboundedXaddChunk<R,E>, E>
      */
     final R producerChunkForIndex(
         final R initialChunk,
-        final long requiredChunkIndex)
+        final long requiredChunkIndex
+    )
     {
         R currentChunk = initialChunk;
         long jumpBackward;
@@ -325,7 +326,8 @@ abstract class MpUnboundedXaddArrayQueue<R extends MpUnboundedXaddChunk<R,E>, E>
     protected final R appendNextChunks(
         R currentChunk,
         long currentChunkIndex,
-        long chunksToAppend)
+        long chunksToAppend
+    )
     {
         assert currentChunkIndex != NOT_USED;
         // prevent other concurrent attempts on appendNextChunk

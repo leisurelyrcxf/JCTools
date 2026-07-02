@@ -23,26 +23,33 @@ import java.util.List;
  * field check) and {@link #sourceDirs} (for the source-file body scan); the inherited {@link Test}
  * methods enforce the property.
  */
-public abstract class AbstractUnpaddedPadClassesTest {
+public abstract class AbstractUnpaddedPadClassesTest
+{
 
     private final List<String> packages;
     private final List<String> sourceDirs;
     private final int minExpected;
 
     protected AbstractUnpaddedPadClassesTest(
-            List<String> packages, List<String> sourceDirs, int minExpected) {
+        List<String> packages,
+        List<String> sourceDirs,
+        int minExpected
+    )
+    {
         this.packages = packages;
         this.sourceDirs = sourceDirs;
         this.minExpected = minExpected;
     }
 
     @Test
-    public final void padClassesDeclareNoFields() throws Exception {
+    public final void padClassesDeclareNoFields() throws Exception
+    {
         PadClassAssertions.assertPadClassesDeclareNoFields(packages, minExpected);
     }
 
     @Test
-    public final void padClassBodiesHaveNoComments() throws Exception {
+    public final void padClassBodiesHaveNoComments() throws Exception
+    {
         PadClassAssertions.assertPadClassBodiesHaveNoComments(sourceDirs, minExpected);
     }
 }

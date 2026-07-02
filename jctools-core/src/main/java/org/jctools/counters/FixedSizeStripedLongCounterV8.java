@@ -8,19 +8,23 @@ import static org.jctools.util.UnsafeAccess.UNSAFE;
  *
  * @author Tolstopyatov Vsevolod
  */
-class FixedSizeStripedLongCounterV8 extends FixedSizeStripedLongCounter {
+class FixedSizeStripedLongCounterV8 extends FixedSizeStripedLongCounter
+{
 
-    public FixedSizeStripedLongCounterV8(int stripesCount) {
+    public FixedSizeStripedLongCounterV8(int stripesCount)
+    {
         super(stripesCount);
     }
 
     @Override
-    protected void inc(long[] cells, long offset, long delta) {
+    protected void inc(long[] cells, long offset, long delta)
+    {
         UNSAFE.getAndAddLong(cells, offset, delta);
     }
 
     @Override
-    protected long getAndReset(long[] cells, long offset) {
+    protected long getAndReset(long[] cells, long offset)
+    {
         return UNSAFE.getAndSetLong(cells, offset, 0L);
     }
 }

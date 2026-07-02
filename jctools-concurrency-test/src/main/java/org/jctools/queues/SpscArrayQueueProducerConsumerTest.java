@@ -14,25 +14,30 @@ import static org.openjdk.jcstress.annotations.Expect.FORBIDDEN;
 @Outcome(id = "1", expect = ACCEPTABLE, desc = "All ok.")
 @Outcome(expect = FORBIDDEN)
 @State
-public class SpscArrayQueueProducerConsumerTest {
+public class SpscArrayQueueProducerConsumerTest
+{
     private final SpscArrayQueue<Integer> queue = new SpscArrayQueue<>(3);
 
-    public SpscArrayQueueProducerConsumerTest() {
+    public SpscArrayQueueProducerConsumerTest()
+    {
         queue.offer(1);
     }
 
     @Actor
-    public void actor1() {
+    public void actor1()
+    {
         queue.poll();
     }
 
     @Actor
-    public void actor2() {
+    public void actor2()
+    {
         queue.offer(8);
     }
 
     @Arbiter
-    public void arbiter(I_Result r) {
+    public void arbiter(I_Result r)
+    {
         r.r1 = queue.size();
     }
 }

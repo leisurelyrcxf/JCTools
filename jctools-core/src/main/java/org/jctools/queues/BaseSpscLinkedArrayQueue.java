@@ -100,7 +100,7 @@ abstract class BaseSpscLinkedArrayQueueL2Pad<E> extends BaseSpscLinkedArrayQueue
 // $gen:ordered-fields
 abstract class BaseSpscLinkedArrayQueueProducerFields<E> extends BaseSpscLinkedArrayQueueL2Pad<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(BaseSpscLinkedArrayQueueProducerFields.class,"producerIndex");
+    private final static long P_INDEX_OFFSET = fieldOffset(BaseSpscLinkedArrayQueueProducerFields.class, "producerIndex");
 
     private long producerIndex;
 
@@ -313,7 +313,8 @@ abstract class BaseSpscLinkedArrayQueue<E> extends BaseSpscLinkedArrayQueueProdu
         long pIndex,
         long offset,
         E v,
-        Supplier<? extends E> s);
+        Supplier<? extends E> s
+    );
 
     /**
      * {@inheritDoc}
@@ -369,9 +370,12 @@ abstract class BaseSpscLinkedArrayQueue<E> extends BaseSpscLinkedArrayQueueProdu
 
     final void linkOldToNew(
         final long currIndex,
-        final E[] oldBuffer, final long offset,
-        final E[] newBuffer, final long offsetInNew,
-        final E e)
+        final E[] oldBuffer,
+        final long offset,
+        final E[] newBuffer,
+        final long offsetInNew,
+        final E e
+    )
     {
         soRefElement(newBuffer, offsetInNew, e);
         // link to next buffer and add next indicator as element of old buffer

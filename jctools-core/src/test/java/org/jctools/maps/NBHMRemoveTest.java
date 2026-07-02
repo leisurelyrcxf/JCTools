@@ -13,13 +13,15 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeThat;
 
 @RunWith(Parameterized.class)
-public class NBHMRemoveTest {
+public class NBHMRemoveTest
+{
 
     public static final Long TEST_KEY_OTHER = 123777L;
     public static final Long TEST_KEY_0 = 0L;
 
     @Parameterized.Parameters
-    public static Collection<Object[]> parameters() {
+    public static Collection<Object[]> parameters()
+    {
         ArrayList<Object[]> list = new ArrayList<>();
         // Verify the test assumptions against JDK reference implementations, useful for debugging
 //        list.add(new Object[]{new HashMap<>(), TEST_KEY_0, "0", "1"});
@@ -27,14 +29,14 @@ public class NBHMRemoveTest {
 //        list.add(new Object[]{new Hashtable<>(), TEST_KEY_0, "0", "1"});
 
         // Test with special key
-        list.add(new Object[]{new NonBlockingHashMap<>(), TEST_KEY_0, "0", "1"});
-        list.add(new Object[]{new NonBlockingHashMapLong<>(), TEST_KEY_0, "0", "1"});
-        list.add(new Object[]{new NonBlockingIdentityHashMap<>(), TEST_KEY_0, "0", "1"});
+        list.add(new Object[] {new NonBlockingHashMap<>(), TEST_KEY_0, "0", "1"});
+        list.add(new Object[] {new NonBlockingHashMapLong<>(), TEST_KEY_0, "0", "1"});
+        list.add(new Object[] {new NonBlockingIdentityHashMap<>(), TEST_KEY_0, "0", "1"});
 
         // Test with some other key
-        list.add(new Object[]{new NonBlockingHashMap<>(), TEST_KEY_OTHER, "0", "1"});
-        list.add(new Object[]{new NonBlockingHashMapLong<>(), TEST_KEY_OTHER, "0", "1"});
-        list.add(new Object[]{new NonBlockingIdentityHashMap<>(), TEST_KEY_OTHER, "0", "1"});
+        list.add(new Object[] {new NonBlockingHashMap<>(), TEST_KEY_OTHER, "0", "1"});
+        list.add(new Object[] {new NonBlockingHashMapLong<>(), TEST_KEY_OTHER, "0", "1"});
+        list.add(new Object[] {new NonBlockingIdentityHashMap<>(), TEST_KEY_OTHER, "0", "1"});
 
         return list;
     }
@@ -44,7 +46,8 @@ public class NBHMRemoveTest {
     final String v1;
     final String v2;
 
-    public NBHMRemoveTest(Map<Long, String> map, Long key, String v1, String v2) {
+    public NBHMRemoveTest(Map<Long, String> map, Long key, String v1, String v2)
+    {
         this.map = map;
         this.key = key;
         this.v1 = v1;
@@ -52,7 +55,8 @@ public class NBHMRemoveTest {
     }
 
     @After
-    public void clear() {
+    public void clear()
+    {
         map.clear();
     }
 
@@ -62,7 +66,8 @@ public class NBHMRemoveTest {
      * See https://github.com/JCTools/JCTools/issues/354
      */
     @Test
-    public void removeRetainsKey() {
+    public void removeRetainsKey()
+    {
         assumeThat(map, is(instanceOf(NonBlockingHashMap.class)));
         assumeThat(key, is(TEST_KEY_0));
 
@@ -73,17 +78,20 @@ public class NBHMRemoveTest {
         // key1 and key2 are different instances with same hash/equals
         map.put(key1, "a");
         map.remove(key1);
-        if (map instanceof NonBlockingHashMap) {
+        if (map instanceof NonBlockingHashMap)
+        {
             assertTrue(contains(((NonBlockingHashMap) map).raw_array(), key1));
         }
         map.put(key2, "a");
-        if (map instanceof NonBlockingHashMap) {
+        if (map instanceof NonBlockingHashMap)
+        {
             assertFalse(contains(((NonBlockingHashMap) map).raw_array(), key2));
         }
         // key1 remains in the map
         Set<Long> keySet = map.keySet();
         assertEquals(keySet.size(), 1);
-        if (map instanceof NonBlockingHashMap) {
+        if (map instanceof NonBlockingHashMap)
+        {
             assertTrue(keySet.toArray()[0] == key1);
         }
     }
@@ -94,7 +102,8 @@ public class NBHMRemoveTest {
      * See https://github.com/JCTools/JCTools/issues/354
      */
     @Test
-    public void removeRetainsKey2() {
+    public void removeRetainsKey2()
+    {
         assumeThat(map, is(instanceOf(NonBlockingHashMap.class)));
         assumeThat(key, is(TEST_KEY_0));
 
@@ -117,15 +126,18 @@ public class NBHMRemoveTest {
         assertTrue(contains(raw_array, key2));
     }
 
-    private boolean contains(Object[] raw_array, Object v) {
-        for (int i = 0; i < raw_array.length; i++) {
+    private boolean contains(Object[] raw_array, Object v)
+    {
+        for (int i = 0; i < raw_array.length; i++)
+        {
             if (raw_array[i] == v) return true;
         }
         return false;
     }
 
     @Test
-    public void directRemoveKey() {
+    public void directRemoveKey()
+    {
         installValue(map, key, v1);
         assertEquals(v1, map.remove(key));
         postRemoveAsserts(map, key);
@@ -133,11 +145,14 @@ public class NBHMRemoveTest {
     }
 
     @Test
-    public void keySetIteratorRemoveKey() {
+    public void keySetIteratorRemoveKey()
+    {
         installValue(map, key, v1);
         Iterator<Long> iterator = map.keySet().iterator();
-        while (iterator.hasNext()) {
-            if (key.equals(iterator.next())) {
+        while (iterator.hasNext())
+        {
+            if (key.equals(iterator.next()))
+            {
                 iterator.remove();
                 break;
             }
@@ -147,12 +162,15 @@ public class NBHMRemoveTest {
     }
 
     @Test
-    public void keySetIteratorRemoveKeyAfterValChange() {
+    public void keySetIteratorRemoveKeyAfterValChange()
+    {
         installValue(map, key, v1);
         Iterator<Long> iterator = map.keySet().iterator();
         map.put(key, v2);
-        while (iterator.hasNext()) {
-            if (key.equals(iterator.next())) {
+        while (iterator.hasNext())
+        {
+            if (key.equals(iterator.next()))
+            {
                 iterator.remove();
                 break;
             }
@@ -163,12 +181,15 @@ public class NBHMRemoveTest {
     }
 
     @Test
-    public void entriesIteratorRemoveKey() {
+    public void entriesIteratorRemoveKey()
+    {
         installValue(map, key, v1);
         Iterator<Map.Entry<Long, String>> iterator = map.entrySet().iterator();
-        while (iterator.hasNext()) {
+        while (iterator.hasNext())
+        {
             Map.Entry<Long, String> entry = iterator.next();
-            if (key.equals(entry.getKey())) {
+            if (key.equals(entry.getKey()))
+            {
                 iterator.remove();
                 break;
             }
@@ -178,7 +199,8 @@ public class NBHMRemoveTest {
     }
 
     @Test
-    public void entriesIteratorRemoveKeyAfterValChange() {
+    public void entriesIteratorRemoveKeyAfterValChange()
+    {
         installValue(map, key, v1);
         Iterator<Map.Entry<Long, String>> iterator = map.entrySet().iterator();
         assertTrue(iterator.hasNext());
@@ -196,11 +218,14 @@ public class NBHMRemoveTest {
     }
 
     @Test
-    public void valuesIteratorRemove() {
+    public void valuesIteratorRemove()
+    {
         installValue(map, key, v1);
         Iterator<String> iterator = map.values().iterator();
-        while (iterator.hasNext()) {
-            if (v1.equals(iterator.next())) {
+        while (iterator.hasNext())
+        {
+            if (v1.equals(iterator.next()))
+            {
                 iterator.remove();
                 break;
             }
@@ -210,7 +235,8 @@ public class NBHMRemoveTest {
     }
 
     @Test
-    public void valuesIteratorRemoveAfterValChange() {
+    public void valuesIteratorRemoveAfterValChange()
+    {
         installValue(map, key, v1);
         Iterator<String> iterator = map.values().iterator();
         assertTrue(iterator.hasNext());
@@ -228,12 +254,14 @@ public class NBHMRemoveTest {
         assertFalse(map.containsValue(v2));
     }
 
-    private void installValue(Map<Long, String> map, Long testKey, String value) {
+    private void installValue(Map<Long, String> map, Long testKey, String value)
+    {
         map.put(testKey, value);
         singleValueInMapAsserts(map, testKey, value);
     }
 
-    private void singleValueInMapAsserts(Map<Long, String> map, Long testKey, String value) {
+    private void singleValueInMapAsserts(Map<Long, String> map, Long testKey, String value)
+    {
         assertEquals(value, map.get(testKey));
         assertEquals(1, map.size());
         assertFalse(map.isEmpty());
@@ -241,7 +269,8 @@ public class NBHMRemoveTest {
         assertTrue(map.containsValue(value));
     }
 
-    private void postRemoveAsserts(Map<Long, String> map, Long testKey) {
+    private void postRemoveAsserts(Map<Long, String> map, Long testKey)
+    {
         assertNull(map.get(testKey));
         assertEquals(0, map.size());
         assertTrue(map.isEmpty());

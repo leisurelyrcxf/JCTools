@@ -23,7 +23,8 @@ import java.nio.ByteBuffer;
 import static org.junit.Assert.*;
 
 
-public class SpscChannelTest {
+public class SpscChannelTest
+{
 
     private static final int REQUESTED_CAPACITY = 8;
     private static final int MAXIMUM_CAPACITY = 16;
@@ -33,18 +34,21 @@ public class SpscChannelTest {
     private final ChannelProducer<Example> producer = channel.producer();
 
     @Test
-    public void shouldKnowItsCapacity() {
+    public void shouldKnowItsCapacity()
+    {
         assertEquals(REQUESTED_CAPACITY, channel.requestedCapacity());
         assertEquals(MAXIMUM_CAPACITY, channel.maximumCapacity());
     }
 
     @Test
-    public void shouldInitiallyBeEmpty() {
+    public void shouldInitiallyBeEmpty()
+    {
         assertEmpty();
     }
 
     @Test
-    public void shouldWriteAnObject() {
+    public void shouldWriteAnObject()
+    {
         assertTrue(producer.claim());
 
         Example writer = producer.currentElement();
@@ -55,7 +59,8 @@ public class SpscChannelTest {
     }
 
     @Test
-    public void shouldReadAnObject() {
+    public void shouldReadAnObject()
+    {
         ChannelConsumer consumer = newConsumer();
 
         shouldWriteAnObject();
@@ -65,7 +70,8 @@ public class SpscChannelTest {
     }
 
     @Test
-    public void shouldNotReadFromEmptyChannel() {
+    public void shouldNotReadFromEmptyChannel()
+    {
         ChannelConsumer consumer = newConsumer();
 
         assertEmpty();
@@ -73,7 +79,8 @@ public class SpscChannelTest {
     }
 
     @Test
-    public void shouldNotReadUnCommittedMessages() {
+    public void shouldNotReadUnCommittedMessages()
+    {
         ChannelConsumer consumer = newConsumer();
 
         assertTrue(producer.claim());
@@ -85,13 +92,16 @@ public class SpscChannelTest {
     }
 
     @Test
-    public void shouldNotOverrunBuffer() {
-        for (int i = 0; i < REQUESTED_CAPACITY; i++) {
+    public void shouldNotOverrunBuffer()
+    {
+        for (int i = 0; i < REQUESTED_CAPACITY; i++)
+        {
             assertTrue(producer.claim());
             assertTrue(producer.commit());
         }
 
-        for (int i = REQUESTED_CAPACITY; i < MAXIMUM_CAPACITY; i++) {
+        for (int i = REQUESTED_CAPACITY; i < MAXIMUM_CAPACITY; i++)
+        {
             // Unknown what happens here.
             producer.claim();
             producer.commit();
@@ -102,26 +112,32 @@ public class SpscChannelTest {
         assertTrue(channel.size() <= MAXIMUM_CAPACITY);
     }
 
-    private void assertSize(int expectedSize) {
+    private void assertSize(int expectedSize)
+    {
         assertEquals(expectedSize, channel.size());
     }
 
-    private ChannelConsumer newConsumer() {
-        return channel.consumer(new ChannelReceiver<Example>() {
-            public void accept(Example element) {
+    private ChannelConsumer newConsumer()
+    {
+        return channel.consumer(new ChannelReceiver<Example>()
+        {
+            public void accept(Example element)
+            {
                 assertEquals(10L, element.getBar());
                 assertEquals(5, element.getFoo());
             }
         });
     }
 
-    private void assertEmpty() {
+    private void assertEmpty()
+    {
         assertTrue(channel.isEmpty());
     }
 
     // ---------------------------------------------------
 
-    public interface Example {
+    public interface Example
+    {
 
         int getFoo();
 

@@ -22,25 +22,30 @@ import org.jctools.channels.ChannelProducer;
  *
  * @param <E> element type.
  */
-public abstract class MpscChannelProducer<E> extends MpscOffHeapFixedSizeRingBuffer implements ChannelProducer<E> {
+public abstract class MpscChannelProducer<E> extends MpscOffHeapFixedSizeRingBuffer implements ChannelProducer<E>
+{
 
     protected long pointer;
 
     public MpscChannelProducer(
         final ByteBuffer buffer,
         final int capacity,
-        final int messageSize) {
+        final int messageSize
+    )
+    {
 
         super(buffer, capacity, true, false, true, messageSize, null, 0);
         pointer = EOF;
     }
 
-    public final boolean claim() {
+    public final boolean claim()
+    {
         pointer = writeAcquire();
         return pointer != EOF;
     }
 
-    public final boolean commit() {
+    public final boolean commit()
+    {
         if (pointer == EOF)
             return false;
 

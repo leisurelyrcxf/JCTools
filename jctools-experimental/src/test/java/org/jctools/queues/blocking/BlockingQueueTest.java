@@ -17,21 +17,29 @@ import java.util.concurrent.BlockingQueue;
 @RunWith(Parameterized.class)
 public class BlockingQueueTest
 {
-    protected final static int         CAPACITY = 32768; // better to have a size power of 2 to test boundaries
+    protected final static int CAPACITY = 32768; // better to have a size power of 2 to test boundaries
 
     private BlockingQueue<Integer> q;
     private final ConcurrentQueueSpec spec;
 
     @Parameterized.Parameters
-    public static Collection queues() {
-        return Arrays.asList(
-                test(1, 1, CAPACITY, Ordering.FIFO), test(10, 1, CAPACITY, Ordering.FIFO),
-                test(1, 10, CAPACITY, Ordering.FIFO), test(10, 10, CAPACITY, Ordering.FIFO));
+    public static Collection queues()
+    {
+        return Arrays
+            .asList(
+                test(1, 1, CAPACITY, Ordering.FIFO),
+                test(10, 1, CAPACITY, Ordering.FIFO),
+                test(1, 10, CAPACITY, Ordering.FIFO),
+                test(10, 10, CAPACITY, Ordering.FIFO));
     }
 
-    private static Object[] test(int producers, int consumers, int capacity, Ordering ordering) {
-        return new Object[] { new ConcurrentQueueSpec(producers, consumers, capacity, ordering,
-                Preference.NONE) };
+    private static Object[] test(int producers, int consumers, int capacity, Ordering ordering)
+    {
+        return new Object[] {new ConcurrentQueueSpec(producers,
+            consumers,
+            capacity,
+            ordering,
+            Preference.NONE)};
     }
 
     public BlockingQueueTest(ConcurrentQueueSpec spec)

@@ -17,27 +17,32 @@ import org.junit.runners.Parameterized;
  * @author Tolstopyatov Vsevolod
  */
 @RunWith(Parameterized.class)
-public class FixedSizeStripedLongCounterTest {
+public class FixedSizeStripedLongCounterTest
+{
 
     @Parameterized.Parameters
-    public static Collection<Object[]> parameters() {
+    public static Collection<Object[]> parameters()
+    {
         int stripesCount = PortableJvmInfo.CPUs * 2;
         ArrayList<Object[]> list = new ArrayList<>();
-        list.add(new Counter[]{new FixedSizeStripedLongCounterV6(stripesCount)});
-        list.add(new Counter[]{new FixedSizeStripedLongCounterV8(stripesCount)});
+        list.add(new Counter[] {new FixedSizeStripedLongCounterV6(stripesCount)});
+        list.add(new Counter[] {new FixedSizeStripedLongCounterV8(stripesCount)});
         return list;
     }
 
     private final Counter counter;
 
-    public FixedSizeStripedLongCounterTest(Counter counter) {
+    public FixedSizeStripedLongCounterTest(Counter counter)
+    {
         this.counter = counter;
     }
 
     @Test
-    public void testCounterSanity() {
+    public void testCounterSanity()
+    {
         long expected = 1000L;
-        for (int i = 0; i < expected; i++) {
+        for (int i = 0; i < expected; i++)
+        {
             counter.inc();
         }
 
@@ -45,28 +50,35 @@ public class FixedSizeStripedLongCounterTest {
     }
 
     @Test
-    public void testMultipleThreadsCounterSanity() throws Exception {
+    public void testMultipleThreadsCounterSanity() throws Exception
+    {
         int threadsCount = PortableJvmInfo.CPUs;
         AtomicLong summary = new AtomicLong();
         AtomicBoolean running = new AtomicBoolean(true);
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch finishLatch = new CountDownLatch(threadsCount);
         AtomicBoolean fail = new AtomicBoolean(false);
-        for (int i = 0; i < threadsCount; i++) {
+        for (int i = 0; i < threadsCount; i++)
+        {
             new Thread(() -> {
-                try {
+                try
+                {
                     Counter c = counter;
                     startLatch.await();
                     long local = 0;
-                    while (running.get()) {
+                    while (running.get())
+                    {
                         c.inc();
                         local++;
                     }
                     summary.addAndGet(local);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     fail.set(true);
                 }
-                finally {
+                finally
+                {
                     finishLatch.countDown();
                 }
             }).start();
@@ -80,7 +92,8 @@ public class FixedSizeStripedLongCounterTest {
         assertSanity(summary.get());
     }
 
-    private void assertSanity(long expected) {
+    private void assertSanity(long expected)
+    {
         assertEquals(expected, counter.get());
         assertEquals(expected, counter.getAndReset());
         assertEquals(0L, counter.get());

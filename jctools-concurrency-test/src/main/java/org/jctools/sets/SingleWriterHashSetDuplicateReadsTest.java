@@ -19,26 +19,32 @@ import static org.openjdk.jcstress.annotations.Expect.FORBIDDEN;
 @Outcome(id = "2", expect = FORBIDDEN, desc = "Duplicate reads")
 @Outcome(expect = FORBIDDEN, desc = "Can't happen")
 @State
-public class SingleWriterHashSetDuplicateReadsTest {
+public class SingleWriterHashSetDuplicateReadsTest
+{
 
     private final SingleWriterHashSet<Integer> set = new SingleWriterHashSet<>(16);
 
-    public SingleWriterHashSetDuplicateReadsTest() {
+    public SingleWriterHashSetDuplicateReadsTest()
+    {
         // Collide elements so removal of 1 will shift 17
         set.add(1);
         set.add(17);
     }
 
     @Actor
-    public void actor1() {
+    public void actor1()
+    {
         set.remove(1);
     }
 
     @Actor
-    public void actor2(I_Result r) {
+    public void actor2(I_Result r)
+    {
         int counter = 0;
-        for (Integer integer : set) {
-            if (integer == 17) {
+        for (Integer integer : set)
+        {
+            if (integer == 17)
+            {
                 ++counter;
             }
         }

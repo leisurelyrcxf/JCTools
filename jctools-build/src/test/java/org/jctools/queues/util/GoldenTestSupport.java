@@ -25,15 +25,22 @@ import static org.junit.Assert.assertTrue;
  * <p>
  * Regenerate workflow: {@code mvn -pl jctools-build test -Dgolden.regenerate=true}.
  */
-public final class GoldenTestSupport {
+public final class GoldenTestSupport
+{
 
-    private GoldenTestSupport() {}
+    private GoldenTestSupport()
+    {
+    }
 
     private static final String REGENERATE_PROPERTY = "golden.regenerate";
 
-    public static void assertGolden(JCToolsGenerator generator, String resourceDir) throws Exception {
+    public static void assertGolden(JCToolsGenerator generator, String resourceDir) throws Exception
+    {
         String input = readResource(resourceDir + "/input.java");
-        CompilationUnit cu = new JavaParser().parse(input).getResult().orElseThrow(
+        CompilationUnit cu = new JavaParser()
+            .parse(input)
+            .getResult()
+            .orElseThrow(
                 () -> new AssertionError("input.java for " + resourceDir + " did not parse"));
         String actual = GeneratorUtils.applyGenerator(generator, cu);
 
@@ -42,28 +49,33 @@ public final class GoldenTestSupport {
         // golden compare would miss when the regeneration workflow is rubber-stamped.
         ParseResult<CompilationUnit> reparsed = new JavaParser().parse(actual);
         assertTrue(
-                "Generator output for " + resourceDir + " did not re-parse cleanly: "
-                        + reparsed.getProblems() + "\n--- output ---\n" + actual,
-                reparsed.getProblems().isEmpty() && reparsed.getResult().isPresent());
+            "Generator output for " + resourceDir + " did not re-parse cleanly: " + reparsed.getProblems() +
+                "\n--- output ---\n" + actual,
+            reparsed.getProblems().isEmpty() && reparsed.getResult().isPresent());
 
-        if (Boolean.getBoolean(REGENERATE_PROPERTY)) {
+        if (Boolean.getBoolean(REGENERATE_PROPERTY))
+        {
             Path expectedPath = locateResourceFile(resourceDir + "/expected.java");
             Files.write(expectedPath, actual.getBytes(StandardCharsets.UTF_8));
             throw new AssumptionViolatedException(
-                    "Regenerated " + expectedPath + "; rerun without -D" + REGENERATE_PROPERTY);
+                "Regenerated " + expectedPath + "; rerun without -D" + REGENERATE_PROPERTY);
         }
 
         String expected = readResource(resourceDir + "/expected.java");
         assertEquals(
-                "Generator output for " + resourceDir + " drifted from the golden file. " +
+            "Generator output for " + resourceDir + " drifted from the golden file. " +
                 "If the change is intentional, regenerate with: " +
                 "mvn -pl jctools-build test -D" + REGENERATE_PROPERTY + "=true",
-                expected, actual);
+            expected,
+            actual);
     }
 
-    private static String readResource(String name) throws IOException {
-        try (InputStream in = GoldenTestSupport.class.getClassLoader().getResourceAsStream(name)) {
-            if (in == null) {
+    private static String readResource(String name) throws IOException
+    {
+        try (InputStream in = GoldenTestSupport.class.getClassLoader().getResourceAsStream(name))
+        {
+            if (in == null)
+            {
                 throw new AssertionError("missing test resource: " + name);
             }
             byte[] data = readAllBytes(in);
@@ -71,11 +83,13 @@ public final class GoldenTestSupport {
         }
     }
 
-    private static byte[] readAllBytes(InputStream in) throws IOException {
+    private static byte[] readAllBytes(InputStream in) throws IOException
+    {
         java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
         byte[] chunk = new byte[4096];
         int n;
-        while ((n = in.read(chunk)) > 0) {
+        while ((n = in.read(chunk)) > 0)
+        {
             buffer.write(chunk, 0, n);
         }
         return buffer.toByteArray();
@@ -85,9 +99,11 @@ public final class GoldenTestSupport {
      * Find the on-disk source path for a test resource so {@code -Dgolden.regenerate=true} can
      * write back to it (rather than the copy in {@code target/test-classes/}).
      */
-    private static Path locateResourceFile(String resourceName) throws URISyntaxException {
+    private static Path locateResourceFile(String resourceName) throws URISyntaxException
+    {
         URL url = GoldenTestSupport.class.getClassLoader().getResource(resourceName);
-        if (url == null) {
+        if (url == null)
+        {
             throw new AssertionError("missing test resource: " + resourceName);
         }
         Path classpathPath = Paths.get(url.toURI());
@@ -96,7 +112,8 @@ public final class GoldenTestSupport {
         String classpathStr = classpathPath.toString();
         String classesMarker = java.io.File.separator + "test-classes" + java.io.File.separator;
         int idx = classpathStr.indexOf(classesMarker);
-        if (idx < 0) {
+        if (idx < 0)
+        {
             return classpathPath;
         }
         String moduleRoot = classpathStr.substring(0, classpathStr.indexOf(java.io.File.separator + "target"));

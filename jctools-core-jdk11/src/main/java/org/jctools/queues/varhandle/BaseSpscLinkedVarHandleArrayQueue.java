@@ -354,7 +354,8 @@ abstract class BaseSpscLinkedVarHandleArrayQueue<E> extends BaseSpscLinkedVarHan
         long pIndex,
         long offset,
         E v,
-        Supplier<? extends E> s);
+        Supplier<? extends E> s
+    );
 
     /**
      * {@inheritDoc}
@@ -410,9 +411,12 @@ abstract class BaseSpscLinkedVarHandleArrayQueue<E> extends BaseSpscLinkedVarHan
 
     final void linkOldToNew(
         final long currIndex,
-        final E[] oldBuffer, final long offset,
-        final E[] newBuffer, final long offsetInNew,
-        final E e)
+        final E[] oldBuffer,
+        final long offset,
+        final E[] newBuffer,
+        final long offsetInNew,
+        final E e
+    )
     {
         soRefElement(newBuffer, offsetInNew, e);
         // link to next buffer and add next indicator as element of old buffer

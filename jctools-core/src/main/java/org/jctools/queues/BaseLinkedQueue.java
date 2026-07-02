@@ -97,7 +97,7 @@ abstract class BaseLinkedQueuePad1<E> extends BaseLinkedQueueProducerNodeRef<E>
 //$gen:ordered-fields
 abstract class BaseLinkedQueueConsumerNodeRef<E> extends BaseLinkedQueuePad1<E>
 {
-    private final static long C_NODE_OFFSET = fieldOffset(BaseLinkedQueueConsumerNodeRef.class,"consumerNode");
+    private final static long C_NODE_OFFSET = fieldOffset(BaseLinkedQueueConsumerNodeRef.class, "consumerNode");
 
     private LinkedQueueNode<E> consumerNode;
 

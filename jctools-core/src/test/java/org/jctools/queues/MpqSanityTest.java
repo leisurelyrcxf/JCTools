@@ -79,6 +79,7 @@ public abstract class MpqSanityTest
         queue.fill(() -> DUMMY_ELEMENT);
         assertTrue(!queue.isEmpty());
     }
+
     @Test
     public void fillToCapacityInBatches()
     {
@@ -113,14 +114,17 @@ public abstract class MpqSanityTest
     @Test(expected = IllegalArgumentException.class)
     public void fillNegativeLimit()
     {
-        queue.fill(() -> DUMMY_ELEMENT,-1);
+        queue.fill(() -> DUMMY_ELEMENT, -1);
         fail();
     }
 
     @Test
     public void fill0()
     {
-        assertEquals(0, queue.fill(() -> {fail(); return 1;},0));
+        assertEquals(0, queue.fill(() -> {
+            fail();
+            return 1;
+        }, 0));
         assertTrue(queue.isEmpty());
     }
 
@@ -162,7 +166,8 @@ public abstract class MpqSanityTest
     @Test(expected = IllegalArgumentException.class)
     public void drainNegativeLimit()
     {
-        queue.drain(e -> {},-1);
+        queue.drain(e -> {
+        }, -1);
         fail();
     }
 
@@ -170,7 +175,7 @@ public abstract class MpqSanityTest
     public void drain0()
     {
         queue.offer(DUMMY_ELEMENT);
-        assertEquals(0, queue.drain(e -> fail(),0));
+        assertEquals(0, queue.drain(e -> fail(), 0));
         assertEquals(1, queue.size());
     }
 
@@ -242,18 +247,17 @@ public abstract class MpqSanityTest
     }
 
     int sum;
+
     @Test
     public void sanityDrainBatch()
     {
-        assertEquals(0, queue.drain(e ->
-        {
+        assertEquals(0, queue.drain(e -> {
         }, SIZE));
         assertTrue(queue.isEmpty());
         assertTrue(queue.size() == 0);
         count = 0;
         sum = 0;
-        int i = queue.fill(() ->
-        {
+        int i = queue.fill(() -> {
             final int val = count++;
             sum += val;
             return val;
@@ -268,8 +272,7 @@ public abstract class MpqSanityTest
             i = 0;
             do
             {
-                i += drainCount = queue.drain(e ->
-                {
+                i += drainCount = queue.drain(e -> {
                     assertEquals(count++, e.intValue());
                 });
             }
@@ -285,8 +288,7 @@ public abstract class MpqSanityTest
             i = 0;
             do
             {
-                i += drainCount = queue.drain(e ->
-                {
+                i += drainCount = queue.drain(e -> {
                     sum -= e.intValue();
                 });
             }
@@ -505,8 +507,7 @@ public abstract class MpqSanityTest
         threads(() -> {
             while (!stop.get())
             {
-                q.drain(e ->
-                {
+                q.drain(e -> {
                     Val v = (Val) e;
                     if (v != null && v.value == 0)
                     {
@@ -519,15 +520,13 @@ public abstract class MpqSanityTest
                         stop.set(true);
                         System.out.println("Unexpected: v == null");
                     }
-                }, idle ->
-                {
+                }, idle -> {
                     return idle;
-                }, () ->
-                {
+                }, () -> {
                     return !stop.get();
                 });
             }
-        }, 1 , threads);
+        }, 1, threads);
 
         startWaitJoin(stop, threads);
         assertEquals("reordering detected", 0, fail.value);
@@ -544,19 +543,16 @@ public abstract class MpqSanityTest
         threads(() -> {
             Val counter = new Val();
             counter.value = 1;
-            q.fill(() ->
-            {
+            q.fill(() -> {
                 Val v = new Val();
                 int c = counter.value++ % 10;
                 v.value = 1 + c;
                 if (c == 0)
                     Thread.yield();
                 return v;
-            }, e ->
-            {
+            }, e -> {
                 return e;
-            }, () ->
-            {
+            }, () -> {
                 // slow down the producer, this will make the queue mostly empty encouraging visibility
                 // issues.
                 Thread.yield();
@@ -605,27 +601,24 @@ public abstract class MpqSanityTest
         threads(() -> {
             Val counter = new Val();
             counter.value = 1;
-            q.fill(() ->
-            {
+            q.fill(() -> {
                 Val v = new Val();
                 v.value = 1 + (counter.value++ % 10);
                 return v;
-            }, e ->
-            {
+            }, e -> {
                 return e;
-            }, () ->
-            { // slow down the producer, this will make the queue mostly empty encouraging
-                // visibility issues.
-                Thread.yield();
-                return !stop.get();
-            });
+            },
+                () -> { // slow down the producer, this will make the queue mostly empty encouraging
+                          // visibility issues.
+                    Thread.yield();
+                    return !stop.get();
+                });
         }, spec.producers, threads);
 
         threads(() -> {
             while (!stop.get())
             {
-                q.drain(e ->
-                {
+                q.drain(e -> {
                     Val v = (Val) e;
                     if (v != null && v.value == 0)
                     {
@@ -638,11 +631,9 @@ public abstract class MpqSanityTest
                         stop.set(true);
                         System.out.println("Unexpected: v == null");
                     }
-                }, idle ->
-                {
+                }, idle -> {
                     return idle;
-                }, () ->
-                {
+                }, () -> {
                     return !stop.get();
                 });
             }
@@ -663,10 +654,10 @@ public abstract class MpqSanityTest
         threads(() -> {
             while (!stop.get())
             {
-                if(q.relaxedOffer(1))
+                if (q.relaxedOffer(1))
                     while (q.relaxedPoll() == null);
             }
-        }, !spec.isMpmc()? 1: 0, threads);
+        }, !spec.isMpmc() ? 1 : 0, threads);
 
         int threadCount = threads.size();
         threads(() -> {
@@ -800,7 +791,8 @@ public abstract class MpqSanityTest
                 {
                     fail.value++;
                 }
-                if (slowSize) {
+                if (slowSize)
+                {
                     q.clear();
                 }
             }
@@ -838,13 +830,16 @@ public abstract class MpqSanityTest
         });
 
         testIsEmptyInvariant(stop, fail, consumerLoop, () -> {
-            q.fill(() -> 1, i -> {Thread.yield(); return i;}, () -> !stop.get());
+            q.fill(() -> 1, i -> {
+                Thread.yield();
+                return i;
+            }, () -> !stop.get());
         });
 
         int capacity = q.capacity();
         if (capacity == MessagePassingQueue.UNBOUNDED_CAPACITY || capacity == 1)
             return;
-        int limit = Math.max(capacity/8, 2);
+        int limit = Math.max(capacity / 8, 2);
         testIsEmptyInvariant(stop, fail, consumerLoop, () -> {
             while (!stop.get())
             {
@@ -859,7 +854,8 @@ public abstract class MpqSanityTest
         AtomicBoolean stop,
         Val fail,
         Runnable consumerLoop,
-        Runnable producerLoop)
+        Runnable producerLoop
+    )
         throws InterruptedException
     {
         List<Thread> threads = new ArrayList<>();
@@ -881,8 +877,10 @@ public abstract class MpqSanityTest
         final Val pFail = new Val();
         List<Thread> threads = new ArrayList<>();
         threads(() -> {
-            while (!stop.get()) {
-                if (q.size() < 0) {
+            while (!stop.get())
+            {
+                if (q.size() < 0)
+                {
                     pFail.value++;
                 }
 
@@ -898,7 +896,8 @@ public abstract class MpqSanityTest
             {
                 q.poll();
 
-                if (q.size() < 0) {
+                if (q.size() < 0)
+                {
                     cFail.value++;
                 }
             }
@@ -909,7 +908,8 @@ public abstract class MpqSanityTest
         threads(() -> {
             while (!stop.get())
             {
-                if (q.size() < 0) {
+                if (q.size() < 0)
+                {
                     oFail.value++;
                 }
                 Thread.yield();
@@ -936,10 +936,12 @@ public abstract class MpqSanityTest
         final Val pFail = new Val();
         List<Thread> threads = new ArrayList<>();
         threads(() -> {
-            while (!stop.get()) {
+            while (!stop.get())
+            {
                 q.offer(1);
 
-                if (q.size() > capacity) {
+                if (q.size() > capacity)
+                {
                     pFail.value++;
                 }
             }
@@ -950,7 +952,8 @@ public abstract class MpqSanityTest
         threads(() -> {
             while (!stop.get())
             {
-                if (q.size() > capacity) {
+                if (q.size() > capacity)
+                {
                     cFail.value++;
                 }
 
@@ -964,7 +967,8 @@ public abstract class MpqSanityTest
         threads(() -> {
             while (!stop.get())
             {
-                if (q.size() > capacity) {
+                if (q.size() > capacity)
+                {
                     oFail.value++;
                 }
                 Thread.yield();
@@ -979,15 +983,18 @@ public abstract class MpqSanityTest
     }
 
     @Test(timeout = TEST_TIMEOUT)
-    public void testPeekEqualsPoll() throws InterruptedException {
+    public void testPeekEqualsPoll() throws InterruptedException
+    {
         final AtomicBoolean stop = new AtomicBoolean();
         final MessagePassingQueue<Integer> q = queue;
 
         List<Thread> threads = new ArrayList<>();
         threads(() -> {
             int sequence = 0;
-            while (!stop.get()) {
-                if (q.offer(sequence)) {
+            while (!stop.get())
+            {
+                if (q.offer(sequence))
+                {
                     sequence++;
                 }
                 Thread.yield();
@@ -996,12 +1003,15 @@ public abstract class MpqSanityTest
 
         final Val fail = new Val();
         threads(() -> {
-            while (!stop.get()) {
+            while (!stop.get())
+            {
                 final Integer peekedSequence = q.peek();
-                if (peekedSequence == null) {
+                if (peekedSequence == null)
+                {
                     continue;
                 }
-                if (!peekedSequence.equals(q.poll())) {
+                if (!peekedSequence.equals(q.poll()))
+                {
                     fail.value++;
                 }
             }

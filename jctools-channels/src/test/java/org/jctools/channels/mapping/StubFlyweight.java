@@ -13,15 +13,18 @@
  */
 package org.jctools.channels.mapping;
 
-public abstract class StubFlyweight {
+public abstract class StubFlyweight
+{
 
     protected long pointer;
 
-    public StubFlyweight(final long pointer) {
+    public StubFlyweight(final long pointer)
+    {
         this.pointer = pointer;
     }
 
-    public void moveTo(final long pointer) {
+    public void moveTo(final long pointer)
+    {
         this.pointer = pointer;
     }
 

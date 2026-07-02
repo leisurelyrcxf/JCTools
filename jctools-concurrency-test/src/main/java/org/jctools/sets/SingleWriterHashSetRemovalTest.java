@@ -17,23 +17,27 @@ import static org.openjdk.jcstress.annotations.Expect.FORBIDDEN;
 @Outcome(id = "true", expect = ACCEPTABLE, desc = "Ok")
 @Outcome(expect = FORBIDDEN, desc = "Removal considered harmful")
 @State
-public class SingleWriterHashSetRemovalTest {
+public class SingleWriterHashSetRemovalTest
+{
 
     private final SingleWriterHashSet<Integer> set = new SingleWriterHashSet<>(16);
 
-    public SingleWriterHashSetRemovalTest() {
+    public SingleWriterHashSetRemovalTest()
+    {
         // Collide elements so removal of 1 will shift 17
         set.add(1);
         set.add(17);
     }
 
     @Actor
-    public void actor1() {
+    public void actor1()
+    {
         set.remove(1);
     }
 
     @Actor
-    public void actor2(Z_Result r) {
+    public void actor2(Z_Result r)
+    {
         r.r1 = set.contains(17);
     }
 }

@@ -323,7 +323,8 @@ public class NBHM_Tester2
             for (int i = d; i < ITERS; i += 2)
             {
                 assertThat("this key not in there, so putIfAbsent must work",
-                    nbhm.putIfAbsent("k" + i, thrd), is((String) null));
+                    nbhm.putIfAbsent("k" + i, thrd),
+                    is((String) null));
             }
             for (int i = d; i < ITERS; i += 2)
             {
@@ -486,22 +487,24 @@ public class NBHM_Tester2
 
     // --- Tests on equality of values
     @Test
-    public void replaceResultIsBasedOnEquality() {
+    public void replaceResultIsBasedOnEquality()
+    {
         NonBlockingHashMap<Integer, Integer> map = new NonBlockingHashMap<>();
         Integer initialValue = new Integer(10);
         map.put(1, initialValue);
-        assertTrue(map.replace(1,  initialValue, 20));
-        assertTrue(map.replace(1,  new Integer(20), 30));
+        assertTrue(map.replace(1, initialValue, 20));
+        assertTrue(map.replace(1, new Integer(20), 30));
     }
 
     @Test
-    public void removeResultIsBasedOnEquality() {
+    public void removeResultIsBasedOnEquality()
+    {
         NonBlockingHashMap<Integer, Integer> map = new NonBlockingHashMap<>();
         Integer initialValue = new Integer(10);
         map.put(1, initialValue);
-        assertTrue(map.remove(1,  initialValue));
+        assertTrue(map.remove(1, initialValue));
         map.put(1, initialValue);
-        assertTrue(map.remove(1,  new Integer(10)));
+        assertTrue(map.remove(1, new Integer(10)));
     }
 
     // Throw a ClassCastException if I see a tombstone during key-compares
@@ -517,12 +520,13 @@ public class NBHM_Tester2
         public int hashCode()
         {
             return (_x >> 2);
-        }        public boolean equals(Object o)
+        }
+
+        public boolean equals(Object o)
         {
             return o != null && ((KeyBonk) o)._x    // Throw CCE here
                 == this._x;
         }
-
 
 
         public String toString()
@@ -546,7 +550,8 @@ public class NBHM_Tester2
             final NonBlockingHashMap<Long, TestKey> map,
             final int count,
             final CyclicBarrier barrier,
-            final long offset)
+            final long offset
+        )
         {
             _map = map;
             _count = count;
@@ -559,9 +564,10 @@ public class NBHM_Tester2
             _barrier.await();         // barrier, to force racing start
             for (long j = 0; j < _count; j++)
             {
-                _map.put(
-                    j + _offset,
-                    new TestKey(_rand.nextLong(), _rand.nextInt(), (short) _rand.nextInt(Short.MAX_VALUE)));
+                _map
+                    .put(
+                        j + _offset,
+                        new TestKey(_rand.nextLong(), _rand.nextInt(), (short) _rand.nextInt(Short.MAX_VALUE)));
             }
             return null;
         }
@@ -673,7 +679,8 @@ public class NBHM_Tester2
         public TestKeyFeederThread(
             final List<TestKey> items,
             final NonBlockingHashMap<Long, TestKey> map,
-            final CyclicBarrier barrier)
+            final CyclicBarrier barrier
+        )
         {
             _map = map;
             _items = items;

@@ -16,9 +16,11 @@ package org.jctools.jmh.throughput;
 import java.util.concurrent.locks.LockSupport;
 
 
-public class QueueThroughputBackoffNano extends QueueThroughputBackoffNone {
+public class QueueThroughputBackoffNano extends QueueThroughputBackoffNone
+{
     @Override
-    protected void backoff() {
+    protected void backoff()
+    {
         LockSupport.parkNanos(1L);
     }
 }

@@ -334,7 +334,8 @@ public class NBHMID_Tester2
             for (int i = d; i < ITERS; i += 2)
             {
                 assertThat("this key not in there, so putIfAbsent must work",
-                    nbhm.putIfAbsent(keys[i], thrd), is((String) null));
+                    nbhm.putIfAbsent(keys[i], thrd),
+                    is((String) null));
             }
             for (int i = d; i < ITERS; i += 2)
             {
@@ -538,7 +539,8 @@ public class NBHMID_Tester2
             final NonBlockingIdentityHashMap<Long, TestKey> map,
             final int count,
             final CyclicBarrier barrier,
-            final long offset)
+            final long offset
+        )
         {
             _map = map;
             _count = count;
@@ -551,9 +553,10 @@ public class NBHMID_Tester2
             _barrier.await();         // barrier, to force racing start
             for (long j = 0; j < _count; j++)
             {
-                _map.put(
-                    j + _offset,
-                    new TestKey(_rand.nextLong(), _rand.nextInt(), (short) _rand.nextInt(Short.MAX_VALUE)));
+                _map
+                    .put(
+                        j + _offset,
+                        new TestKey(_rand.nextLong(), _rand.nextInt(), (short) _rand.nextInt(Short.MAX_VALUE)));
             }
             return null;
         }
@@ -666,7 +669,8 @@ public class NBHMID_Tester2
         public TestKeyFeederThread(
             final List<TestKey> items,
             final NonBlockingIdentityHashMap<Long, TestKey> map,
-            final CyclicBarrier barrier)
+            final CyclicBarrier barrier
+        )
         {
             _map = map;
             _items = items;

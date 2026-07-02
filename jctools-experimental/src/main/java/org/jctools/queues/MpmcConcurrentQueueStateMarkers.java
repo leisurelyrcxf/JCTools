@@ -24,7 +24,8 @@ import java.util.Queue;
 import org.jctools.util.Pow2;
 import org.jctools.util.UnsafeAccess;
 
-abstract class MpmcConcurrentQueueSMBufferL0Pad {
+abstract class MpmcConcurrentQueueSMBufferL0Pad
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -43,34 +44,44 @@ abstract class MpmcConcurrentQueueSMBufferL0Pad {
 //    byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 }
 
-abstract class MpmcConcurrentQueueSMBuffer<E> extends MpmcConcurrentQueueSMBufferL0Pad {
+abstract class MpmcConcurrentQueueSMBuffer<E> extends MpmcConcurrentQueueSMBufferL0Pad
+{
     private static final int SPARSE_SHIFT = Math.max(1, Integer.getInteger("sparse.shift", 0));// data is sparse to allow the wrap tokens
     private static final int BUFFER_PAD = 32;
     private static final long REF_ARRAY_BASE;
     private static final int REF_ELEMENT_SHIFT;
     protected static final int SIZE_OF_ELEMENT;
-    static {
+    static
+    {
         SIZE_OF_ELEMENT = UnsafeAccess.UNSAFE.arrayIndexScale(Object[].class);
-        if (4 == SIZE_OF_ELEMENT) {
+        if (4 == SIZE_OF_ELEMENT)
+        {
             REF_ELEMENT_SHIFT = 2 + SPARSE_SHIFT;
-        } else if (8 == SIZE_OF_ELEMENT) {
+        }
+        else if (8 == SIZE_OF_ELEMENT)
+        {
             REF_ELEMENT_SHIFT = 3 + SPARSE_SHIFT;
-        } else {
+        }
+        else
+        {
             throw new IllegalStateException("Unknown pointer size");
         }
         // Including the buffer pad in the array base offset
-        REF_ARRAY_BASE = UnsafeAccess.UNSAFE.arrayBaseOffset(Object[].class)
-                + (BUFFER_PAD << (REF_ELEMENT_SHIFT - SPARSE_SHIFT));
+        REF_ARRAY_BASE = UnsafeAccess.UNSAFE.arrayBaseOffset(Object[].class) + (BUFFER_PAD << (REF_ELEMENT_SHIFT - SPARSE_SHIFT));
     }
     protected final int capacity;
     protected final long mask;
     protected final E[] buffer;
 
     @SuppressWarnings("unchecked")
-    public MpmcConcurrentQueueSMBuffer(int capacity) {
-        if (Pow2.isPowerOfTwo(capacity)) {
+    public MpmcConcurrentQueueSMBuffer(int capacity)
+    {
+        if (Pow2.isPowerOfTwo(capacity))
+        {
             this.capacity = capacity;
-        } else {
+        }
+        else
+        {
             this.capacity = Pow2.roundToPowerOfTwo(capacity);
         }
         mask = this.capacity - 1;
@@ -78,35 +89,43 @@ abstract class MpmcConcurrentQueueSMBuffer<E> extends MpmcConcurrentQueueSMBuffe
         buffer = (E[]) new Object[(this.capacity << SPARSE_SHIFT) + BUFFER_PAD * 2];
     }
 
-    public MpmcConcurrentQueueSMBuffer(MpmcConcurrentQueueSMBuffer<E> c) {
+    public MpmcConcurrentQueueSMBuffer(MpmcConcurrentQueueSMBuffer<E> c)
+    {
         this.capacity = c.capacity;
         this.mask = c.mask;
         // pad data on either end with some empty slots.
         this.buffer = c.buffer;
     }
 
-    protected final long calcOffset(long index) {
+    protected final long calcOffset(long index)
+    {
         return REF_ARRAY_BASE + ((index & mask) << REF_ELEMENT_SHIFT);
     }
 
-    protected final void spElement(E[] buffer, long offset, E e) {
+    protected final void spElement(E[] buffer, long offset, E e)
+    {
         UNSAFE.putObject(buffer, offset, e);
     }
-    protected final void soElement(E[] buffer, long offset, Object e) {
+
+    protected final void soElement(E[] buffer, long offset, Object e)
+    {
         UNSAFE.putOrderedObject(buffer, offset, e);
     }
 
-    protected final void svElement(E[] buffer, long offset, Object e) {
+    protected final void svElement(E[] buffer, long offset, Object e)
+    {
         UNSAFE.putObjectVolatile(buffer, offset, e);
     }
 
     @SuppressWarnings("unchecked")
-    protected final Object lvElement(E[] buffer, long offset) {
+    protected final Object lvElement(E[] buffer, long offset)
+    {
         return UNSAFE.getObjectVolatile(buffer, offset);
     }
 }
 
-abstract class MpmcConcurrentQueueSML1Pad<E> extends MpmcConcurrentQueueSMBuffer<E> {
+abstract class MpmcConcurrentQueueSML1Pad<E> extends MpmcConcurrentQueueSMBuffer<E>
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -124,30 +143,36 @@ abstract class MpmcConcurrentQueueSML1Pad<E> extends MpmcConcurrentQueueSMBuffer
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
 //    byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 
-    public MpmcConcurrentQueueSML1Pad(int capacity) {
+    public MpmcConcurrentQueueSML1Pad(int capacity)
+    {
         super(capacity);
     }
 }
 
-abstract class MpmcConcurrentQueueSMTailField<E> extends MpmcConcurrentQueueSML1Pad<E> {
+abstract class MpmcConcurrentQueueSMTailField<E> extends MpmcConcurrentQueueSML1Pad<E>
+{
     private final static long TAIL_OFFSET = fieldOffset(MpmcConcurrentQueueSMTailField.class, "tail");
 
     private volatile long tail;
 
-    public MpmcConcurrentQueueSMTailField(int capacity) {
+    public MpmcConcurrentQueueSMTailField(int capacity)
+    {
         super(capacity);
     }
 
-    protected final long lvTail() {
+    protected final long lvTail()
+    {
         return tail;
     }
 
-    protected final boolean casTail(long expect, long newValue) {
+    protected final boolean casTail(long expect, long newValue)
+    {
         return UnsafeAccess.UNSAFE.compareAndSwapLong(this, TAIL_OFFSET, expect, newValue);
     }
 }
 
-abstract class MpmcConcurrentQueueSML2Pad<E> extends MpmcConcurrentQueueSMTailField<E> {
+abstract class MpmcConcurrentQueueSML2Pad<E> extends MpmcConcurrentQueueSMTailField<E>
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -165,31 +190,37 @@ abstract class MpmcConcurrentQueueSML2Pad<E> extends MpmcConcurrentQueueSMTailFi
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
 //    byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 
-    public MpmcConcurrentQueueSML2Pad(int capacity) {
+    public MpmcConcurrentQueueSML2Pad(int capacity)
+    {
         super(capacity);
     }
 }
 
-abstract class MpmcConcurrentQueueSMHeadField<E> extends MpmcConcurrentQueueSML2Pad<E> {
+abstract class MpmcConcurrentQueueSMHeadField<E> extends MpmcConcurrentQueueSML2Pad<E>
+{
     private final static long HEAD_OFFSET = fieldOffset(MpmcConcurrentQueueSMHeadField.class, "head");
 
     private volatile long head;
 
-    public MpmcConcurrentQueueSMHeadField(int capacity) {
+    public MpmcConcurrentQueueSMHeadField(int capacity)
+    {
         super(capacity);
     }
 
-    protected final long lvHead() {
+    protected final long lvHead()
+    {
         return head;
     }
 
-    protected final boolean casHead(long expect, long newValue) {
+    protected final boolean casHead(long expect, long newValue)
+    {
         return UnsafeAccess.UNSAFE.compareAndSwapLong(this, HEAD_OFFSET, expect, newValue);
     }
 }
 
 public final class MpmcConcurrentQueueStateMarkers<E> extends MpmcConcurrentQueueSMHeadField<E> implements
-        Queue<E> {
+    Queue<E>
+{
     private static final Object P_OFFER = new Object();
     private static final Object N_OFFER = null;
     private static final Object P_POLL = new Object();
@@ -211,20 +242,25 @@ public final class MpmcConcurrentQueueStateMarkers<E> extends MpmcConcurrentQueu
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
 //    byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 
-    public MpmcConcurrentQueueStateMarkers(final int capacity) {
+    public MpmcConcurrentQueueStateMarkers(final int capacity)
+    {
         super(capacity);
     }
 
-    public boolean add(final E e) {
-        if (offer(e)) {
+    public boolean add(final E e)
+    {
+        if (offer(e))
+        {
             return true;
         }
         throw new IllegalStateException("Queue is full");
     }
 
     @Override
-    public boolean offer(final E e) {
-        if (null == e) {
+    public boolean offer(final E e)
+    {
+        if (null == e)
+        {
             throw new NullPointerException("Null is not a valid element");
         }
         long currentTail;
@@ -233,24 +269,30 @@ public final class MpmcConcurrentQueueStateMarkers<E> extends MpmcConcurrentQueu
         long currentTailWrapSign;
         Object pollSign;
         final E[] lb = buffer;
-        for (;;) {
+        for (;;)
+        {
             currentTail = lvTail();
             offsetWrapSign = calcOffset(currentTail);
             wrapSign = lvElement(lb, offsetWrapSign);
             currentTailWrapSign = capacity & currentTail;
-            if (currentTailWrapSign == 0 && wrapSign == N_OFFER) {
-                if (casTail(currentTail, currentTail + 1)) {
+            if (currentTailWrapSign == 0 && wrapSign == N_OFFER)
+            {
+                if (casTail(currentTail, currentTail + 1))
+                {
                     pollSign = N_POLL;
                     break;
                 }
             }
-            else if (currentTailWrapSign != 0 && wrapSign == P_OFFER) {
-                if (casTail(currentTail, currentTail + 1)) {
+            else if (currentTailWrapSign != 0 && wrapSign == P_OFFER)
+            {
+                if (casTail(currentTail, currentTail + 1))
+                {
                     pollSign = P_POLL;
                     break;
                 }
             }
-            else if(null != lvElement(lb,  offsetWrapSign + SIZE_OF_ELEMENT)) {
+            else if (null != lvElement(lb, offsetWrapSign + SIZE_OF_ELEMENT))
+            {
                 return false;
             }
         }
@@ -261,7 +303,8 @@ public final class MpmcConcurrentQueueStateMarkers<E> extends MpmcConcurrentQueu
 
     @SuppressWarnings("unchecked")
     @Override
-    public E poll() {
+    public E poll()
+    {
         E e;
         long currentHead;
         long offsetWrapSign;
@@ -269,47 +312,57 @@ public final class MpmcConcurrentQueueStateMarkers<E> extends MpmcConcurrentQueu
         long currentHeadWrapSign;
         Object offerSign;
         final E[] lb = buffer;
-        for (;;) {
+        for (;;)
+        {
             currentHead = lvHead();
-            offsetWrapSign =  calcOffset(currentHead);
+            offsetWrapSign = calcOffset(currentHead);
             wrapSign = lvElement(lb, offsetWrapSign);
             currentHeadWrapSign = capacity & currentHead;
 
-            if (currentHeadWrapSign == 0 && wrapSign == N_POLL) {
-                if (casHead(currentHead, currentHead + 1)) {
+            if (currentHeadWrapSign == 0 && wrapSign == N_POLL)
+            {
+                if (casHead(currentHead, currentHead + 1))
+                {
                     offerSign = P_OFFER;
                     break;
                 }
             }
-            else if (currentHeadWrapSign != 0 && wrapSign == P_POLL) {
-                if (casHead(currentHead, currentHead + 1)) {
+            else if (currentHeadWrapSign != 0 && wrapSign == P_POLL)
+            {
+                if (casHead(currentHead, currentHead + 1))
+                {
                     offerSign = N_OFFER;
                     break;
                 }
             }
-            else if(null == lvElement(lb, offsetWrapSign + SIZE_OF_ELEMENT)) {
+            else if (null == lvElement(lb, offsetWrapSign + SIZE_OF_ELEMENT))
+            {
                 return null;
             }
         }
         final long offsetE = offsetWrapSign + SIZE_OF_ELEMENT;
         e = (E) lvElement(lb, offsetE);
-        spElement(lb,offsetE, null);
+        spElement(lb, offsetE, null);
         soElement(lb, offsetWrapSign, offerSign);
         return e;
     }
 
-    public E remove() {
+    public E remove()
+    {
         final E e = poll();
-        if (null == e) {
+        if (null == e)
+        {
             throw new NoSuchElementException("Queue is empty");
         }
 
         return e;
     }
 
-    public E element() {
+    public E element()
+    {
         final E e = peek();
-        if (null == e) {
+        if (null == e)
+        {
             throw new NoSuchElementException("Queue is empty");
         }
 
@@ -318,27 +371,33 @@ public final class MpmcConcurrentQueueStateMarkers<E> extends MpmcConcurrentQueu
 
     @Override
     @SuppressWarnings("unchecked")
-    public E peek() {
+    public E peek()
+    {
         return (E) lvElement(buffer, calcOffset(lvHead()) + SIZE_OF_ELEMENT);
     }
 
-    public int size() {
+    public int size()
+    {
         return (int) (lvTail() - lvHead());
     }
 
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return size() == 0;
     }
 
-    public boolean contains(final Object o) {
-        if (null == o) {
+    public boolean contains(final Object o)
+    {
+        if (null == o)
+        {
             return false;
         }
 
-        for (long i = lvHead(), limit = lvTail(); i < limit; i++) {
-            @SuppressWarnings("unchecked")
-            final E e = (E) lvElement(buffer, calcOffset(i) + SIZE_OF_ELEMENT);
-            if (o.equals(e)) {
+        for (long i = lvHead(), limit = lvTail(); i < limit; i++)
+        {
+            @SuppressWarnings("unchecked") final E e = (E) lvElement(buffer, calcOffset(i) + SIZE_OF_ELEMENT);
+            if (o.equals(e))
+            {
                 return true;
             }
         }
@@ -346,25 +405,32 @@ public final class MpmcConcurrentQueueStateMarkers<E> extends MpmcConcurrentQueu
         return false;
     }
 
-    public Iterator<E> iterator() {
+    public Iterator<E> iterator()
+    {
         throw new UnsupportedOperationException();
     }
 
-    public Object[] toArray() {
+    public Object[] toArray()
+    {
         throw new UnsupportedOperationException();
     }
 
-    public <T> T[] toArray(final T[] a) {
+    public <T> T[] toArray(final T[] a)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean remove(final Object o) {
+    public boolean remove(final Object o)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean containsAll(final Collection<?> c) {
-        for (final Object o : c) {
-            if (!contains(o)) {
+    public boolean containsAll(final Collection<?> c)
+    {
+        for (final Object o : c)
+        {
+            if (!contains(o))
+            {
                 return false;
             }
         }
@@ -372,26 +438,33 @@ public final class MpmcConcurrentQueueStateMarkers<E> extends MpmcConcurrentQueu
         return true;
     }
 
-    public boolean addAll(final Collection<? extends E> c) {
-        for (final E e : c) {
+    public boolean addAll(final Collection<? extends E> c)
+    {
+        for (final E e : c)
+        {
             add(e);
         }
 
         return true;
     }
 
-    public boolean removeAll(final Collection<?> c) {
+    public boolean removeAll(final Collection<?> c)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean retainAll(final Collection<?> c) {
+    public boolean retainAll(final Collection<?> c)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public void clear() {
+    public void clear()
+    {
         Object value;
-        do {
+        do
+        {
             value = poll();
-        } while (null != value);
+        }
+        while (null != value);
     }
 }

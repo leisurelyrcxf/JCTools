@@ -13,7 +13,8 @@
  */
 package org.jctools.jmh.throughput.channels;
 
-public interface Ping {
+public interface Ping
+{
 
     void setValue(long value);
 

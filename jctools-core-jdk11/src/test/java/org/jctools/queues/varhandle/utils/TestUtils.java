@@ -20,7 +20,8 @@ import org.jctools.queues.spec.Preference;
 import static org.jctools.queues.varhandle.utils.VarHandleQueueFactory.newVarHandleQueue;
 import static org.jctools.queues.varhandle.utils.VarHandleQueueFactory.newVarHandleUnpaddedQueue;
 
-public class TestUtils {
+public class TestUtils
+{
 
     public static Object[] makeVarHandle(int producers, int consumers, int capacity, Ordering ordering)
     {

@@ -622,6 +622,7 @@ abstract class BaseMpscLinkedAtomicArrayQueue<E> extends BaseMpscLinkedAtomicArr
     {
         MessagePassingQueueUtil.fill(this, s, wait, exit);
     }
+
     @Override
     public int drain(Consumer<E> c)
     {
@@ -651,7 +652,8 @@ abstract class BaseMpscLinkedAtomicArrayQueue<E> extends BaseMpscLinkedAtomicArr
      * @return The iterator.
      */
     @Override
-    public Iterator<E> iterator() {
+    public Iterator<E> iterator()
+    {
         return new WeakIterator(consumerBuffer, lvConsumerIndex(), lvProducerIndex());
     }
 
@@ -676,7 +678,8 @@ abstract class BaseMpscLinkedAtomicArrayQueue<E> extends BaseMpscLinkedAtomicArr
         }
 
         @Override
-        public void remove() {
+        public void remove()
+        {
             throw new UnsupportedOperationException("remove");
         }
 
@@ -725,7 +728,7 @@ abstract class BaseMpscLinkedAtomicArrayQueue<E> extends BaseMpscLinkedAtomicArr
                 // need to jump to the next buffer
                 int nextBufferIndex = mask + 1;
                 Object nextBuffer = lvRefElement(currentBuffer,
-                                              calcRefElementOffset(nextBufferIndex));
+                    calcRefElementOffset(nextBufferIndex));
 
                 if (nextBuffer == BUFFER_CONSUMED || nextBuffer == null)
                 {

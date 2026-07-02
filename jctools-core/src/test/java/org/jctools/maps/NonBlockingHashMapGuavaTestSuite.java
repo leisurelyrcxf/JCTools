@@ -128,10 +128,11 @@ public class NonBlockingHashMapGuavaTestSuite extends TestCase
                 testers.remove(MapReplaceTester.class);
                 return testers;
             }
-        }.withFeatures(
-            MapFeature.GENERAL_PURPOSE,
-            CollectionSize.ANY,
-            CollectionFeature.SUPPORTS_ITERATOR_REMOVE)
+        }
+            .withFeatures(
+                MapFeature.GENERAL_PURPOSE,
+                CollectionSize.ANY,
+                CollectionFeature.SUPPORTS_ITERATOR_REMOVE)
             .named(name)
             .createTestSuite();
     }

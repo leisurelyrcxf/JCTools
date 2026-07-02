@@ -79,7 +79,7 @@ abstract class BaseMpscLinkedUnpaddedArrayQueuePad2<E> extends BaseMpscLinkedUnp
  */
 abstract class BaseMpscLinkedUnpaddedArrayQueueConsumerFields<E> extends BaseMpscLinkedUnpaddedArrayQueuePad2<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(BaseMpscLinkedUnpaddedArrayQueueConsumerFields.class,"consumerIndex");
+    private final static long C_INDEX_OFFSET = fieldOffset(BaseMpscLinkedUnpaddedArrayQueueConsumerFields.class, "consumerIndex");
 
     private long consumerIndex;
     protected long consumerMask;
@@ -116,7 +116,7 @@ abstract class BaseMpscLinkedUnpaddedArrayQueuePad3<E> extends BaseMpscLinkedUnp
  */
 abstract class BaseMpscLinkedUnpaddedArrayQueueColdProducerFields<E> extends BaseMpscLinkedUnpaddedArrayQueuePad3<E>
 {
-    private final static long P_LIMIT_OFFSET = fieldOffset(BaseMpscLinkedUnpaddedArrayQueueColdProducerFields.class,"producerLimit");
+    private final static long P_LIMIT_OFFSET = fieldOffset(BaseMpscLinkedUnpaddedArrayQueueColdProducerFields.class, "producerLimit");
 
     private volatile long producerLimit;
     protected long producerMask;
@@ -577,6 +577,7 @@ abstract class BaseMpscLinkedUnpaddedArrayQueue<E> extends BaseMpscLinkedUnpadde
     {
         MessagePassingQueueUtil.fill(this, s, wait, exit);
     }
+
     @Override
     public int drain(Consumer<E> c)
     {
@@ -606,7 +607,8 @@ abstract class BaseMpscLinkedUnpaddedArrayQueue<E> extends BaseMpscLinkedUnpadde
      * @return The iterator.
      */
     @Override
-    public Iterator<E> iterator() {
+    public Iterator<E> iterator()
+    {
         return new WeakIterator(consumerBuffer, lvConsumerIndex(), lvProducerIndex());
     }
 
@@ -627,7 +629,8 @@ abstract class BaseMpscLinkedUnpaddedArrayQueue<E> extends BaseMpscLinkedUnpadde
         }
 
         @Override
-        public void remove() {
+        public void remove()
+        {
             throw new UnsupportedOperationException("remove");
         }
 
@@ -676,7 +679,7 @@ abstract class BaseMpscLinkedUnpaddedArrayQueue<E> extends BaseMpscLinkedUnpadde
                 // need to jump to the next buffer
                 int nextBufferIndex = mask + 1;
                 Object nextBuffer = lvRefElement(currentBuffer,
-                                              calcRefElementOffset(nextBufferIndex));
+                    calcRefElementOffset(nextBufferIndex));
 
                 if (nextBuffer == BUFFER_CONSUMED || nextBuffer == null)
                 {

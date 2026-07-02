@@ -59,7 +59,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
-public class RingBurstRoundTripWithGroups {
+public class RingBurstRoundTripWithGroups
+{
     private static final int CHAIN_LENGTH = Integer.getInteger("chain.length", 2);
     private static final int BURST_SIZE = Integer.getInteger("burst.size", 1);
     private static final Integer DUMMY_MESSAGE = 1;
@@ -70,8 +71,10 @@ public class RingBurstRoundTripWithGroups {
      * is used to pick the in/out queues.
      */
     private final static AtomicInteger idx = new AtomicInteger();
-    private final static ThreadLocal<Integer> tlIndex = new ThreadLocal<Integer>() {
-        protected Integer initialValue() {
+    private final static ThreadLocal<Integer> tlIndex = new ThreadLocal<Integer>()
+    {
+        protected Integer initialValue()
+        {
             return idx.getAndIncrement();
         }
     };
@@ -83,22 +86,26 @@ public class RingBurstRoundTripWithGroups {
      * id to maintain the same queues are selected per thread.
      */
     @State(Scope.Thread)
-    public static class Link {
+    public static class Link
+    {
         final Queue<Integer> in;
         final Queue<Integer> out;
 
-        public Link() {
+        public Link()
+        {
             int id = tlIndex.get();
             // the old in out, in out
             this.in = chain[id % CHAIN_LENGTH];
             this.out = chain[(id + 1) % CHAIN_LENGTH];
         }
 
-        public void link() {
+        public void link()
+        {
             // we could use the control here, but there's no reason as it is use externally and we only
             // really want to measure the ping method
             Integer e = in.poll();
-            if (e != null) {
+            if (e != null)
+            {
                 out.offer(e);
             }
         }
@@ -107,7 +114,8 @@ public class RingBurstRoundTripWithGroups {
          * We want to always start with an empty inbound. Iteration tear downs are synchronized.
          */
         @TearDown(Level.Iteration)
-        public void clear() {
+        public void clear()
+        {
             // SPSC -> consumer must clear the queue
             in.clear();
         }
@@ -121,23 +129,29 @@ public class RingBurstRoundTripWithGroups {
      * id to maintain the same queues are selected per thread.
      */
     @State(Scope.Thread)
-    public static class Source {
+    public static class Source
+    {
         final Queue<Integer> start;
         final Queue<Integer> end;
 
-        public Source() {
+        public Source()
+        {
             int id = tlIndex.get();
             // the source ties the knot in our ring
             this.end = chain[id % CHAIN_LENGTH];
             this.start = chain[(id + 1) % CHAIN_LENGTH];
         }
 
-        public void ping(Control ctl) {
-            for (int i = 0; i < BURST_SIZE; i++) {
+        public void ping(Control ctl)
+        {
+            for (int i = 0; i < BURST_SIZE; i++)
+            {
                 start.offer(DUMMY_MESSAGE);
             }
-            for (int i = 0; i < BURST_SIZE; i++) {
-                while (!ctl.stopMeasurement && end.poll() == null) {
+            for (int i = 0; i < BURST_SIZE; i++)
+            {
+                while (!ctl.stopMeasurement && end.poll() == null)
+                {
                 }
             }
         }
@@ -146,25 +160,30 @@ public class RingBurstRoundTripWithGroups {
          * We want to always start with an empty inbound. Iteration tear downs are synchronized.
          */
         @TearDown(Level.Iteration)
-        public void clear() {
+        public void clear()
+        {
             // SPSC -> consumer must clear the queue
             end.clear();
         }
     }
 
     @Setup(Level.Trial)
-    public void prepareChain() {
+    public void prepareChain()
+    {
         // can't have group threads set to zero on a method, so can't handle the length of 1 case
-        if (CHAIN_LENGTH < 2) {
+        if (CHAIN_LENGTH < 2)
+        {
             throw new IllegalArgumentException("Chain length must be 2 or more");
         }
         // This is an estimate, but for bounded queues if the burst size is more than actual ring capacity
         // the benchmark will hang/
-        if (BURST_SIZE > QueueByTypeFactory.QUEUE_CAPACITY * CHAIN_LENGTH >> 1) {
+        if (BURST_SIZE > QueueByTypeFactory.QUEUE_CAPACITY * CHAIN_LENGTH >> 1)
+        {
             throw new IllegalArgumentException("Batch size exceeds estimated capacity");
         }
         // initialize the chain
-        for (int i = 0; i < CHAIN_LENGTH; i++) {
+        for (int i = 0; i < CHAIN_LENGTH; i++)
+        {
             chain[i] = QueueByTypeFactory.createQueue();
         }
     }
@@ -172,14 +191,16 @@ public class RingBurstRoundTripWithGroups {
     @Benchmark
     @Group("ring")
     @GroupThreads(1)
-    public void ping(Control ctl, Source s) {
+    public void ping(Control ctl, Source s)
+    {
         s.ping(ctl);
     }
 
     @Benchmark
     @Group("ring")
     @GroupThreads(1)
-    public void loop(Link l) {
+    public void loop(Link l)
+    {
         l.link();
     }
 }

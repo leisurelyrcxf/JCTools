@@ -20,17 +20,21 @@ import java.util.Arrays;
  * ordering instead of {@code sun.misc.Unsafe}. Inherited tests verify it remains Unsafe-free at
  * both load-time and source-import level.
  */
-public class VarHandleQueueDoesNotLoadUnsafeTest extends AbstractUnsafeFreeQueueTest {
+public class VarHandleQueueDoesNotLoadUnsafeTest extends AbstractUnsafeFreeQueueTest
+{
 
-    public VarHandleQueueDoesNotLoadUnsafeTest() {
+    public VarHandleQueueDoesNotLoadUnsafeTest()
+    {
         super(
-                Arrays.asList(
-                        "org.jctools.queues.varhandle",
-                        "org.jctools.queues.varhandle.unpadded"),
-                Arrays.asList(
-                        "src/main/java/org/jctools/queues/varhandle",
-                        "src/main/java/org/jctools/queues/varhandle/unpadded"),
-                "VarHandle",
-                10);
+            Arrays
+                .asList(
+                    "org.jctools.queues.varhandle",
+                    "org.jctools.queues.varhandle.unpadded"),
+            Arrays
+                .asList(
+                    "src/main/java/org/jctools/queues/varhandle",
+                    "src/main/java/org/jctools/queues/varhandle/unpadded"),
+            "VarHandle",
+            10);
     }
 }

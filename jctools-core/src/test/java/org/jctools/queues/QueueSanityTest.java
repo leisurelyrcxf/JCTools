@@ -292,8 +292,8 @@ public abstract class QueueSanityTest
                 while (!stop.get())
                 {
                     // conditional is required when threads > capacity
-                    if (q.offer(1)) ;
-                    while (q.poll() == null && !stop.get()) ;
+                    if (q.offer(1));
+                    while (q.poll() == null && !stop.get());
                 }
             }
             catch (Throwable t)

@@ -6,7 +6,8 @@ import java.util.NoSuchElementException;
 
 import org.jctools.util.Pow2;
 
-public class IdentityOpenHashSet<E> extends AbstractSet<E> {
+public class IdentityOpenHashSet<E> extends AbstractSet<E>
+{
     /* current element count */
     private int size;
     /* buffer.length is a power of 2 */
@@ -14,7 +15,8 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
     private int resizeThreshold;
 
     @SuppressWarnings("unchecked")
-    public IdentityOpenHashSet(int capacity) {
+    public IdentityOpenHashSet(int capacity)
+    {
         int actualCapacity = Pow2.roundToPowerOfTwo(capacity);
         // pad data on either end with some empty slots?
         buffer = (E[]) new Object[actualCapacity];
@@ -22,12 +24,14 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
     }
 
     @Override
-    public int size() {
+    public int size()
+    {
         return size;
     }
 
     @Override
-    public boolean add(E newVal) {
+    public boolean add(E newVal)
+    {
         final E[] buffer = this.buffer;
         final int mask = buffer.length - 1;
 
@@ -36,44 +40,55 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
         final E currVal = buffer[offset];
 
         boolean result;
-        if (currVal == null) {
+        if (currVal == null)
+        {
             size++;
             buffer[offset] = newVal;
             result = true;
-        } else {
+        }
+        else
+        {
             result = currVal != newVal && addSlowPath(buffer, mask, newVal, hash);
         }
 
-        if (result && size > resizeThreshold) {
+        if (result && size > resizeThreshold)
+        {
             resize();
         }
         return result;
     }
 
-    private void addForResize(final E[] buffer, final int mask, E newVal) {
+    private void addForResize(final E[] buffer, final int mask, E newVal)
+    {
         final int hash = System.identityHashCode(newVal);
         final int limit = hash + mask;
-        for (int i = hash; i <= limit; i++) {
+        for (int i = hash; i <= limit; i++)
+        {
             final int offset = i & mask;
             final E currVal = buffer[offset];
-            if (currVal == null) {
+            if (currVal == null)
+            {
                 buffer[offset] = newVal;
                 return;
             }
         }
     }
 
-    private boolean addSlowPath(E[] buffer, int mask, E newVal, int hash) {
+    private boolean addSlowPath(E[] buffer, int mask, E newVal, int hash)
+    {
         final int limit = hash + mask;
-        for (int i = hash + 1; i <= limit; i++) {
+        for (int i = hash + 1; i <= limit; i++)
+        {
             final int offset = i & mask;
             final E currVal = buffer[offset];
-            if (currVal == null) {
+            if (currVal == null)
+            {
                 size++;
                 buffer[offset] = newVal;
                 return true;
             }
-            else if (currVal == newVal) {
+            else if (currVal == newVal)
+            {
                 return false;
             }
         }
@@ -81,13 +96,16 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
     }
 
     @SuppressWarnings("unchecked")
-    private void resize() {
+    private void resize()
+    {
         final E[] oldBuffer = buffer;
         final E[] newBuffer = (E[]) new Object[oldBuffer.length * 2];
         final int mask = newBuffer.length - 1;
         int countdown = size;
-        for (int i = 0; i < oldBuffer.length && countdown > 0; i++) {
-            if (oldBuffer[i] != null) {
+        for (int i = 0; i < oldBuffer.length && countdown > 0; i++)
+        {
+            if (oldBuffer[i] != null)
+            {
                 addForResize(newBuffer, mask, oldBuffer[i]);
                 countdown--;
             }
@@ -98,21 +116,26 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
     }
 
     @Override
-    public boolean remove(Object val) {
+    public boolean remove(Object val)
+    {
         final E[] buffer = this.buffer;
         final int mask = buffer.length - 1;
         final int hash = System.identityHashCode(val);
         final int offset = hash & mask;
         final E e = buffer[offset];
-        if (e == null) {
+        if (e == null)
+        {
             return false;
         }
-        else if (e == val) {
+        else if (e == val)
+        {
             size--;
-            if (buffer[(hash + 1) & mask] == null) {
+            if (buffer[(hash + 1) & mask] == null)
+            {
                 buffer[offset] = null;
             }
-            else {
+            else
+            {
                 compactAndRemove(buffer, mask, hash);
             }
             return true;
@@ -120,20 +143,26 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
         return removeSlowPath(val, buffer, mask, hash);
     }
 
-    private boolean removeSlowPath(Object val, final E[] buffer, final int mask, final int hash) {
+    private boolean removeSlowPath(Object val, final E[] buffer, final int mask, final int hash)
+    {
         final int limit = hash + mask;
-        for (int searchIndex = hash + 1; searchIndex <= limit; searchIndex++) {
+        for (int searchIndex = hash + 1; searchIndex <= limit; searchIndex++)
+        {
             final int offset = searchIndex & mask;
             final E e = buffer[offset];
-            if (e == null) {
+            if (e == null)
+            {
                 return false;
             }
-            else if (e == val) {
+            else if (e == val)
+            {
                 size--;
-                if (buffer[(searchIndex + 1) & mask] == null) {
+                if (buffer[(searchIndex + 1) & mask] == null)
+                {
                     buffer[offset] = null;
                 }
-                else {
+                else
+                {
                     compactAndRemove(buffer, mask, searchIndex);
                 }
                 return true;
@@ -145,18 +174,22 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
     /*
      * implemented as per wiki suggested algo with minor adjustments.
      */
-    private void compactAndRemove(final E[] buffer, final int mask, int removeHashIndex) {
+    private void compactAndRemove(final E[] buffer, final int mask, int removeHashIndex)
+    {
         // remove(9a): [9a,9b,10a,9c,10b,11a,null] -> [9b,9c,10a,10b,null,11a,null]
         removeHashIndex = removeHashIndex & mask;
         int j = removeHashIndex;
-        while(true) {
+        while (true)
+        {
             int k;
             // skip elements which belong where they are
-            do {
+            do
+            {
                 // j := (j+1) modulo num_slots
                 j = (j + 1) & mask;
                 // if slot[j] is unoccupied exit
-                if (buffer[j] == null) {
+                if (buffer[j] == null)
+                {
                     // delete last duplicate slot
                     buffer[removeHashIndex] = null;
                     return;
@@ -168,9 +201,9 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
                 // |    i.k.j |
                 // |....j i.k.| or  |.k..j i...|
             }
-            while ( (removeHashIndex  <= j) ?
-                    ((removeHashIndex < k) && (k <= j)) :
-                    ((removeHashIndex < k) || (k <= j)) );
+            while ((removeHashIndex <= j) ?
+                ((removeHashIndex < k) && (k <= j)) :
+                ((removeHashIndex < k) || (k <= j)));
             // slot[removeHashIndex] := slot[j]
             buffer[removeHashIndex] = buffer[j];
             // removeHashIndex := j
@@ -179,28 +212,35 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
     }
 
     @Override
-    public boolean contains(Object needle) {
+    public boolean contains(Object needle)
+    {
         // contains takes a snapshot of the buffer.
         final E[] buffer = this.buffer;
         final int mask = buffer.length - 1;
         final int hash = System.identityHashCode(needle);
         final E e = buffer[hash & mask];
-        if (e == null) {
+        if (e == null)
+        {
             return false;
         }
-        else if (e == needle) {
+        else if (e == needle)
+        {
             return true;
         }
         return containsSlowPath(buffer, mask, hash, needle);
     }
 
-    private boolean containsSlowPath(final E[] buffer, final int mask, final int hash, Object needle) {
-        for (int i = hash + 1; i <= hash + mask; i++) {
+    private boolean containsSlowPath(final E[] buffer, final int mask, final int hash, Object needle)
+    {
+        for (int i = hash + 1; i <= hash + mask; i++)
+        {
             final E e = buffer[i & mask];
-            if (e == null) {
+            if (e == null)
+            {
                 return false;
             }
-            else if (e == needle) {
+            else if (e == needle)
+            {
                 return true;
             }
         }
@@ -208,11 +248,13 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public Iterator<E> iterator()
+    {
         return new Iter<E>(this);
     }
 
-    private static class Iter<E> implements Iterator<E> {
+    private static class Iter<E> implements Iterator<E>
+    {
         private final E[] buffer;
         private final IdentityOpenHashSet<E> set;
         private int nextValIndex;
@@ -220,19 +262,22 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
         private E nextVal = null;
         private E lastVal = null;
 
-        public Iter(IdentityOpenHashSet<E> set) {
+        public Iter(IdentityOpenHashSet<E> set)
+        {
             this.set = set;
             this.buffer = set.buffer;
             findNextVal();
         }
 
         @Override
-        public boolean hasNext() {
+        public boolean hasNext()
+        {
             return nextVal != null;
         }
 
         @Override
-        public E next() {
+        public E next()
+        {
             if (nextVal == null)
                 throw new NoSuchElementException();
             E e = nextVal;
@@ -242,13 +287,16 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
             return e;
         }
 
-        private void findNextVal() {
+        private void findNextVal()
+        {
             E[] array = buffer;
             int i = nextValIndex;
             E e = null;
-            for (; i < array.length; i++) {
+            for (; i < array.length; i++)
+            {
                 e = array[i];
-                if (e != null) {
+                if (e != null)
+                {
                     nextVal = e;
                     nextValIndex = i + 1;
                     return;
@@ -258,9 +306,11 @@ public class IdentityOpenHashSet<E> extends AbstractSet<E> {
         }
 
         @Override
-        public void remove() {
+        public void remove()
+        {
             E e;
-            if ((e = lastVal) != null) {
+            if ((e = lastVal) != null)
+            {
                 lastVal = null;
                 set.remove(e);
                 nextValIndex = lastValIndex - 1;

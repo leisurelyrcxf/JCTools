@@ -23,7 +23,8 @@ package org.jctools.channels.proxy;
  *
  * @param <E> element type
  */
-public interface ProxyChannel<E> {
+public interface ProxyChannel<E>
+{
 
     /**
      * @param impl the accept function for this consumer

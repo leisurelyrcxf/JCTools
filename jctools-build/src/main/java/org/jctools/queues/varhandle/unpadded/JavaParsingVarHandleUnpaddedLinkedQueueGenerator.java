@@ -15,25 +15,33 @@ import org.jctools.queues.varhandle.JavaParsingVarHandleLinkedQueueGenerator;
  * linked variant needs.
  */
 public class JavaParsingVarHandleUnpaddedLinkedQueueGenerator
-    extends JavaParsingVarHandleLinkedQueueGenerator {
-  public static void main(String[] args) throws Exception {
-    runJCToolsGenerator(JavaParsingVarHandleUnpaddedLinkedQueueGenerator.class, args);
-  }
+    extends JavaParsingVarHandleLinkedQueueGenerator
+{
+    public static void main(String[] args) throws Exception
+    {
+        runJCToolsGenerator(JavaParsingVarHandleUnpaddedLinkedQueueGenerator.class, args);
+    }
 
-  public JavaParsingVarHandleUnpaddedLinkedQueueGenerator(String sourceFileName) {
-    super(sourceFileName, "org.jctools.queues.varhandle.unpadded", "VarHandleUnpadded");
-  }
+    public JavaParsingVarHandleUnpaddedLinkedQueueGenerator(String sourceFileName)
+    {
+        super(sourceFileName, "org.jctools.queues.varhandle.unpadded", "VarHandleUnpadded");
+    }
 
-  @Override
-  protected boolean stripsPadding() {
-    return true;
-  }
+    @Override
+    protected boolean stripsPadding()
+    {
+        return true;
+    }
 
-  @Override
-  public void organiseImports(CompilationUnit cu) {
-    super.organiseImports(cu);
-    cu.addImport(
-        new ImportDeclaration(
-            "org.jctools.queues.varhandle.LinkedQueueVarHandleNode", false, false));
-  }
+    @Override
+    public void organiseImports(CompilationUnit cu)
+    {
+        super.organiseImports(cu);
+        cu
+            .addImport(
+                new ImportDeclaration(
+                    "org.jctools.queues.varhandle.LinkedQueueVarHandleNode",
+                    false,
+                    false));
+    }
 }

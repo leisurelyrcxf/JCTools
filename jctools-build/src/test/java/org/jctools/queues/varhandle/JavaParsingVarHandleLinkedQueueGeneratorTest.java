@@ -11,13 +11,20 @@ import static org.junit.Assert.assertTrue;
 /**
  * Regression tests for {@link JavaParsingVarHandleLinkedQueueGenerator}.
  */
-public class JavaParsingVarHandleLinkedQueueGeneratorTest {
+public class JavaParsingVarHandleLinkedQueueGeneratorTest
+{
 
-    private static String generate(String source) {
-        CompilationUnit cu = new JavaParser().parse(source).getResult().orElseThrow(
+    private static String generate(String source)
+    {
+        CompilationUnit cu = new JavaParser()
+            .parse(source)
+            .getResult()
+            .orElseThrow(
                 () -> new AssertionError("parse failed"));
-        return GeneratorUtils.applyGenerator(
-                new JavaParsingVarHandleLinkedQueueGenerator("Synthetic.java"), cu);
+        return GeneratorUtils
+            .applyGenerator(
+                new JavaParsingVarHandleLinkedQueueGenerator("Synthetic.java"),
+                cu);
     }
 
     /**
@@ -27,9 +34,10 @@ public class JavaParsingVarHandleLinkedQueueGeneratorTest {
      * cleanup, an {@code E[]} parameter / cast / variable type must still survive intact.
      */
     @Test
-    public void preservesEArrayTypeUnchanged() {
+    public void preservesEArrayTypeUnchanged()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "import java.util.AbstractQueue;\n" +
                 "abstract class FooLinkedQueue<E> extends AbstractQueue<E> {\n" +
                 "  void use(E[] buffer) {\n" +
@@ -43,6 +51,6 @@ public class JavaParsingVarHandleLinkedQueueGeneratorTest {
         assertTrue("local var type preserved as E[]: " + out, out.contains("final E[] copy"));
         assertTrue("cast type preserved as (E[]): " + out, out.contains("(E[]) buffer"));
         assertFalse("no AtomicReferenceArray wrapping in VarHandle output: " + out,
-                out.contains("AtomicReferenceArray"));
+            out.contains("AtomicReferenceArray"));
     }
 }

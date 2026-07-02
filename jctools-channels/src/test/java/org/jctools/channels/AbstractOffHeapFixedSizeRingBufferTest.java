@@ -20,35 +20,37 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-public class AbstractOffHeapFixedSizeRingBufferTest {
+public class AbstractOffHeapFixedSizeRingBufferTest
+{
 
 
-	public static void test(OffHeapFixedMessageSizeRingBuffer rb) {
+    public static void test(OffHeapFixedMessageSizeRingBuffer rb)
+    {
         assertEquals(0, rb.size());
-		assertTrue(rb.isEmpty());
-		assertEquals(EOF, rb.readAcquire());
-		
-		long writeOffset = rb.writeAcquire();
-		assertNotEquals(EOF, writeOffset);
-		long fieldOffset = writeOffset+MESSAGE_INDICATOR_SIZE;
-		UNSAFE.putInt(fieldOffset,1);
-		UNSAFE.putLong(fieldOffset+4,1);
-		// blah blah, not writing the rest
-		
-		rb.writeRelease(writeOffset);
-		assertEquals(1, rb.size());
-		assertTrue(!rb.isEmpty());
-		long readOffset = rb.readAcquire();
-		fieldOffset = readOffset + MESSAGE_INDICATOR_SIZE;
-		assertNotEquals(EOF, readOffset);
-		assertEquals(writeOffset, readOffset);
-		assertEquals(1, UNSAFE.getInt(fieldOffset));
-		assertEquals(1L, UNSAFE.getLong(fieldOffset+4));
-		rb.readRelease(readOffset);
-		
-		assertEquals(0, rb.size());
-		assertTrue(rb.isEmpty());
-		assertEquals(EOF, rb.readAcquire());
+        assertTrue(rb.isEmpty());
+        assertEquals(EOF, rb.readAcquire());
+
+        long writeOffset = rb.writeAcquire();
+        assertNotEquals(EOF, writeOffset);
+        long fieldOffset = writeOffset + MESSAGE_INDICATOR_SIZE;
+        UNSAFE.putInt(fieldOffset, 1);
+        UNSAFE.putLong(fieldOffset + 4, 1);
+        // blah blah, not writing the rest
+
+        rb.writeRelease(writeOffset);
+        assertEquals(1, rb.size());
+        assertTrue(!rb.isEmpty());
+        long readOffset = rb.readAcquire();
+        fieldOffset = readOffset + MESSAGE_INDICATOR_SIZE;
+        assertNotEquals(EOF, readOffset);
+        assertEquals(writeOffset, readOffset);
+        assertEquals(1, UNSAFE.getInt(fieldOffset));
+        assertEquals(1L, UNSAFE.getLong(fieldOffset + 4));
+        rb.readRelease(readOffset);
+
+        assertEquals(0, rb.size());
+        assertTrue(rb.isEmpty());
+        assertEquals(EOF, rb.readAcquire());
     }
 
 }

@@ -31,7 +31,8 @@ import org.jctools.util.UnsafeRefArrayAccess;
  * - 'null' indicator in message preceding byte (potentially use same for type mapping in future)
  * - Use FF algorithm relying on indicator to support in place detection of next element existence
  */
-public abstract class OffHeapFixedMessageSizeRingBuffer extends ProxyChannelRingBuffer {
+public abstract class OffHeapFixedMessageSizeRingBuffer extends ProxyChannelRingBuffer
+{
 
     /*
      * Valid values in the buffer are >0, so we use <0 sentinel values for
@@ -53,32 +54,39 @@ public abstract class OffHeapFixedMessageSizeRingBuffer extends ProxyChannelRing
     protected final Object[] references;
     protected final int referenceMessageSize;
 
-    public static int getRequiredBufferSize(final int capacity, final int messageSize) {
+    public static int getRequiredBufferSize(final int capacity, final int messageSize)
+    {
         int alignedMessageSize = (int) Pow2.align(messageSize + MESSAGE_INDICATOR_SIZE, MESSAGE_INDICATOR_SIZE);
         return HEADER_SIZE + (Pow2.roundToPowerOfTwo(capacity) * alignedMessageSize);
     }
 
-    protected static Object[] createReferenceArray(final int capacity, int referenceMessageSize) {
-        if (referenceMessageSize > 0) {
+    protected static Object[] createReferenceArray(final int capacity, int referenceMessageSize)
+    {
+        if (referenceMessageSize > 0)
+        {
             return new Object[getRequiredArraySize(capacity, referenceMessageSize)];
-        } else {
+        }
+        else
+        {
             return null;
         }
     }
 
-    public static int getRequiredArraySize(final int capacity, final int primitiveMessageSize) {
+    public static int getRequiredArraySize(final int capacity, final int primitiveMessageSize)
+    {
         return Pow2.roundToPowerOfTwo(capacity) * primitiveMessageSize;
     }
 
-    public OffHeapFixedMessageSizeRingBuffer(final int capacity, final int primitiveMessageSize, int referenceMessageSize) {
+    public OffHeapFixedMessageSizeRingBuffer(final int capacity, final int primitiveMessageSize, int referenceMessageSize)
+    {
         this(allocateAlignedByteBuffer(getRequiredBufferSize(capacity, primitiveMessageSize), CACHE_LINE_SIZE),
-                Pow2.roundToPowerOfTwo(capacity),
-                true,
-                true,
-                true,
-                primitiveMessageSize,
-                createReferenceArray(capacity, referenceMessageSize),
-                referenceMessageSize);
+            Pow2.roundToPowerOfTwo(capacity),
+            true,
+            true,
+            true,
+            primitiveMessageSize,
+            createReferenceArray(capacity, referenceMessageSize),
+            referenceMessageSize);
     }
 
     /**
@@ -88,17 +96,21 @@ public abstract class OffHeapFixedMessageSizeRingBuffer extends ProxyChannelRing
      * @param capacity in messages, actual capacity will be
      * @param primitiveMessageSize
      */
-    protected OffHeapFixedMessageSizeRingBuffer(final ByteBuffer buff,
-            final int capacity,
-            final boolean isProducer,
-            final boolean isConsumer,
-            final boolean initialize,
-            final int primitiveMessageSize,
-            final Object[] references,
-            final int referenceMessageSize) {
-        if (references != null && references.length < referenceMessageSize) {
-            throw new IllegalArgumentException("Reference array of length " + references.length
-                            + " is insufficient to store a single message of size " + referenceMessageSize);
+    protected OffHeapFixedMessageSizeRingBuffer(
+        final ByteBuffer buff,
+        final int capacity,
+        final boolean isProducer,
+        final boolean isConsumer,
+        final boolean initialize,
+        final int primitiveMessageSize,
+        final Object[] references,
+        final int referenceMessageSize
+    )
+    {
+        if (references != null && references.length < referenceMessageSize)
+        {
+            throw new IllegalArgumentException("Reference array of length " + references.length +
+                " is insufficient to store a single message of size " + referenceMessageSize);
         }
 
         int actualCapacity = Pow2.roundToPowerOfTwo(capacity);
@@ -107,7 +119,8 @@ public abstract class OffHeapFixedMessageSizeRingBuffer extends ProxyChannelRing
         this.buffy = alignedSlice(HEADER_SIZE + (actualCapacity * (this.messageSize)), CACHE_LINE_SIZE, buff);
 
         long alignedAddress = UnsafeDirectByteBuffer.getAddress(buffy);
-        if (alignedAddress % CACHE_LINE_SIZE != 0) {
+        if (alignedAddress % CACHE_LINE_SIZE != 0)
+        {
             throw new IllegalStateException("buffer is expected to be cache line aligned by now");
         }
         // Layout of the RingBuffer (assuming 64b cache line):
@@ -125,60 +138,75 @@ public abstract class OffHeapFixedMessageSizeRingBuffer extends ProxyChannelRing
         this.referenceMessageSize = referenceMessageSize;
 
         // producer owns tail and headCache
-        if (isProducer && initialize) {
+        if (isProducer && initialize)
+        {
             soProducerIndex(0);
             // mark all messages as READY
-            for (int i = 0; i < actualCapacity; i++) {
+            for (int i = 0; i < actualCapacity; i++)
+            {
                 final long offset = offsetForIndex(i);
                 readReleaseState(offset);
             }
         }
         // consumer owns head
-        if (isConsumer && initialize) {
+        if (isConsumer && initialize)
+        {
             soConsumerIndex(0);
         }
     }
 
-    public final int capacity() {
+    public final int capacity()
+    {
         return (int) (mask + 1);
     }
-    public final int size() {
+
+    public final int size()
+    {
         return (int) (lvProducerIndex() - lvConsumerIndex());
     }
 
-    public final boolean isEmpty() {
+    public final boolean isEmpty()
+    {
         return lvProducerIndex() == lvConsumerIndex();
     }
 
-    protected final boolean isReadReleased(long offset) {
+    protected final boolean isReadReleased(long offset)
+    {
         return UNSAFE.getIntVolatile(null, offset) == READ_RELEASE_INDICATOR;
     }
 
-    protected final void writeReleaseState(long offset) {
+    protected final void writeReleaseState(long offset)
+    {
         UNSAFE.putOrderedInt(null, offset, WRITE_RELEASE_INDICATOR);
     }
 
-    protected final void readReleaseState(long offset) {
+    protected final void readReleaseState(long offset)
+    {
         UNSAFE.putOrderedInt(null, offset, READ_RELEASE_INDICATOR);
     }
 
-    protected final void writeAcquireState(long offset) {
+    protected final void writeAcquireState(long offset)
+    {
         UNSAFE.putOrderedInt(null, offset, WRITE_ACQUIRE_INDICATOR);
     }
 
-    protected final void readAcquireState(long offset) {
+    protected final void readAcquireState(long offset)
+    {
         UNSAFE.putOrderedInt(null, offset, READ_ACQUIRE_INDICATOR);
     }
 
-    protected final long offsetForIndex(long currentHead) {
-        return offsetForIndex(bufferAddress,  mask, messageSize, currentHead);
+    protected final long offsetForIndex(long currentHead)
+    {
+        return offsetForIndex(bufferAddress, mask, messageSize, currentHead);
     }
 
-    protected static long offsetForIndex(long bufferAddress, long mask, int messageSize, long currentHead) {
+    protected static long offsetForIndex(long bufferAddress, long mask, int messageSize, long currentHead)
+    {
         return bufferAddress + ((currentHead & mask) * messageSize);
     }
 
-    protected final long relativeIndexForOffset(long offset) {
+    protected final long relativeIndexForOffset(long offset)
+    {
         return relativeIndexForOffset(bufferAddress, messageSize, offset);
     }
 
@@ -192,50 +220,63 @@ public abstract class OffHeapFixedMessageSizeRingBuffer extends ProxyChannelRing
      * @param offset
      * @return
      */
-    protected static long relativeIndexForOffset(long bufferAddress, int messageSize, long offset) {
+    protected static long relativeIndexForOffset(long bufferAddress, int messageSize, long offset)
+    {
         return (offset - bufferAddress) / messageSize;
     }
 
-	protected final long lpConsumerIndex() {
+    protected final long lpConsumerIndex()
+    {
         return UNSAFE.getLong(null, consumerIndexAddress);
     }
 
-	protected final long lvConsumerIndex() {
+    protected final long lvConsumerIndex()
+    {
         return UNSAFE.getLongVolatile(null, consumerIndexAddress);
     }
 
-    protected final void soConsumerIndex(final long value) {
+    protected final void soConsumerIndex(final long value)
+    {
         UNSAFE.putOrderedLong(null, consumerIndexAddress, value);
     }
 
-    protected final long lpProducerIndex() {
+    protected final long lpProducerIndex()
+    {
         return UNSAFE.getLong(null, producerIndexAddress);
     }
 
-    protected final long lvProducerIndex() {
+    protected final long lvProducerIndex()
+    {
         return UNSAFE.getLongVolatile(null, producerIndexAddress);
     }
 
-    protected final void soProducerIndex(final long value) {
+    protected final void soProducerIndex(final long value)
+    {
         UNSAFE.putOrderedLong(null, producerIndexAddress, value);
     }
 
-    protected final long arrayIndexForCursor(long currentHead) {
+    protected final long arrayIndexForCursor(long currentHead)
+    {
         return arrayIndexForCursor(mask, referenceMessageSize, currentHead);
     }
 
-    protected static long arrayIndexForCursor(long mask,
-            int referenceMessageSize,
-            long currentHead) {
+    protected static long arrayIndexForCursor(
+        long mask,
+        int referenceMessageSize,
+        long currentHead
+    )
+    {
         return (currentHead & mask) * referenceMessageSize;
     }
 
-    protected long consumerReferenceArrayIndex(long offset) {
+    protected long consumerReferenceArrayIndex(long offset)
+    {
         final long consumerIndex = relativeIndexForOffset(offset);
         return arrayIndexForCursor(consumerIndex);
     }
 
-    protected long producerReferenceArrayIndex(long offset) {
+    protected long producerReferenceArrayIndex(long offset)
+    {
         final long producerIndex = relativeIndexForOffset(offset);
         return arrayIndexForCursor(producerIndex);
     }
@@ -245,7 +286,8 @@ public abstract class OffHeapFixedMessageSizeRingBuffer extends ProxyChannelRing
      * @param offset index into the reference array
      * @param reference
      */
-    protected void writeReference(long offset, Object reference) {
+    protected void writeReference(long offset, Object reference)
+    {
         assert referenceMessageSize != 0 : "References are not in use";
         // Is there a way to compute the element offset once and just
         // arithmetic?
@@ -257,7 +299,8 @@ public abstract class OffHeapFixedMessageSizeRingBuffer extends ProxyChannelRing
      * @param offset index into the reference array
      * @return
      */
-    protected Object readReference(long offset) {
+    protected Object readReference(long offset)
+    {
         assert referenceMessageSize != 0 : "References are not in use";
         // Is there a way to compute the element offset once and just
         // arithmetic?

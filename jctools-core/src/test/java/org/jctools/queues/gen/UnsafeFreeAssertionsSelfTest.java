@@ -28,22 +28,24 @@ import static org.junit.Assert.assertNull;
  * <p>If either of these stops detecting Unsafe, the per-family positive tests could pass for the
  * wrong reason (broken tracker / scanner, not a clean family).
  */
-public class UnsafeFreeAssertionsSelfTest {
+public class UnsafeFreeAssertionsSelfTest
+{
 
     /**
      * Tracker negative control. Loading a non-atomic, Unsafe-using queue must trip the tracker.
      * Probe queue is {@code MpscArrayQueue} (in jctools-core).
      */
     @Test
-    public void trackerCatchesUnsafeLoadInNonAtomicQueue() throws Exception {
+    public void trackerCatchesUnsafeLoadInNonAtomicQueue() throws Exception
+    {
         String nonAtomicProbe = "org.jctools.queues.MpscArrayQueue";
         Set<String> hits = UnsafeFreeAssertions.unsafeHoldersLoadedBy(nonAtomicProbe);
         assertFalse(
-                "Sanity check failed: loading " + nonAtomicProbe + " did not pull in any "
-                        + "Unsafe-holder class. Either the tracker is broken or the probe queue "
-                        + "no longer uses Unsafe — in which case the per-family positive tests "
-                        + "are no longer meaningful and need a new probe.",
-                hits.isEmpty());
+            "Sanity check failed: loading " + nonAtomicProbe + " did not pull in any " +
+                "Unsafe-holder class. Either the tracker is broken or the probe queue " +
+                "no longer uses Unsafe — in which case the per-family positive tests " +
+                "are no longer meaningful and need a new probe.",
+            hits.isEmpty());
     }
 
     /**
@@ -51,14 +53,15 @@ public class UnsafeFreeAssertionsSelfTest {
      * non-Unsafe imports / comments containing the word.
      */
     @Test
-    public void importScannerDetectsUnsafeImports() {
+    public void importScannerDetectsUnsafeImports()
+    {
         assertNotNull("scanner failed to flag a literal sun.misc.Unsafe import",
-                UnsafeFreeAssertions.findUnsafeImport("import sun.misc.Unsafe;"));
+            UnsafeFreeAssertions.findUnsafeImport("import sun.misc.Unsafe;"));
         assertNotNull("scanner failed to flag a static UnsafeAccess import",
-                UnsafeFreeAssertions.findUnsafeImport("import static org.jctools.util.UnsafeAccess.UNSAFE;"));
+            UnsafeFreeAssertions.findUnsafeImport("import static org.jctools.util.UnsafeAccess.UNSAFE;"));
         assertNull("scanner mistakenly flagged a non-Unsafe import",
-                UnsafeFreeAssertions.findUnsafeImport("import java.util.concurrent.atomic.AtomicLongFieldUpdater;"));
+            UnsafeFreeAssertions.findUnsafeImport("import java.util.concurrent.atomic.AtomicLongFieldUpdater;"));
         assertNull("scanner mistakenly flagged a comment containing Unsafe",
-                UnsafeFreeAssertions.findUnsafeImport("// historically used Unsafe but no more"));
+            UnsafeFreeAssertions.findUnsafeImport("// historically used Unsafe but no more"));
     }
 }

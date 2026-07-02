@@ -23,7 +23,8 @@ import java.util.function.Consumer;
  * @author nitsanw
  * 
  */
-public interface ConcurrentQueueConsumer<E> {
+public interface ConcurrentQueueConsumer<E>
+{
 
     /**
      * As many elements as are visible are delivered to the {@link Consumer}.
@@ -38,14 +39,14 @@ public interface ConcurrentQueueConsumer<E> {
      * @return next element or null if queue is empty
      */
     E poll();
-    
+
     /**
      * Remove the next element from the queue and return it.
      * 
      * @return next element or null if next element is not available (queue may not be empty)
      */
     E weakPoll();
-    
+
     /**
      * See {@link Queue#peek()} for contract.
      * 
@@ -59,7 +60,7 @@ public interface ConcurrentQueueConsumer<E> {
      * @return next element or null if next element is not available (queue may not be empty)
      */
     E weakPeek();
-    
+
     /**
      * Remove all elements from the queue. This will not stop the producers from adding new elements, so only guarantees
      * elements visible to the consumer on first sweep are removed.

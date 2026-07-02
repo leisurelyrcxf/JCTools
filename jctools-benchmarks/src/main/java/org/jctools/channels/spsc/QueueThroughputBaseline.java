@@ -27,30 +27,35 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
-public class QueueThroughputBaseline {
+public class QueueThroughputBaseline
+{
     Integer ONE = 777;
-    @Param(value = { "SpscArrayQueue" })
+    @Param(value = {"SpscArrayQueue"})
     String qType;
 
-    @Param(value = { "128000" })
+    @Param(value = {"128000"})
     String qCapacity;
     MessagePassingQueue<Integer> q;
 
     @Setup()
-    public void createQandPrimeCompilation() {
+    public void createQandPrimeCompilation()
+    {
         final String qType = this.qType;
 
         q = MessagePassingQueueByTypeFactory.createQueue(qType, 128);
         // stretch the queue to the limit, working through resizing and full
-        for (int i = 0; i < 128+100; i++) {
+        for (int i = 0; i < 128 + 100; i++)
+        {
             q.relaxedOffer(ONE);
         }
-        for (int i = 0; i < 128+100; i++) {
+        for (int i = 0; i < 128 + 100; i++)
+        {
             q.relaxedPoll();
 
         }
         // make sure the important common case is exercised
-        for (int i = 0; i < 20000; i++) {
+        for (int i = 0; i < 20000; i++)
+        {
             q.relaxedOffer(ONE);
             q.relaxedPoll();
         }
@@ -61,14 +66,16 @@ public class QueueThroughputBaseline {
 
     @AuxCounters
     @State(Scope.Thread)
-    public static class PollCounters {
+    public static class PollCounters
+    {
         public long pollsFailed;
         public long pollsMade;
     }
 
     @AuxCounters
     @State(Scope.Thread)
-    public static class OfferCounters {
+    public static class OfferCounters
+    {
         public long offersFailed;
         public long offersMade;
     }
@@ -76,18 +83,24 @@ public class QueueThroughputBaseline {
     private static ThreadLocal<Object> marker = new ThreadLocal<Object>();
 
     @State(Scope.Thread)
-    public static class ConsumerMarker {
-        public ConsumerMarker() {
+    public static class ConsumerMarker
+    {
+        public ConsumerMarker()
+        {
             marker.set(this);
         }
     }
 
     @Benchmark
     @Group("tpt")
-    public void offer(OfferCounters counters) {
-        if (!q.relaxedOffer(ONE)) {
+    public void offer(OfferCounters counters)
+    {
+        if (!q.relaxedOffer(ONE))
+        {
             counters.offersFailed++;
-        } else {
+        }
+        else
+        {
             counters.offersMade++;
         }
 
@@ -95,18 +108,23 @@ public class QueueThroughputBaseline {
 
     @Benchmark
     @Group("tpt")
-    public void poll(PollCounters counters, ConsumerMarker cm, Blackhole bh) {
+    public void poll(PollCounters counters, ConsumerMarker cm, Blackhole bh)
+    {
         Integer e = q.relaxedPoll();
-        if (e == null) {
+        if (e == null)
+        {
             counters.pollsFailed++;
-        } else {
+        }
+        else
+        {
             bh.consume(e);
             counters.pollsMade++;
         }
     }
 
     @TearDown(Level.Iteration)
-    public void emptyQ() {
+    public void emptyQ()
+    {
         if (marker.get() == null)
             return;
         // sadly the iteration tear down is performed from each participating thread, so we need to guess

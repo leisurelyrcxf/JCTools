@@ -15,11 +15,12 @@ public class SingleThreadedBaseline
 {
     public static final int OPS = 1 << 15;
     public static final Integer TOKEN = 1;
-   
+
     volatile boolean preventUnrolling = true;
     boolean dummyOfferReturn = true;
     Integer dummyPollReturn = TOKEN;
     Queue<Integer> q = new ArrayDeque<>();
+
     @Benchmark
     @OperationsPerInvocation(OPS)
     public void baselineOffer()
@@ -36,9 +37,11 @@ public class SingleThreadedBaseline
     {
         return dummyOfferReturn;
     }
-    
+
     @CompilerControl(CompilerControl.Mode.DONT_INLINE)
-    public void blackhole(boolean v) {}
+    public void blackhole(boolean v)
+    {
+    }
 
     @Benchmark
     @OperationsPerInvocation(OPS)
@@ -58,5 +61,7 @@ public class SingleThreadedBaseline
     }
 
     @CompilerControl(CompilerControl.Mode.DONT_INLINE)
-    public void blackhole(Object e) {}
+    public void blackhole(Object e)
+    {
+    }
 }

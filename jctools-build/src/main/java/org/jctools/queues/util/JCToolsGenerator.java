@@ -2,7 +2,8 @@ package org.jctools.queues.util;
 
 import com.github.javaparser.ast.CompilationUnit;
 
-public interface JCToolsGenerator {
+public interface JCToolsGenerator
+{
     void visit(CompilationUnit cu, Void arg);
 
     void cleanupComments(CompilationUnit cu);

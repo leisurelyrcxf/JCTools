@@ -29,9 +29,11 @@ import org.jctools.util.UnsafeRefArrayAccess;
  * - 'null' indicator in message preceding byte (potentially use same for type mapping in future)
  * - Use FF algorithm relying on indicator to support in place detection of next element existence
  */
-public class SpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingBuffer {
+public class SpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingBuffer
+{
 
-    private static final Integer MAX_LOOK_AHEAD_STEP = Integer.getInteger("jctools.spsc.max.lookahead.step",
+    private static final Integer MAX_LOOK_AHEAD_STEP = Integer
+        .getInteger("jctools.spsc.max.lookahead.step",
             4096);
 
     public static final long EOF = 0;
@@ -39,19 +41,21 @@ public class SpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingB
     private final int lookAheadStep;
     private final long producerLookAheadCacheAddress;
 
-    public static int getLookaheadStep(final int capacity) {
+    public static int getLookaheadStep(final int capacity)
+    {
         return Math.min(capacity / 4, MAX_LOOK_AHEAD_STEP);
     }
 
-    public SpscOffHeapFixedSizeRingBuffer(final int capacity, final int messageSize, final int referenceMessageSize) {
+    public SpscOffHeapFixedSizeRingBuffer(final int capacity, final int messageSize, final int referenceMessageSize)
+    {
         this(allocateAlignedByteBuffer(getRequiredBufferSize(capacity, messageSize), CACHE_LINE_SIZE),
-                Pow2.roundToPowerOfTwo(capacity),
-                true,
-                true,
-                true,
-                messageSize,
-                createReferenceArray(capacity, referenceMessageSize),
-                referenceMessageSize);
+            Pow2.roundToPowerOfTwo(capacity),
+            true,
+            true,
+            true,
+            messageSize,
+            createReferenceArray(capacity, referenceMessageSize),
+            referenceMessageSize);
     }
 
     /**
@@ -61,22 +65,25 @@ public class SpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingB
      * @param capacity in messages, actual capacity will be
      * @param messageSize
      */
-    protected SpscOffHeapFixedSizeRingBuffer(final ByteBuffer buff,
-            final int capacity,
-            final boolean isProducer,
-            final boolean isConsumer,
-            final boolean initialize,
-            final int messageSize,
-            final Object[] references,
-            final int referenceMessageSize) {
+    protected SpscOffHeapFixedSizeRingBuffer(
+        final ByteBuffer buff,
+        final int capacity,
+        final boolean isProducer,
+        final boolean isConsumer,
+        final boolean initialize,
+        final int messageSize,
+        final Object[] references,
+        final int referenceMessageSize
+    )
+    {
         super(buff,
-                capacity,
-                isProducer,
-                isConsumer,
-                initialize,
-                messageSize,
-                references,
-                referenceMessageSize);
+            capacity,
+            isProducer,
+            isConsumer,
+            initialize,
+            messageSize,
+            references,
+            referenceMessageSize);
 
         this.lookAheadStep = getLookaheadStep(capacity);
         // Layout of the RingBuffer (assuming 64b cache line):
@@ -88,24 +95,29 @@ public class SpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingB
         this.producerLookAheadCacheAddress = this.producerIndexAddress + 8;
 
         // producer owns tail and headCache
-        if (isProducer && initialize) {
+        if (isProducer && initialize)
+        {
             spLookAheadCache(0);
         }
     }
 
     @Override
-    protected final long writeAcquire() {
+    protected final long writeAcquire()
+    {
         final long producerIndex = lpProducerIndex();
         final long producerLookAhead = lpLookAheadCache();
         final long producerOffset = offsetForIndex(bufferAddress, mask, messageSize, producerIndex);
         // verify next lookAheadStep messages are clear to write
-        if (producerIndex >= producerLookAhead) {
+        if (producerIndex >= producerLookAhead)
+        {
             final long nextLookAhead = producerIndex + lookAheadStep;
-            if (isReadReleased(offsetForIndex(nextLookAhead))) {
+            if (isReadReleased(offsetForIndex(nextLookAhead)))
+            {
                 spLookAheadCache(nextLookAhead);
             }
             // OK, can't look ahead, but maybe just next item is ready?
-            else if (!isReadReleased(producerOffset)) {
+            else if (!isReadReleased(producerOffset))
+            {
                 return EOF;
             }
         }
@@ -116,21 +128,25 @@ public class SpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingB
     }
 
     @Override
-    protected final void writeRelease(long offset) {
+    protected final void writeRelease(long offset)
+    {
         writeReleaseState(offset);
     }
 
     @Override
-    protected final void writeRelease(long offset, int type) {
+    protected final void writeRelease(long offset, int type)
+    {
         assert type != 0;
         UNSAFE.putOrderedInt(null, offset, type);
     }
 
     @Override
-    protected final long readAcquire() {
+    protected final long readAcquire()
+    {
         final long consumerIndex = lpConsumerIndex();
         final long consumerOffset = offsetForIndex(consumerIndex);
-        if (isReadReleased(consumerOffset)) {
+        if (isReadReleased(consumerOffset))
+        {
             return EOF;
         }
         soConsumerIndex(consumerIndex + 1); // StoreStore
@@ -139,16 +155,19 @@ public class SpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingB
     }
 
     @Override
-    protected final void readRelease(long offset) {
+    protected final void readRelease(long offset)
+    {
         readReleaseState(offset);
 
     }
 
-    private long lpLookAheadCache() {
+    private long lpLookAheadCache()
+    {
         return UNSAFE.getLong(null, producerLookAheadCacheAddress);
     }
 
-    private void spLookAheadCache(final long value) {
+    private void spLookAheadCache(final long value)
+    {
         UNSAFE.putLong(producerLookAheadCacheAddress, value);
     }
 }

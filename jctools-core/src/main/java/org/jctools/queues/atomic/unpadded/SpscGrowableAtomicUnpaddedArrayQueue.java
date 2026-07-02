@@ -71,7 +71,8 @@ public class SpscGrowableAtomicUnpaddedArrayQueue<E> extends BaseSpscLinkedAtomi
         final long index,
         final int offset,
         final E v,
-        final Supplier<? extends E> s)
+        final Supplier<? extends E> s
+    )
     {
         final long lookAheadStep = this.lookAheadStep;
         // normal case, go around the buffer or resize if full (unless we hit max capacity)

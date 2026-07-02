@@ -23,7 +23,8 @@ import java.util.Queue;
 
 import static org.jctools.util.UnsafeAccess.UNSAFE;
 
-abstract class FloatingCaqL0Pad {
+abstract class FloatingCaqL0Pad
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -42,7 +43,8 @@ abstract class FloatingCaqL0Pad {
     byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 }
 
-abstract class FloatingCaqColdFields<E> extends InlinedRingBufferL0Pad {
+abstract class FloatingCaqColdFields<E> extends InlinedRingBufferL0Pad
+{
     protected static final int BUFFER_PAD = 32;
     protected static final int SPARSE_SHIFT = Integer.getInteger("sparse.shift", 0);
     protected final int capacity;
@@ -55,10 +57,14 @@ abstract class FloatingCaqColdFields<E> extends InlinedRingBufferL0Pad {
     protected final PaddedAtomicLong headCache = new PaddedAtomicLong();
 
     @SuppressWarnings("unchecked")
-    FloatingCaqColdFields(int capacity) {
-        if (Pow2.isPowerOfTwo(capacity)) {
+    FloatingCaqColdFields(int capacity)
+    {
+        if (Pow2.isPowerOfTwo(capacity))
+        {
             this.capacity = capacity;
-        } else {
+        }
+        else
+        {
             this.capacity = Pow2.roundToPowerOfTwo(capacity);
         }
         mask = this.capacity - 1;
@@ -67,7 +73,8 @@ abstract class FloatingCaqColdFields<E> extends InlinedRingBufferL0Pad {
 }
 
 public final class FloatingCountersSpscConcurrentArrayQueue<E> extends FloatingCaqColdFields<E> implements
-        Queue<E> {
+    Queue<E>
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -86,46 +93,59 @@ public final class FloatingCountersSpscConcurrentArrayQueue<E> extends FloatingC
 //    byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
     private static final long ARRAY_BASE;
     private static final int ELEMENT_SHIFT;
-    static {
+    static
+    {
         final int scale = UNSAFE.arrayIndexScale(Object[].class);
 
-        if (4 == scale) {
+        if (4 == scale)
+        {
             ELEMENT_SHIFT = 2 + SPARSE_SHIFT;
-        } else if (8 == scale) {
+        }
+        else if (8 == scale)
+        {
             ELEMENT_SHIFT = 3 + SPARSE_SHIFT;
-        } else {
+        }
+        else
+        {
             throw new IllegalStateException("Unknown pointer size");
         }
-        ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class)
-                + (BUFFER_PAD << (ELEMENT_SHIFT - SPARSE_SHIFT));
+        ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + (BUFFER_PAD << (ELEMENT_SHIFT - SPARSE_SHIFT));
     }
 
-    public FloatingCountersSpscConcurrentArrayQueue(final int capacity) {
+    public FloatingCountersSpscConcurrentArrayQueue(final int capacity)
+    {
         super(capacity);
     }
 
-    public boolean add(final E e) {
-        if (offer(e)) {
+    public boolean add(final E e)
+    {
+        if (offer(e))
+        {
             return true;
         }
         throw new IllegalStateException("Queue is full");
     }
 
-    private long offset(long index) {
+    private long offset(long index)
+    {
         return ARRAY_BASE + ((index & mask) << ELEMENT_SHIFT);
     }
 
-    public boolean offer(final E e) {
-        if (null == e) {
+    public boolean offer(final E e)
+    {
+        if (null == e)
+        {
             throw new NullPointerException("Null is not a valid element");
         }
 
         final long currTail = tail.lvVal();
         final long wrapPoint = currTail - capacity + 32;
-        if (headCache.lpVal() <= wrapPoint) {
+        if (headCache.lpVal() <= wrapPoint)
+        {
             final long currHead = head.lvVal();
             headCache.spVal(currHead);
-            if (currHead <= wrapPoint) {
+            if (currHead <= wrapPoint)
+            {
                 return false;
             }
         }
@@ -135,19 +155,21 @@ public final class FloatingCountersSpscConcurrentArrayQueue<E> extends FloatingC
         return true;
     }
 
-    public E poll() {
+    public E poll()
+    {
         final long currHead = head.lvVal();
-        if (currHead >= tailCache.lpVal()) {
+        if (currHead >= tailCache.lpVal())
+        {
             final long currTail = tail.lvVal();
             tailCache.spVal(currTail);
-            if (currHead >= currTail) {
+            if (currHead >= currTail)
+            {
                 return null;
             }
         }
 
         final long offset = offset(currHead);
-        @SuppressWarnings("unchecked")
-        final E e = (E) UNSAFE.getObject(buffer, offset);
+        @SuppressWarnings("unchecked") final E e = (E) UNSAFE.getObject(buffer, offset);
         UNSAFE.putObject(buffer, offset, null);
 
         head.soVal(currHead + 1);
@@ -155,51 +177,63 @@ public final class FloatingCountersSpscConcurrentArrayQueue<E> extends FloatingC
         return e;
     }
 
-    public E remove() {
+    public E remove()
+    {
         final E e = poll();
-        if (null == e) {
+        if (null == e)
+        {
             throw new NoSuchElementException("Queue is empty");
         }
 
         return e;
     }
 
-    public E element() {
+    public E element()
+    {
         final E e = peek();
-        if (null == e) {
+        if (null == e)
+        {
             throw new NoSuchElementException("Queue is empty");
         }
 
         return e;
     }
 
-    public E peek() {
+    public E peek()
+    {
         long currentHead = head.lvVal();
         return getElement(currentHead);
     }
 
     @SuppressWarnings("unchecked")
-    private E getElement(long index) {
+    private E getElement(long index)
+    {
         final long offset = offset(index);
         return (E) UNSAFE.getObject(buffer, offset);
     }
 
-    public int size() {
+    public int size()
+    {
         return (int) (tail.lvVal() - head.lvVal());
     }
 
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return tail.lvVal() == head.lvVal();
     }
 
-    public boolean contains(final Object o) {
-        if (null == o) {
+    public boolean contains(final Object o)
+    {
+        if (null == o)
+        {
             return false;
         }
 
-        for (long i = head.lvVal(), limit = tail.lvVal(); i < limit; i++) {
+        for (long i = head.lvVal(), limit = tail.lvVal(); i < limit; i++)
+        {
             final E e = getElement(i);
-            if (o.equals(e)) {
+            if (o.equals(e))
+            {
                 return true;
             }
         }
@@ -207,25 +241,32 @@ public final class FloatingCountersSpscConcurrentArrayQueue<E> extends FloatingC
         return false;
     }
 
-    public Iterator<E> iterator() {
+    public Iterator<E> iterator()
+    {
         throw new UnsupportedOperationException();
     }
 
-    public Object[] toArray() {
+    public Object[] toArray()
+    {
         throw new UnsupportedOperationException();
     }
 
-    public <T> T[] toArray(final T[] a) {
+    public <T> T[] toArray(final T[] a)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean remove(final Object o) {
+    public boolean remove(final Object o)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean containsAll(final Collection<?> c) {
-        for (final Object o : c) {
-            if (!contains(o)) {
+    public boolean containsAll(final Collection<?> c)
+    {
+        for (final Object o : c)
+        {
+            if (!contains(o))
+            {
                 return false;
             }
         }
@@ -233,26 +274,33 @@ public final class FloatingCountersSpscConcurrentArrayQueue<E> extends FloatingC
         return true;
     }
 
-    public boolean addAll(final Collection<? extends E> c) {
-        for (final E e : c) {
+    public boolean addAll(final Collection<? extends E> c)
+    {
+        for (final E e : c)
+        {
             add(e);
         }
 
         return true;
     }
 
-    public boolean removeAll(final Collection<?> c) {
+    public boolean removeAll(final Collection<?> c)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean retainAll(final Collection<?> c) {
+    public boolean retainAll(final Collection<?> c)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public void clear() {
+    public void clear()
+    {
         Object value;
-        do {
+        do
+        {
             value = poll();
-        } while (null != value);
+        }
+        while (null != value);
     }
 }

@@ -14,19 +14,27 @@ import static org.junit.Assert.assertTrue;
  * {@code LinkedQueueVarHandleNode} import unconditionally, so verify it shows up exactly once and
  * the other rewrites still run.
  */
-public class JavaParsingVarHandleUnpaddedLinkedQueueGeneratorTest {
+public class JavaParsingVarHandleUnpaddedLinkedQueueGeneratorTest
+{
 
-    private static String generate(String source) {
-        CompilationUnit cu = new JavaParser().parse(source).getResult().orElseThrow(
+    private static String generate(String source)
+    {
+        CompilationUnit cu = new JavaParser()
+            .parse(source)
+            .getResult()
+            .orElseThrow(
                 () -> new AssertionError("parse failed"));
-        return GeneratorUtils.applyGenerator(
-                new JavaParsingVarHandleUnpaddedLinkedQueueGenerator("Synthetic.java"), cu);
+        return GeneratorUtils
+            .applyGenerator(
+                new JavaParsingVarHandleUnpaddedLinkedQueueGenerator("Synthetic.java"),
+                cu);
     }
 
     @Test
-    public void rewritesPackageInfixAndAddsLinkedNodeImport() {
+    public void rewritesPackageInfixAndAddsLinkedNodeImport()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "abstract class FooLinkedQueue<E> extends BaseLinkedQueue<E> {\n" +
                 "  byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b\n" +
                 "  FooLinkedQueue() {}\n" +
@@ -36,9 +44,9 @@ public class JavaParsingVarHandleUnpaddedLinkedQueueGeneratorTest {
 
         assertTrue("package retargeted: " + out, out.contains("package org.jctools.queues.varhandle.unpadded"));
         assertTrue("class infix is VarHandleUnpadded: " + out,
-                out.contains("class FooLinkedVarHandleUnpaddedQueue"));
+            out.contains("class FooLinkedVarHandleUnpaddedQueue"));
         assertTrue("LinkedQueueVarHandleNode import added: " + out,
-                out.contains("import org.jctools.queues.varhandle.LinkedQueueVarHandleNode;"));
+            out.contains("import org.jctools.queues.varhandle.LinkedQueueVarHandleNode;"));
         int firstImport = out.indexOf("import org.jctools.queues.varhandle.LinkedQueueVarHandleNode;");
         int lastImport = out.lastIndexOf("import org.jctools.queues.varhandle.LinkedQueueVarHandleNode;");
         assertTrue("import added exactly once: " + out, firstImport >= 0 && firstImport == lastImport);
@@ -46,9 +54,10 @@ public class JavaParsingVarHandleUnpaddedLinkedQueueGeneratorTest {
     }
 
     @Test
-    public void outputReParsesAsValidJava() {
+    public void outputReParsesAsValidJava()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "abstract class FooLinkedQueue<E> extends BaseLinkedQueue<E> {\n" +
                 "  byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b\n" +
                 "  FooLinkedQueue() {}\n" +
@@ -57,6 +66,6 @@ public class JavaParsingVarHandleUnpaddedLinkedQueueGeneratorTest {
         String out = generate(src);
         ParseResult<CompilationUnit> result = new JavaParser().parse(out);
         assertTrue("output must re-parse without problems: " + result.getProblems() + "\n" + out,
-                result.getProblems().isEmpty() && result.getResult().isPresent());
+            result.getProblems().isEmpty() && result.getResult().isPresent());
     }
 }

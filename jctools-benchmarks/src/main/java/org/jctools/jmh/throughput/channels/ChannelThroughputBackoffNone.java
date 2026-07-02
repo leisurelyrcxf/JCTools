@@ -49,15 +49,19 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Warmup(iterations = 5, time = 3, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 3, timeUnit = TimeUnit.SECONDS)
-public class ChannelThroughputBackoffNone {
+public class ChannelThroughputBackoffNone
+{
     private static final long DELAY_PRODUCER = Long.getLong("delay.p", 0L);
     private static final long DELAY_CONSUMER = Long.getLong("delay.c", 0L);
-    @Param(value = { "132000" })
+    @Param(value = {"132000"})
     int capacity;
-    public enum Type{
-        Spsc,Mpsc
+
+    public enum Type
+    {
+        Spsc, Mpsc
     }
-    @Param(value = { "Spsc", "Mpsc" })
+
+    @Param(value = {"Spsc", "Mpsc"})
     Type type;
     private ByteBuffer buffer;
     private Channel<Ping> channel;
@@ -69,31 +73,36 @@ public class ChannelThroughputBackoffNone {
     private long writeValue = 1L;
 
     @Setup
-    public void setup(final Blackhole blackhole) {
-        receiver = new ChannelReceiver<Ping>() {
+    public void setup(final Blackhole blackhole)
+    {
+        receiver = new ChannelReceiver<Ping>()
+        {
             @Override
-            public void accept(Ping element) {
+            public void accept(Ping element)
+            {
                 blackhole.consume(element.getValue());
             }
         };
         buffer = ByteBuffer
-                .allocateDirect(Pow2.roundToPowerOfTwo(capacity * 2) * (8 + 4) + PortableJvmInfo.CACHE_LINE_SIZE * 5);
+            .allocateDirect(Pow2.roundToPowerOfTwo(capacity * 2) * (8 + 4) + PortableJvmInfo.CACHE_LINE_SIZE * 5);
 
-        switch (type) {
-        case Spsc:
-            channel = new SpscChannel<Ping>(buffer, capacity, Ping.class);
-            break;
-        case Mpsc:
-            channel = new MpscChannel<Ping>(buffer, capacity, Ping.class);
-            break;
-        default:
-            throw new IllegalArgumentException();
+        switch (type)
+        {
+            case Spsc:
+                channel = new SpscChannel<Ping>(buffer, capacity, Ping.class);
+                break;
+            case Mpsc:
+                channel = new MpscChannel<Ping>(buffer, capacity, Ping.class);
+                break;
+            default:
+                throw new IllegalArgumentException();
         }
         producer = channel.producer();
         consumer = channel.consumer(receiver);
         OfferCounters oc = new OfferCounters();
         PollCounters pc = new PollCounters();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 100000; i++)
+        {
             offer(oc);
             poll(pc, null);
         }
@@ -101,14 +110,16 @@ public class ChannelThroughputBackoffNone {
 
     @AuxCounters
     @State(Scope.Thread)
-    public static class PollCounters {
+    public static class PollCounters
+    {
         public long pollsFailed;
         public long pollsMade;
     }
 
     @AuxCounters
     @State(Scope.Thread)
-    public static class OfferCounters {
+    public static class OfferCounters
+    {
         public long offersFailed;
         public long offersMade;
     }
@@ -116,44 +127,57 @@ public class ChannelThroughputBackoffNone {
     private static ThreadLocal<Object> marker = new ThreadLocal<Object>();
 
     @State(Scope.Thread)
-    public static class ConsumerMarker {
-        public ConsumerMarker() {
+    public static class ConsumerMarker
+    {
+        public ConsumerMarker()
+        {
             marker.set(this);
         }
     }
 
     @Benchmark
     @Group("tpt")
-    public void offer(OfferCounters counters) {
+    public void offer(OfferCounters counters)
+    {
         ChannelProducer<Ping> lProducer = producer;
-        if (!lProducer.claim()) {
+        if (!lProducer.claim())
+        {
             counters.offersFailed++;
-        } else {
+        }
+        else
+        {
             Ping element = lProducer.currentElement();
             element.setValue(writeValue);
             lProducer.commit();
             counters.offersMade++;
         }
-        if (DELAY_PRODUCER != 0) {
+        if (DELAY_PRODUCER != 0)
+        {
             Blackhole.consumeCPU(DELAY_PRODUCER);
         }
     }
 
     @Benchmark
     @Group("tpt")
-    public void poll(PollCounters counters, ConsumerMarker cm) {
-        if (!consumer.read()) {
+    public void poll(PollCounters counters, ConsumerMarker cm)
+    {
+        if (!consumer.read())
+        {
             counters.pollsFailed++;
-        } else {
+        }
+        else
+        {
             counters.pollsMade++;
         }
-        if (DELAY_CONSUMER != 0) {
+        if (DELAY_CONSUMER != 0)
+        {
             Blackhole.consumeCPU(DELAY_CONSUMER);
         }
     }
 
     @TearDown(Level.Iteration)
-    public void emptyQ() {
+    public void emptyQ()
+    {
         if (marker.get() == null)
             return;
         // sadly the iteration tear down is performed from each participating thread, so we need to guess
@@ -161,10 +185,14 @@ public class ChannelThroughputBackoffNone {
         while (consumer.read())
             ;
     }
-    public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder().forks(0)
-                .include(ChannelThroughputBackoffNone.class.getSimpleName()).param("type", "Mpsc")
-                .build();
+
+    public static void main(String[] args) throws RunnerException
+    {
+        Options opt = new OptionsBuilder()
+            .forks(0)
+            .include(ChannelThroughputBackoffNone.class.getSimpleName())
+            .param("type", "Mpsc")
+            .build();
 
         new Runner(opt).run();
     }

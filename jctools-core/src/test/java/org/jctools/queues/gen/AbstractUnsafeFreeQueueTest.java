@@ -25,7 +25,8 @@ import java.util.List;
  * <p>Negative-control tests for the underlying helpers live in {@link UnsafeFreeAssertionsSelfTest}
  * — they don't need to run per family.
  */
-public abstract class AbstractUnsafeFreeQueueTest {
+public abstract class AbstractUnsafeFreeQueueTest
+{
 
     private final List<String> packages;
     private final List<String> sourceDirs;
@@ -33,7 +34,12 @@ public abstract class AbstractUnsafeFreeQueueTest {
     private final int minExpected;
 
     protected AbstractUnsafeFreeQueueTest(
-            List<String> packages, List<String> sourceDirs, String familyName, int minExpected) {
+        List<String> packages,
+        List<String> sourceDirs,
+        String familyName,
+        int minExpected
+    )
+    {
         this.packages = packages;
         this.sourceDirs = sourceDirs;
         this.familyName = familyName;
@@ -41,12 +47,14 @@ public abstract class AbstractUnsafeFreeQueueTest {
     }
 
     @Test
-    public final void loadingAnyQueueDoesNotPullInUnsafe() throws Exception {
+    public final void loadingAnyQueueDoesNotPullInUnsafe() throws Exception
+    {
         UnsafeFreeAssertions.assertConcreteQueuesDoNotLoadUnsafe(packages, minExpected, familyName);
     }
 
     @Test
-    public final void generatedSourcesHaveNoUnsafeImports() throws Exception {
+    public final void generatedSourcesHaveNoUnsafeImports() throws Exception
+    {
         UnsafeFreeAssertions.assertNoUnsafeImportsIn(sourceDirs, minExpected, familyName);
     }
 }

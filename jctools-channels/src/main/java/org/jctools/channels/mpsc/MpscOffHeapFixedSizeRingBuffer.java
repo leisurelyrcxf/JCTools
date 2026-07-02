@@ -28,17 +28,19 @@ import org.jctools.util.Pow2;
  * - 'null' indicator in message preceding byte (potentially use same for type mapping in future)
  * - Use Vyukov MPMC like algorithm relying on indicator to support in place detection of next element existence
  */
-public class MpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingBuffer {
+public class MpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingBuffer
+{
 
-    public MpscOffHeapFixedSizeRingBuffer(final int capacity, final int messageSize, int referenceMessageSize) {
+    public MpscOffHeapFixedSizeRingBuffer(final int capacity, final int messageSize, int referenceMessageSize)
+    {
         this(allocateAlignedByteBuffer(getRequiredBufferSize(capacity, messageSize), PortableJvmInfo.CACHE_LINE_SIZE),
-                Pow2.roundToPowerOfTwo(capacity),
-                true,
-                true,
-                true,
-                messageSize,
-                createReferenceArray(capacity, referenceMessageSize),
-                referenceMessageSize);
+            Pow2.roundToPowerOfTwo(capacity),
+            true,
+            true,
+            true,
+            messageSize,
+            createReferenceArray(capacity, referenceMessageSize),
+            referenceMessageSize);
     }
 
     /**
@@ -47,56 +49,68 @@ public class MpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingB
      * @param buff
      * @param capacity
      */
-    protected MpscOffHeapFixedSizeRingBuffer(final ByteBuffer buff,
-            final int capacity,
-            final boolean isProducer,
-            final boolean isConsumer,
-            final boolean initialize,
-            final int messageSize,
-            final Object[] references,
-            final int referenceMessageSize) {
+    protected MpscOffHeapFixedSizeRingBuffer(
+        final ByteBuffer buff,
+        final int capacity,
+        final boolean isProducer,
+        final boolean isConsumer,
+        final boolean initialize,
+        final int messageSize,
+        final Object[] references,
+        final int referenceMessageSize
+    )
+    {
         super(buff, capacity, isProducer, isConsumer, initialize, messageSize, references, referenceMessageSize);
     }
 
     @Override
-    protected final long writeAcquire() {
+    protected final long writeAcquire()
+    {
         long producerIndex;
         long offset;
 
-        do {
+        do
+        {
             producerIndex = lvProducerIndex(); // LoadLoad
             offset = offsetForIndex(producerIndex);
 
             // This is a bug! we need to replace with a solution a-la Vyukuv MPMC or similar slot 'phase' indicator
-            if (!this.isReadReleased(offset)) {
+            if (!this.isReadReleased(offset))
+            {
                 // It is possible that due to another producer passing us we are seeing that producer completed message,
                 // if that is the case then we must retry.
-                if (producerIndex != lvProducerIndex()) {
+                if (producerIndex != lvProducerIndex())
+                {
                     continue;// go around again
                 }
                 return EOF;
             }
-        } while (!casProducerIndex(producerIndex, producerIndex + 1));
+        }
+        while (!casProducerIndex(producerIndex, producerIndex + 1));
         // return offset for current producer index
         return offset;
     }
 
     @Override
-    protected final void writeRelease(long offset) {
+    protected final void writeRelease(long offset)
+    {
         writeReleaseState(offset);
     }
 
     @Override
-    protected final void writeRelease(long offset, int callTypeId) {
+    protected final void writeRelease(long offset, int callTypeId)
+    {
         assert callTypeId != 0;
         UNSAFE.putOrderedInt(null, offset, callTypeId);
     }
 
     @Override
-    protected final long readAcquire() {
+    protected final long readAcquire()
+    {
         final long currentHead = lpConsumerIndex();
         final long offset = offsetForIndex(currentHead);
-        if (isReadReleased(offset)) {
+        if (isReadReleased(offset))
+        {
             return EOF;
         }
         soConsumerIndex(currentHead + 1); // StoreStore
@@ -104,11 +118,13 @@ public class MpscOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingB
     }
 
     @Override
-    protected final void readRelease(long offset) {
+    protected final void readRelease(long offset)
+    {
         readReleaseState(offset);
     }
 
-    private boolean casProducerIndex(final long expected, long update) {
+    private boolean casProducerIndex(final long expected, long update)
+    {
         return UNSAFE.compareAndSwapLong(null, producerIndexAddress, expected, update);
     }
 }

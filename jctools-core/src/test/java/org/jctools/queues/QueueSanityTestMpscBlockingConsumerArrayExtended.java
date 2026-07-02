@@ -94,25 +94,31 @@ public class QueueSanityTestMpscBlockingConsumerArrayExtended
     }
 
     @Test(timeout = TEST_TIMEOUT)
-    public void testPollTimeout() throws InterruptedException {
+    public void testPollTimeout() throws InterruptedException
+    {
 
         final MessagePassingBlockingQueue<Object> queue = factory.apply(128000);
 
         final Thread consumerThread = new Thread(() -> {
-            try {
-                while (true) {
+            try
+            {
+                while (true)
+                {
                     queue.poll(100, TimeUnit.NANOSECONDS);
                 }
             }
-            catch (InterruptedException e) {
+            catch (InterruptedException e)
+            {
             }
         });
 
         consumerThread.start();
 
         final Thread producerThread = new Thread(() -> {
-            while (!Thread.interrupted()) {
-                for (int i = 0; i < 10; ++i) {
+            while (!Thread.interrupted())
+            {
+                for (int i = 0; i < 10; ++i)
+                {
                     queue.offer("x");
                 }
                 LockSupport.parkNanos(100000);
@@ -305,10 +311,9 @@ public class QueueSanityTestMpscBlockingConsumerArrayExtended
         testTakeBlocksAndIsInterrupted(PollType.BlockingDrain);
     }
 
-    private enum PollType {
-        BlockingPoll,
-        Take,
-        BlockingDrain
+    private enum PollType
+    {
+        BlockingPoll, Take, BlockingDrain
     }
 
     private void testTakeBlocksAndIsInterrupted(PollType pollType) throws Exception
@@ -319,17 +324,19 @@ public class QueueSanityTestMpscBlockingConsumerArrayExtended
         Thread consumer = new Thread(() -> {
             try
             {
-                switch (pollType) {
+                switch (pollType)
+                {
 
-                case BlockingPoll:
-                    q.poll(1L, DAYS);
-                    break;
-                case Take:
-                    q.take();
-                    break;
-                case BlockingDrain:
-                    q.drain(ignored -> {}, 1, 1L, DAYS);
-                    break;
+                    case BlockingPoll:
+                        q.poll(1L, DAYS);
+                        break;
+                    case Take:
+                        q.take();
+                        break;
+                    case BlockingDrain:
+                        q.drain(ignored -> {
+                        }, 1, 1L, DAYS);
+                        break;
                 }
             }
             catch (InterruptedException e)
@@ -340,7 +347,7 @@ public class QueueSanityTestMpscBlockingConsumerArrayExtended
         });
         consumer.setDaemon(true);
         consumer.start();
-        while(consumer.getState() != State.TIMED_WAITING)
+        while (consumer.getState() != State.TIMED_WAITING)
         {
             Thread.yield();
         }
@@ -389,22 +396,22 @@ public class QueueSanityTestMpscBlockingConsumerArrayExtended
         });
         consumer.setDaemon(true);
         consumer.start();
-        while(consumer.getState() != State.TIMED_WAITING)
+        while (consumer.getState() != State.TIMED_WAITING)
         {
             Thread.yield();
         }
         // If we got here -> thread got to the waiting state -> parked
         int someElements = ThreadLocalRandom.current().nextInt(10000);
-        for (int i=0;i < someElements; i++)
+        for (int i = 0; i < someElements; i++)
             while (!q.offer(i));
 
-        while(!q.isEmpty())
+        while (!q.isEmpty())
         {
             Thread.yield();
         }
         // Eventually queue is drained
 
-        while(consumer.getState() != State.TIMED_WAITING)
+        while (consumer.getState() != State.TIMED_WAITING)
         {
             Thread.yield();
         }
@@ -440,7 +447,7 @@ public class QueueSanityTestMpscBlockingConsumerArrayExtended
         Thread t2 = new Thread(() -> {
             while (!stop.get())
             {
-                ((OfferIfBelowThreshold<Object>)q).offerIfBelowThreshold(1, 5);
+                ((OfferIfBelowThreshold<Object>) q).offerIfBelowThreshold(1, 5);
             }
         });
 
@@ -457,7 +464,7 @@ public class QueueSanityTestMpscBlockingConsumerArrayExtended
     public void testOfferWithThreshold()
     {
         MessagePassingBlockingQueue<Object> queue = factory.apply(16);
-        OfferIfBelowThreshold<Object> q = (OfferIfBelowThreshold<Object>)queue;
+        OfferIfBelowThreshold<Object> q = (OfferIfBelowThreshold<Object>) queue;
         int i;
         for (i = 0; i < 8; ++i)
         {
@@ -485,9 +492,11 @@ public class QueueSanityTestMpscBlockingConsumerArrayExtended
      * forever in spinWaitForUnblock().
      */
     @Test(timeout = TEST_TIMEOUT)
-    public void testSpinWaitForUnblockForever() throws InterruptedException {
+    public void testSpinWaitForUnblockForever() throws InterruptedException
+    {
 
-        class Echo<T> implements Runnable{
+        class Echo<T> implements Runnable
+        {
             private MessagePassingBlockingQueue<T> source;
             private MessagePassingBlockingQueue<T> sink;
             private int interations;
@@ -495,25 +504,32 @@ public class QueueSanityTestMpscBlockingConsumerArrayExtended
             Echo(
                 MessagePassingBlockingQueue<T> source,
                 MessagePassingBlockingQueue<T> sink,
-                int interations) {
-                    this.source = source;
-                    this.sink = sink;
-                    this.interations = interations;
+                int interations
+            )
+            {
+                this.source = source;
+                this.sink = sink;
+                this.interations = interations;
             }
 
-            public void run() {
-                try {
-                    for (int i = 0; i < interations; ++i) {
+            public void run()
+            {
+                try
+                {
+                    for (int i = 0; i < interations; ++i)
+                    {
                         T t;
-                        do {
-                            t = source.poll(1,  TimeUnit.NANOSECONDS);
+                        do
+                        {
+                            t = source.poll(1, TimeUnit.NANOSECONDS);
                         }
                         while (t == null);
 
                         sink.put(t);
                     }
                 }
-                catch (InterruptedException e) {
+                catch (InterruptedException e)
+                {
                     throw new AssertionError(e);
                 }
             }

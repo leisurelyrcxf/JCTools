@@ -13,6 +13,7 @@
  */
 package org.jctools.queues.intrusive;
 
-public class TestNode extends NodeImpl {
+public class TestNode extends NodeImpl
+{
     int value = 0;
 }

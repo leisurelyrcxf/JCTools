@@ -13,17 +13,21 @@ import static org.jctools.queues.util.GeneratorUtils.runJCToolsGenerator;
  * additionally drops byte-padding fields and their orphan comments via the base
  * {@code stripsPadding()} hook.
  */
-public class JavaParsingAtomicUnpaddedArrayQueueGenerator extends JavaParsingAtomicArrayQueueGenerator {
-    public static void main(String[] args) throws Exception {
+public class JavaParsingAtomicUnpaddedArrayQueueGenerator extends JavaParsingAtomicArrayQueueGenerator
+{
+    public static void main(String[] args) throws Exception
+    {
         runJCToolsGenerator(JavaParsingAtomicUnpaddedArrayQueueGenerator.class, args);
     }
 
-    public JavaParsingAtomicUnpaddedArrayQueueGenerator(String sourceFileName) {
+    public JavaParsingAtomicUnpaddedArrayQueueGenerator(String sourceFileName)
+    {
         super(sourceFileName, "org.jctools.queues.atomic.unpadded", "AtomicUnpadded");
     }
 
     @Override
-    protected boolean stripsPadding() {
+    protected boolean stripsPadding()
+    {
         return true;
     }
 }

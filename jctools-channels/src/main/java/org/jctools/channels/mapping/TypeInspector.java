@@ -22,69 +22,81 @@ import java.util.Map;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.util.Arrays.asList;
 
-public class TypeInspector {
-    
+public class TypeInspector
+{
+
     private final Class<?> flyweightClass;
-    
+
     final List<Method> getters;
     final Map<String, Method> setters;
-    
-    public TypeInspector(Class<?> flyweightClass) {
+
+    public TypeInspector(Class<?> flyweightClass)
+    {
         this.flyweightClass = flyweightClass;
-        if(!flyweightClass.isInterface())
-        	throw new InvalidInterfaceException("Your flyweight class must be an interface");
-        
+        if (!flyweightClass.isInterface())
+            throw new InvalidInterfaceException("Your flyweight class must be an interface");
+
         getters = findGetters();
         setters = findSetters();
         checkRemainingMethods(flyweightClass);
     }
 
-	private void checkRemainingMethods(Class<?> klass) {
-		List<Method> methods = new ArrayList<Method>(asList(klass.getDeclaredMethods()));
-		methods.removeAll(getters);
-		methods.removeAll(setters.values());
+    private void checkRemainingMethods(Class<?> klass)
+    {
+        List<Method> methods = new ArrayList<Method>(asList(klass.getDeclaredMethods()));
+        methods.removeAll(getters);
+        methods.removeAll(setters.values());
         for (Method method : methods)
-			if (isAbstract(method.getModifiers()))
-				throw new InvalidInterfaceException(klass.getName() + " has abstract methods that are neither getters nor setters");
-	}
+            if (isAbstract(method.getModifiers()))
+                throw new InvalidInterfaceException(klass.getName() +
+                    " has abstract methods that are neither getters nor setters");
+    }
 
-	private List<Method> findGetters() {
+    private List<Method> findGetters()
+    {
         List<Method> methods = new ArrayList<Method>();
-        for (Method method : flyweightClass.getDeclaredMethods()) {
+        for (Method method : flyweightClass.getDeclaredMethods())
+        {
             String name = method.getName();
-			if (!name.startsWith("get"))
+            if (!name.startsWith("get"))
                 continue;
 
-			ensureAbstract(method);
+            ensureAbstract(method);
             returnsPrimitive(method);
             hasNoParameters(method);
             methods.add(method);
         }
         return methods;
     }
-	
-    private void ensureAbstract(Method method) {
-		if (!isAbstract(method.getModifiers()))
-			throw new InvalidInterfaceException(method + " must be abstract, since its a getter or setter");
-	}
 
-	private void hasNoParameters(Method method) {
+    private void ensureAbstract(Method method)
+    {
+        if (!isAbstract(method.getModifiers()))
+            throw new InvalidInterfaceException(method + " must be abstract, since its a getter or setter");
+    }
+
+    private void hasNoParameters(Method method)
+    {
         if (method.getParameterTypes().length != 0)
             throw new InvalidInterfaceException(method.getName() + " is a getter with one or more parameters");
     }
 
-    private void returnsPrimitive(Method method) {
+    private void returnsPrimitive(Method method)
+    {
         if (!method.getReturnType().isPrimitive())
-        	throw new InvalidInterfaceException(method.getName() + " is a getter that doesn't return a primitive");
+            throw new InvalidInterfaceException(method.getName() + " is a getter that doesn't return a primitive");
     }
 
-    Primitive getReturn(Method method) {
+    Primitive getReturn(Method method)
+    {
         return Primitive.of(method.getReturnType());
     }
 
-	private Map<String, Method> findSetters() {
-		Map<String, Method> methods = new HashMap<String, Method>();
-        for (Method method : flyweightClass.getDeclaredMethods()) {
+    private Map<String, Method> findSetters()
+    {
+        Map<String, Method> methods = new HashMap<String, Method>();
+        for (Method method : flyweightClass.getDeclaredMethods())
+        {
             if (!method.getName().startsWith("set"))
                 continue;
 
@@ -94,36 +106,41 @@ public class TypeInspector {
             methods.put(method.getName(), method);
         }
         return methods;
-	}
+    }
 
-    private void hasOnePrimitiveParameter(Method method) {
-		Class<?>[] parameters = method.getParameterTypes();
-		if (parameters.length != 1)
-			throw new InvalidInterfaceException(method.getName() + " is a setter with more than one parameter");
-		
-		if (!parameters[0].isPrimitive())
-			throw new InvalidInterfaceException(method.getName() + " is a setter with a non-primitive parameter");
-	}
+    private void hasOnePrimitiveParameter(Method method)
+    {
+        Class<?>[] parameters = method.getParameterTypes();
+        if (parameters.length != 1)
+            throw new InvalidInterfaceException(method.getName() + " is a setter with more than one parameter");
 
-	private void returnsVoid(Method method) {
-		if (method.getReturnType() != Void.TYPE)
-			throw new InvalidInterfaceException(method.getName() + " is a setter that doesn't return void");
-	}
+        if (!parameters[0].isPrimitive())
+            throw new InvalidInterfaceException(method.getName() + " is a setter with a non-primitive parameter");
+    }
 
-	public int getSizeInBytes() {
+    private void returnsVoid(Method method)
+    {
+        if (method.getReturnType() != Void.TYPE)
+            throw new InvalidInterfaceException(method.getName() + " is a setter that doesn't return void");
+    }
+
+    public int getSizeInBytes()
+    {
         int total = 0;
-        for (Method getter : getters) {
+        for (Method getter : getters)
+        {
             total += getReturn(getter).sizeInBytes;
         }
         return total;
     }
 
-	public Method setterFor(Method getter) {
-		String name = getter.getName().replaceFirst("get", "set");
-		Method method = setters.get(name);
-		if (method == null)
-			throw new InvalidInterfaceException("Unable to find setter with name: " + name);
-		return method;
-	}
+    public Method setterFor(Method getter)
+    {
+        String name = getter.getName().replaceFirst("get", "set");
+        Method method = setters.get(name);
+        if (method == null)
+            throw new InvalidInterfaceException("Unable to find setter with name: " + name);
+        return method;
+    }
 
 }

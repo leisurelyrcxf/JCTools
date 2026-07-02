@@ -14,24 +14,31 @@ import static org.jctools.queues.util.GeneratorUtils.runJCToolsGenerator;
  * byte-padding fields plus orphan comments via the base {@code stripsPadding()} hook, and adds the
  * {@code LinkedQueueAtomicNode} import the unpadded linked variant needs.
  */
-public class JavaParsingAtomicUnpaddedLinkedQueueGenerator extends JavaParsingAtomicLinkedQueueGenerator {
-    public static void main(String[] args) throws Exception {
+public class JavaParsingAtomicUnpaddedLinkedQueueGenerator extends JavaParsingAtomicLinkedQueueGenerator
+{
+    public static void main(String[] args) throws Exception
+    {
         runJCToolsGenerator(JavaParsingAtomicUnpaddedLinkedQueueGenerator.class, args);
     }
 
-    public JavaParsingAtomicUnpaddedLinkedQueueGenerator(String sourceFileName) {
+    public JavaParsingAtomicUnpaddedLinkedQueueGenerator(String sourceFileName)
+    {
         super(sourceFileName, "org.jctools.queues.atomic.unpadded", "AtomicUnpadded");
     }
 
     @Override
-    protected boolean stripsPadding() {
+    protected boolean stripsPadding()
+    {
         return true;
     }
 
     @Override
-    public void organiseImports(CompilationUnit cu) {
+    public void organiseImports(CompilationUnit cu)
+    {
         super.organiseImports(cu);
-        cu.addImport(new ImportDeclaration("org.jctools.queues.atomic.LinkedQueueAtomicNode",
-                false, false));
+        cu
+            .addImport(new ImportDeclaration("org.jctools.queues.atomic.LinkedQueueAtomicNode",
+                false,
+                false));
     }
 }

@@ -18,7 +18,8 @@ package org.jctools.channels;
  *
  * @param <E> element type
  */
-public interface ChannelProducer<E> {
+public interface ChannelProducer<E>
+{
 
     /**
      * Attempt to claim the next element in the channel.

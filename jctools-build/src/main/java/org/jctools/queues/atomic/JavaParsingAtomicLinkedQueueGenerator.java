@@ -29,31 +29,40 @@ import static org.jctools.queues.util.GeneratorUtils.runJCToolsGenerator;
  * An 'LinkedQueue' is one that is backed by a linked list and use a <code>producerNode</code> and a
  * <code>consumerNode</code> field to track the positions of each.
  */
-public class JavaParsingAtomicLinkedQueueGenerator extends JavaParsingAtomicQueueGenerator {
+public class JavaParsingAtomicLinkedQueueGenerator extends JavaParsingAtomicQueueGenerator
+{
 
     /**
      * Names of {@code long}-typed locals/fields that the atomic variant narrows to {@code int}.
      * Anything else stays {@code long} — index-style fields like {@code producerLimit} must keep
      * their type. Adding a new index name without updating this list silently keeps it long.
      */
-    private static final Set<String> LONG_NAMES_NARROWED_TO_INT = new HashSet<>(Arrays.asList(
-            "offset", "offsetInNew", "offsetInOld", "lookAheadElementOffset"));
+    private static final Set<String> LONG_NAMES_NARROWED_TO_INT = new HashSet<>(Arrays
+        .asList(
+            "offset",
+            "offsetInNew",
+            "offsetInOld",
+            "lookAheadElementOffset"));
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         runJCToolsGenerator(JavaParsingAtomicLinkedQueueGenerator.class, args);
     }
 
-    public JavaParsingAtomicLinkedQueueGenerator(String sourceFileName) {
+    public JavaParsingAtomicLinkedQueueGenerator(String sourceFileName)
+    {
         this(sourceFileName, "org.jctools.queues.atomic", "Atomic");
     }
 
     /** Constructor for unpadded subclasses to pass through different package/prefix values. */
-    protected JavaParsingAtomicLinkedQueueGenerator(String sourceFileName, String outputPackage, String queueClassNamePrefix) {
+    protected JavaParsingAtomicLinkedQueueGenerator(String sourceFileName, String outputPackage, String queueClassNamePrefix)
+    {
         super(sourceFileName, outputPackage, queueClassNamePrefix);
     }
 
     @Override
-    public void visit(ConstructorDeclaration n, Void arg) {
+    public void visit(ConstructorDeclaration n, Void arg)
+    {
         super.visit(n, arg);
         // Update the ctor to match the class name
         String nameAsString = n.getNameAsString();
@@ -64,21 +73,25 @@ public class JavaParsingAtomicLinkedQueueGenerator extends JavaParsingAtomicQueu
     }
 
     @Override
-    protected void visitClass(ClassOrInterfaceDeclaration node, Void arg) {
+    protected void visitClass(ClassOrInterfaceDeclaration node, Void arg)
+    {
         replaceParentClasses(node);
 
         String nameAsString = node.getNameAsString();
         if (nameAsString.contains("Queue"))
             node.setName(translateQueueName(nameAsString));
 
-        if (isCommentPresent(node, GEN_DIRECTIVE_CLASS_CONTAINS_ORDERED_FIELD_ACCESSORS)) {
+        if (isCommentPresent(node, GEN_DIRECTIVE_CLASS_CONTAINS_ORDERED_FIELD_ACCESSORS))
+        {
             node.setComment(null);
             removeStaticFieldsAndInitialisers(node);
             patchAtomicFieldUpdaterAccessorMethods(node);
         }
 
-        for (MethodDeclaration method : node.getMethods()) {
-            if (isCommentPresent(method, GEN_DIRECTIVE_METHOD_IGNORE)) {
+        for (MethodDeclaration method : node.getMethods())
+        {
+            if (isCommentPresent(method, GEN_DIRECTIVE_METHOD_IGNORE))
+            {
                 method.remove();
             }
         }
@@ -87,44 +100,51 @@ public class JavaParsingAtomicLinkedQueueGenerator extends JavaParsingAtomicQueu
     }
 
     @Override
-    public void visit(CastExpr n, Void arg) {
+    public void visit(CastExpr n, Void arg)
+    {
         super.visit(n, arg);
 
-        if (isRefArray(n.getType(), "E")) {
+        if (isRefArray(n.getType(), "E"))
+        {
             n.setType(atomicRefArrayType((ArrayType) n.getType()));
         }
     }
 
     @Override
-    public void visit(MethodDeclaration n, Void arg) {
+    public void visit(MethodDeclaration n, Void arg)
+    {
         super.visit(n, arg);
         // Replace the return type of a method with altered types
         processSpecialNodeTypes(n, n.getNameAsString());
     }
 
     @Override
-    public void visit(ObjectCreationExpr n, Void arg) {
+    public void visit(ObjectCreationExpr n, Void arg)
+    {
         super.visit(n, arg);
         Type type = n.getType();
-        if (isRefType(type, "LinkedQueueNode")) {
+        if (isRefType(type, "LinkedQueueNode"))
+        {
             n.setType(simpleParametricType("LinkedQueueAtomicNode", "E"));
         }
     }
 
-    String fieldUpdaterFieldName(String fieldName) {
-        switch (fieldName) {
-        case "producerNode":
-            return "P_NODE_UPDATER";
-        case "consumerNode":
-            return "C_NODE_UPDATER";
-        case "consumerIndex":
-            return "C_INDEX_UPDATER";
-        case "producerIndex":
-            return "P_INDEX_UPDATER";
-        case "producerLimit":
-            return "P_LIMIT_UPDATER";
-        default:
-            throw new IllegalArgumentException("Unhandled field: " + fieldName);
+    String fieldUpdaterFieldName(String fieldName)
+    {
+        switch (fieldName)
+        {
+            case "producerNode":
+                return "P_NODE_UPDATER";
+            case "consumerNode":
+                return "C_NODE_UPDATER";
+            case "consumerIndex":
+                return "C_INDEX_UPDATER";
+            case "producerIndex":
+                return "P_INDEX_UPDATER";
+            case "producerLimit":
+                return "P_LIMIT_UPDATER";
+            default:
+                throw new IllegalArgumentException("Unhandled field: " + fieldName);
         }
     }
 
@@ -136,17 +156,26 @@ public class JavaParsingAtomicLinkedQueueGenerator extends JavaParsingAtomicQueu
      * {@code AtomicReferenceArray<E>}, the return type of {@code nextArrayOffset} narrowed to
      * {@code int}, and {@code long} locals listed in {@link #LONG_NAMES_NARROWED_TO_INT}.
      */
-    void processSpecialNodeTypes(NodeWithType<?, Type> node, String name) {
+    void processSpecialNodeTypes(NodeWithType<?, Type> node, String name)
+    {
         Type type = node.getType();
-        if (node instanceof MethodDeclaration && "nextArrayOffset".equals(name)) {
+        if (node instanceof MethodDeclaration && "nextArrayOffset".equals(name))
+        {
             node.setType(PrimitiveType.intType());
-        } else if (PrimitiveType.longType().equals(type)) {
-            if (LONG_NAMES_NARROWED_TO_INT.contains(name)) {
+        }
+        else if (PrimitiveType.longType().equals(type))
+        {
+            if (LONG_NAMES_NARROWED_TO_INT.contains(name))
+            {
                 node.setType(PrimitiveType.intType());
             }
-        } else if (isRefType(type, "LinkedQueueNode")) {
+        }
+        else if (isRefType(type, "LinkedQueueNode"))
+        {
             node.setType(simpleParametricType("LinkedQueueAtomicNode", "E"));
-        } else if (isRefArray(type, "E")) {
+        }
+        else if (isRefArray(type, "E"))
+        {
             replaceType(node, atomicRefArrayType((ArrayType) type));
         }
     }
@@ -162,34 +191,42 @@ public class JavaParsingAtomicLinkedQueueGenerator extends JavaParsingAtomicQueu
      *
      * @param n the AST node for the containing class
      */
-    private void patchAtomicFieldUpdaterAccessorMethods(ClassOrInterfaceDeclaration n) {
+    private void patchAtomicFieldUpdaterAccessorMethods(ClassOrInterfaceDeclaration n)
+    {
         String className = n.getNameAsString();
         List<FieldDeclaration> updaterDeclarations = new ArrayList<>();
 
-        for (FieldDeclaration field : n.getFields()) {
-            if (field.getModifiers().contains(Modifier.staticModifier())) {
+        for (FieldDeclaration field : n.getFields())
+        {
+            if (field.getModifiers().contains(Modifier.staticModifier()))
+            {
                 // Ignore statics
                 continue;
             }
             // Skip final fields — see JavaParsingAtomicArrayQueueGenerator for the same guard.
             // Final fields can't have so/cas/sv accessors that need patching, and a final field
             // whose name happens to match a method suffix would otherwise get a stray updater.
-            if (field.getModifiers().contains(Modifier.finalModifier())) {
+            if (field.getModifiers().contains(Modifier.finalModifier()))
+            {
                 continue;
             }
 
             boolean fieldNeedsVolatile = false;
-            for (VariableDeclarator variable : field.getVariables()) {
+            for (VariableDeclarator variable : field.getVariables())
+            {
                 String variableName = variable.getNameAsString();
                 String methodNameSuffix = capitalise(variableName);
 
                 FieldPatchResult variablePatch = FieldPatchResult.NONE;
-                for (MethodDeclaration method : n.getMethods()) {
-                    variablePatch = FieldPatchResult.max(variablePatch,
+                for (MethodDeclaration method : n.getMethods())
+                {
+                    variablePatch = FieldPatchResult
+                        .max(variablePatch,
                             patchAtomicFieldUpdaterAccessorMethod(variableName, method, methodNameSuffix));
                 }
 
-                if ("producerNode".equals(variableName)) {
+                if ("producerNode".equals(variableName))
+                {
                     variablePatch = FieldPatchResult.NEEDS_UPDATER;
                     String fieldUpdaterFieldName = fieldUpdaterFieldName(variableName);
 
@@ -199,22 +236,30 @@ public class JavaParsingAtomicLinkedQueueGenerator extends JavaParsingAtomicQueu
                     method.setBody(fieldUpdaterGetAndSet(fieldUpdaterFieldName, "newValue"));
                 }
 
-                if (variablePatch.atLeast(FieldPatchResult.VOLATILE_ONLY)) {
+                if (variablePatch.atLeast(FieldPatchResult.VOLATILE_ONLY))
+                {
                     fieldNeedsVolatile = true;
                 }
-                if (variablePatch == FieldPatchResult.NEEDS_UPDATER) {
-                    if (PrimitiveType.longType().equals(variable.getType())) {
+                if (variablePatch == FieldPatchResult.NEEDS_UPDATER)
+                {
+                    if (PrimitiveType.longType().equals(variable.getType()))
+                    {
                         updaterDeclarations.add(declareLongFieldUpdater(className, variableName));
-                    } else {
+                    }
+                    else
+                    {
                         // Use the variable's declared type for the AtomicReferenceFieldUpdater
                         // type-parameter, not a hard-coded LinkedQueueAtomicNode. Resolve a single-
                         // letter generic parameter to its erased bound (e.g. R -> Bar) the same
                         // way the array-queue patcher does — keeps the linked-queue patcher correct
                         // if a non-LinkedQueueNode reference field is ever added (e.g. Thread).
                         String typeName = variable.getType().asString();
-                        if (typeName.length() == 1 && Character.isUpperCase(typeName.charAt(0))) {
+                        if (typeName.length() == 1 && Character.isUpperCase(typeName.charAt(0)))
+                        {
                             typeName = resolveErasedBound(n, typeName);
-                        } else if (variable.getType().isClassOrInterfaceType()) {
+                        }
+                        else if (variable.getType().isClassOrInterfaceType())
+                        {
                             typeName = variable.getType().asClassOrInterfaceType().getNameAsString();
                         }
                         updaterDeclarations.add(declareRefFieldUpdater(className, typeName, variableName));
@@ -222,14 +267,16 @@ public class JavaParsingAtomicLinkedQueueGenerator extends JavaParsingAtomicQueu
                 }
             }
 
-            if (fieldNeedsVolatile) {
+            if (fieldNeedsVolatile)
+            {
                 field.addModifier(Keyword.VOLATILE);
             }
         }
 
         // Prepend updater declarations in source field declaration order — mirrors the VarHandle
         // generator's pattern so the two hierarchies emit equivalent member ordering.
-        for (int i = 0; i < updaterDeclarations.size(); i++) {
+        for (int i = 0; i < updaterDeclarations.size(); i++)
+        {
             n.getMembers().add(i, updaterDeclarations.get(i));
         }
     }
@@ -238,14 +285,17 @@ public class JavaParsingAtomicLinkedQueueGenerator extends JavaParsingAtomicQueu
      * Generates something like
      * <code>return P_NODE_UPDATER.getAndSet(this, newValue)</code>
      */
-    private BlockStmt fieldUpdaterGetAndSet(String fieldUpdaterFieldName, String newValueName) {
+    private BlockStmt fieldUpdaterGetAndSet(String fieldUpdaterFieldName, String newValueName)
+    {
         BlockStmt body = new BlockStmt();
-        body.addStatement(new ReturnStmt(
+        body
+            .addStatement(new ReturnStmt(
                 methodCallExpr(fieldUpdaterFieldName, "getAndSet", new ThisExpr(), new NameExpr(newValueName))));
         return body;
     }
 
-    private ClassOrInterfaceType atomicRefArrayType(ArrayType in) {
+    private ClassOrInterfaceType atomicRefArrayType(ArrayType in)
+    {
         ClassOrInterfaceType out = new ClassOrInterfaceType(null, "AtomicReferenceArray");
         out.setTypeArguments(in.getComponentType());
         return out;

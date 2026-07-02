@@ -21,17 +21,20 @@ import org.jctools.channels.ChannelReceiver;
 /**
  * Package Scoped: not part of public API.
  */
-public abstract class MpscChannelConsumer<E> extends MpscOffHeapFixedSizeRingBuffer implements ChannelConsumer {
+public abstract class MpscChannelConsumer<E> extends MpscOffHeapFixedSizeRingBuffer implements ChannelConsumer
+{
 
     protected final ChannelReceiver<E> receiver;
 
     protected long pointer;
 
     public MpscChannelConsumer(
-            final ByteBuffer buffer,
-            final int capacity,
-            final int messageSize,
-            final ChannelReceiver<E> receiver) {
+        final ByteBuffer buffer,
+        final int capacity,
+        final int messageSize,
+        final ChannelReceiver<E> receiver
+    )
+    {
 
         super(buffer, capacity, false, true, false, messageSize, null, 0);
 

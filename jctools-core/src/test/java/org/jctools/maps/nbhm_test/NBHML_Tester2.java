@@ -130,12 +130,13 @@ public class NBHML_Tester2
 
 
     @Test
-    public void replaceMissingValue() {
+    public void replaceMissingValue()
+    {
         NonBlockingHashMapLong<Integer> map = new NonBlockingHashMapLong<>();
         assertNull(map.replace(1, 2));
         assertFalse(map.replace(1, 2, 3));
     }
-    
+
     @Test
     public void testIterationBig2()
     {
@@ -323,7 +324,8 @@ public class NBHML_Tester2
             for (int i = d; i < ITERS; i += num_thrds)
             {
                 assertThat("key " + i + " not in there, so putIfAbsent must work",
-                    nbhml.putIfAbsent((long) i, thrd), is((String) null));
+                    nbhml.putIfAbsent((long) i, thrd),
+                    is((String) null));
             }
             for (int i = d; i < ITERS; i += num_thrds)
             {
@@ -502,7 +504,8 @@ public class NBHML_Tester2
             final NonBlockingHashMapLong<TestKey> map,
             final int count,
             final CyclicBarrier barrier,
-            final long offset)
+            final long offset
+        )
         {
             _map = map;
             _count = count;
@@ -515,9 +518,10 @@ public class NBHML_Tester2
             _barrier.await();         // barrier, to force racing start
             for (long j = 0; j < _count; j++)
             {
-                _map.put(
-                    j + _offset,
-                    new TestKey(_rand.nextLong(), _rand.nextInt(), (short) _rand.nextInt(Short.MAX_VALUE)));
+                _map
+                    .put(
+                        j + _offset,
+                        new TestKey(_rand.nextLong(), _rand.nextInt(), (short) _rand.nextInt(Short.MAX_VALUE)));
             }
             return null;
         }
@@ -629,7 +633,8 @@ public class NBHML_Tester2
         public TestKeyFeederThread(
             final List<TestKey> items,
             final NonBlockingHashMapLong<TestKey> map,
-            final CyclicBarrier barrier)
+            final CyclicBarrier barrier
+        )
         {
             _map = map;
             _items = items;

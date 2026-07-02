@@ -18,7 +18,8 @@ package org.jctools.queues.intrusive;
  *
  * @see NodeImpl for a base implementation
  */
-public interface Node {
+public interface Node
+{
     /**
      * Stores a pointer to the next node in the linked queue structure. This corresponds to
      * mpscq_node_t.next in the <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/intrusive-mpsc-node-based-queue">

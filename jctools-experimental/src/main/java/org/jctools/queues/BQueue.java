@@ -22,7 +22,8 @@ import java.util.Queue;
 
 import static org.jctools.util.UnsafeAccess.UNSAFE;
 
-abstract class BQueueL0Pad {
+abstract class BQueueL0Pad
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -41,23 +42,29 @@ abstract class BQueueL0Pad {
     byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 }
 
-abstract class BQueueColdFields<E> extends BQueueL0Pad {
+abstract class BQueueColdFields<E> extends BQueueL0Pad
+{
     protected static final int BUFFER_PAD = 32;
     protected static final long ARRAY_BASE;
     protected static final int ELEMENT_SHIFT;
     protected static final int TICKS = Integer.getInteger("spin.ticks", 200);
-    static {
+    static
+    {
         final int scale = UNSAFE.arrayIndexScale(Object[].class);
 
-        if (4 == scale) {
+        if (4 == scale)
+        {
             ELEMENT_SHIFT = 2;
-        } else if (8 == scale) {
+        }
+        else if (8 == scale)
+        {
             ELEMENT_SHIFT = 3;
-        } else {
+        }
+        else
+        {
             throw new IllegalStateException("Unknown pointer size");
         }
-        ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class)
-                + (BUFFER_PAD << ELEMENT_SHIFT);
+        ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + (BUFFER_PAD << ELEMENT_SHIFT);
     }
     protected static final int OFFER_BATCH_SIZE = Integer.getInteger("offer.batch.size", 32);
     protected static final int POLL_BATCH_SIZE = Integer.getInteger("poll.batch.size", 4096);
@@ -66,10 +73,14 @@ abstract class BQueueColdFields<E> extends BQueueL0Pad {
     protected final E[] buffer;
 
     @SuppressWarnings("unchecked")
-    protected BQueueColdFields(int capacity) {
-        if (Pow2.isPowerOfTwo(capacity)) {
+    protected BQueueColdFields(int capacity)
+    {
+        if (Pow2.isPowerOfTwo(capacity))
+        {
             this.capacity = capacity;
-        } else {
+        }
+        else
+        {
             this.capacity = Pow2.roundToPowerOfTwo(capacity);
         }
         mask = this.capacity - 1;
@@ -77,7 +88,8 @@ abstract class BQueueColdFields<E> extends BQueueL0Pad {
     }
 }
 
-abstract class BQueueL1Pad<E> extends BQueueColdFields<E> {
+abstract class BQueueL1Pad<E> extends BQueueColdFields<E>
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -95,70 +107,90 @@ abstract class BQueueL1Pad<E> extends BQueueColdFields<E> {
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
     byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 
-    protected BQueueL1Pad(int capacity) {
+    protected BQueueL1Pad(int capacity)
+    {
         super(capacity);
     }
 }
 
-abstract class BQueueOfferFields<E> extends BQueueL1Pad<E> {
+abstract class BQueueOfferFields<E> extends BQueueL1Pad<E>
+{
     protected long tail;
     protected long batchTail;
 
-    protected BQueueOfferFields(int capacity) {
+    protected BQueueOfferFields(int capacity)
+    {
         super(capacity);
     }
 }
 
-abstract class BQueueL2Pad<E> extends BQueueOfferFields<E> {
-    protected long p00, p01, p02, p03, p04, p05, p06, p07;
-    protected long p30, p31, p32, p33, p34, p35, p36, p37;
+abstract class BQueueL2Pad<E> extends BQueueOfferFields<E>
+{
+    protected long p00,p01,p02,p03,p04,p05,p06,p07;
+    protected long p30,p31,p32,p33,p34,p35,p36,p37;
 
-    public BQueueL2Pad(int capacity) {
+    public BQueueL2Pad(int capacity)
+    {
         super(capacity);
     }
 }
 
-abstract class BQueuePollFields<E> extends BQueueL2Pad<E> {
+abstract class BQueuePollFields<E> extends BQueueL2Pad<E>
+{
     protected long head;
     protected long batchHead;
     protected int batchHistory = POLL_BATCH_SIZE;
     protected int batchSize;
-    public BQueuePollFields(int capacity) {
+
+    public BQueuePollFields(int capacity)
+    {
         super(capacity);
     }
 }
 
-abstract class BQueueL3Pad<E> extends BQueuePollFields<E> {
-    protected long p00, p01, p02, p03, p04, p05, p06, p07;
-    protected long p50, p51, p52, p53, p54, p55, p56, p57;
+abstract class BQueueL3Pad<E> extends BQueuePollFields<E>
+{
+    protected long p00,p01,p02,p03,p04,p05,p06,p07;
+    protected long p50,p51,p52,p53,p54,p55,p56,p57;
 
-    protected BQueueL3Pad(int capacity) {
+    protected BQueueL3Pad(int capacity)
+    {
         super(capacity);
     }
 }
 
-public final class BQueue<E> extends BQueueL3Pad<E> implements Queue<E> {
-    public BQueue(final int capacity) {
+public final class BQueue<E> extends BQueueL3Pad<E> implements Queue<E>
+{
+    public BQueue(final int capacity)
+    {
         super(capacity);
     }
 
-    public boolean add(final E e) {
-        if (offer(e)) {
+    public boolean add(final E e)
+    {
+        if (offer(e))
+        {
             return true;
         }
         throw new IllegalStateException("Queue is full");
     }
 
-    private long offset(long index) {
+    private long offset(long index)
+    {
         return ARRAY_BASE + ((index & mask) << ELEMENT_SHIFT);
     }
-    public boolean offer(final E e) {
-        if (null == e) {
+
+    public boolean offer(final E e)
+    {
+        if (null == e)
+        {
             throw new NullPointerException("Null is not a valid element");
         }
 
-        if (tail >= batchTail) {
-            if (null != UNSAFE.getObjectVolatile(buffer, offset(tail + OFFER_BATCH_SIZE))) {
+        if (tail >= batchTail)
+        {
+            if (null != UNSAFE.getObjectVolatile(buffer, offset(tail + OFFER_BATCH_SIZE)))
+            {
                 return false;
             }
             batchTail = tail + OFFER_BATCH_SIZE;
@@ -168,33 +200,42 @@ public final class BQueue<E> extends BQueueL3Pad<E> implements Queue<E> {
 
         return true;
     }
-    public E poll() {
-        if (head >= batchHead) {
-            if (!backtrackPoll()) {
+
+    public E poll()
+    {
+        if (head >= batchHead)
+        {
+            if (!backtrackPoll())
+            {
                 return null;
             }
         }
 
         final long offset = offset(head);
-        @SuppressWarnings("unchecked")
-        final E e = (E) UNSAFE.getObject(buffer, offset);
+        @SuppressWarnings("unchecked") final E e = (E) UNSAFE.getObject(buffer, offset);
         UNSAFE.putOrderedObject(buffer, offset, null);
         head++;
         return e;
     }
 
-    boolean backtrackPoll() {
-        if (batchHistory < POLL_BATCH_SIZE) {
+    boolean backtrackPoll()
+    {
+        if (batchHistory < POLL_BATCH_SIZE)
+        {
             batchHistory = Math.min(POLL_BATCH_SIZE, batchHistory << 1);
         }
         batchSize = batchHistory;
         batchHead = head + batchSize - 1;
-        while (UNSAFE.getObjectVolatile(buffer, offset(batchHead)) == null) {
+        while (UNSAFE.getObjectVolatile(buffer, offset(batchHead)) == null)
+        {
             spinWait();
-            if (batchSize > 1) {
+            if (batchSize > 1)
+            {
                 batchSize = batchSize >> 1;
                 batchHead = head + batchSize - 1;
-            } else {
+            }
+            else
+            {
                 batchHead = head;
                 return false;
             }
@@ -203,88 +244,110 @@ public final class BQueue<E> extends BQueueL3Pad<E> implements Queue<E> {
         return true;
     }
 
-    private void spinWait() {
-        if(TICKS == 0){
+    private void spinWait()
+    {
+        if (TICKS == 0)
+        {
             return;
         }
-	    final long deadline = System.nanoTime() + TICKS;
-	    while(deadline >= System.nanoTime());
+        final long deadline = System.nanoTime() + TICKS;
+        while (deadline >= System.nanoTime());
     }
 
-	public E remove() {
+    public E remove()
+    {
         final E e = poll();
-        if (null == e) {
+        if (null == e)
+        {
             throw new NoSuchElementException("Queue is empty");
         }
 
         return e;
     }
 
-    public E element() {
+    public E element()
+    {
         final E e = peek();
-        if (null == e) {
+        if (null == e)
+        {
             throw new NoSuchElementException("Queue is empty");
         }
 
         return e;
     }
 
-    public E peek() {
-    	throw new UnsupportedOperationException();
+    public E peek()
+    {
+        throw new UnsupportedOperationException();
     }
 
-    public int size() {
+    public int size()
+    {
         return (int) (tail - head);
     }
 
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return tail == head;
     }
 
-    public boolean contains(final Object o) {
-    	throw new UnsupportedOperationException();
-    }
-
-    public Iterator<E> iterator() {
+    public boolean contains(final Object o)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public Object[] toArray() {
+    public Iterator<E> iterator()
+    {
         throw new UnsupportedOperationException();
     }
 
-    public <T> T[] toArray(final T[] a) {
+    public Object[] toArray()
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean remove(final Object o) {
+    public <T> T[] toArray(final T[] a)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean containsAll(final Collection<?> c) {
-    	throw new UnsupportedOperationException();
+    public boolean remove(final Object o)
+    {
+        throw new UnsupportedOperationException();
     }
 
-    public boolean addAll(final Collection<? extends E> c) {
-        for (final E e : c) {
+    public boolean containsAll(final Collection<?> c)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean addAll(final Collection<? extends E> c)
+    {
+        for (final E e : c)
+        {
             add(e);
         }
 
         return true;
     }
 
-    public boolean removeAll(final Collection<?> c) {
+    public boolean removeAll(final Collection<?> c)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean retainAll(final Collection<?> c) {
+    public boolean retainAll(final Collection<?> c)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public void clear() {
+    public void clear()
+    {
         Object value;
-        do {
+        do
+        {
             value = poll();
-        } while (null != value);
+        }
+        while (null != value);
     }
 }

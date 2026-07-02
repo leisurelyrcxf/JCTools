@@ -235,7 +235,8 @@ public final class FFBuffer<E> extends FFBufferL3Pad<E> implements Queue<E>
     public void drain(
         Consumer<E> c,
         WaitStrategy wait,
-        ExitCondition exit)
+        ExitCondition exit
+    )
     {
         int idleCounter = 0;
         while (exit.keepRunning())
@@ -255,7 +256,8 @@ public final class FFBuffer<E> extends FFBufferL3Pad<E> implements Queue<E>
     public void fill(
         Supplier<E> s,
         WaitStrategy wait,
-        ExitCondition exit)
+        ExitCondition exit
+    )
     {
         throw new UnsupportedOperationException();
     }

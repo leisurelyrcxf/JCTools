@@ -20,7 +20,8 @@ package org.jctools.queues.alt;
  * 
  * @param <E> element type
  */
-public interface ConcurrentQueue<E> {
+public interface ConcurrentQueue<E>
+{
     /**
      * @return a consumer instance to be used from a consuming thread.
      */

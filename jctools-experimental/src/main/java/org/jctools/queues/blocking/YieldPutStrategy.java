@@ -9,7 +9,7 @@ public class YieldPutStrategy<E> implements PutStrategy<E>
     @Override
     public void waitOffer(Queue<E> q, E e) throws InterruptedException
     {
-        while(!q.offer(e))
+        while (!q.offer(e))
         {
             Thread.yield();
             if (Thread.currentThread().isInterrupted())

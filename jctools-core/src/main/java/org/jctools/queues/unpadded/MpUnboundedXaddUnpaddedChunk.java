@@ -12,7 +12,7 @@ import org.jctools.queues.*;
  * which can found in the jctools-build module. The original source file is MpUnboundedXaddChunk.java.
  */
 @InternalAPI
-public class MpUnboundedXaddUnpaddedChunk<R,E>
+public class MpUnboundedXaddUnpaddedChunk<R, E>
 {
     public final static int NOT_USED = -1;
 
@@ -26,6 +26,7 @@ public class MpUnboundedXaddUnpaddedChunk<R,E>
     private volatile R prev;
     private volatile long index;
     private volatile R next;
+
     protected MpUnboundedXaddUnpaddedChunk(long index, R prev, int size, boolean pooled)
     {
         buffer = allocateRefArray(size);

@@ -22,45 +22,55 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public class InvalidInterfaceTest {
-	
-	@Parameters
-	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { { NoGettersOrSetters.class }, { InvalidReturnGetter.class }, { ParameterGetter.class },
-				{ InvalidReturnSetter.class }, { NoParameterSetter.class }, });
-	}
+public class InvalidInterfaceTest
+{
 
-	private Class<?> representingKlass;
+    @Parameters
+    public static Collection<Object[]> data()
+    {
+        return Arrays
+            .asList(
+                new Object[][] {{NoGettersOrSetters.class}, {InvalidReturnGetter.class}, {ParameterGetter.class}, {InvalidReturnSetter.class}, {NoParameterSetter.class},});
+    }
 
-	public InvalidInterfaceTest(Class<?> representingKlass) {
-		this.representingKlass = representingKlass;
-	}
+    private Class<?> representingKlass;
 
-	@Test(expected = InvalidInterfaceException.class)
-	public void interfaceIsInvalid() {
-		new Mapper(representingKlass, false);
-	}
+    public InvalidInterfaceTest(Class<?> representingKlass)
+    {
+        this.representingKlass = representingKlass;
+    }
 
-	// ---------------------------------------------------
+    @Test(expected = InvalidInterfaceException.class)
+    public void interfaceIsInvalid()
+    {
+        new Mapper(representingKlass, false);
+    }
 
-	public interface NoGettersOrSetters {
-		void neitherGetterNorSetter();
-	}
+    // ---------------------------------------------------
 
-	public interface InvalidReturnGetter {
-		Object getFoo();
-	}
+    public interface NoGettersOrSetters
+    {
+        void neitherGetterNorSetter();
+    }
 
-	public interface ParameterGetter {
-		int getFoo(long bar);
-	}
+    public interface InvalidReturnGetter
+    {
+        Object getFoo();
+    }
 
-	public interface InvalidReturnSetter{
-		Object setFoo();
-	}
+    public interface ParameterGetter
+    {
+        int getFoo(long bar);
+    }
 
-	public interface NoParameterSetter {
-		void setFoo();
-	}
+    public interface InvalidReturnSetter
+    {
+        Object setFoo();
+    }
+
+    public interface NoParameterSetter
+    {
+        void setFoo();
+    }
 
 }

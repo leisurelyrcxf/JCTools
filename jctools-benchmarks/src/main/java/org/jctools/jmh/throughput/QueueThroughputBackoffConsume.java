@@ -17,12 +17,15 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 
 
-public class QueueThroughputBackoffConsume extends QueueThroughputBackoffNone {
-    
-    @Param({"1","10","100","1000"})
+public class QueueThroughputBackoffConsume extends QueueThroughputBackoffNone
+{
+
+    @Param({"1", "10", "100", "1000"})
     private long consumeAmount;
+
     @Override
-    protected void backoff() {
+    protected void backoff()
+    {
         Blackhole.consumeCPU(consumeAmount);
     }
 }

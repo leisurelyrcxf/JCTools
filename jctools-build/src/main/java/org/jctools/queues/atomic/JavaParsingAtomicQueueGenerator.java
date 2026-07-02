@@ -35,28 +35,33 @@ import org.jctools.queues.util.JavaParsingQueueGeneratorBase;
  * These generators are coupled with the structure and naming of fields, variables and methods and are not suitable for
  * general purpose use.
  */
-public abstract class JavaParsingAtomicQueueGenerator extends JavaParsingQueueGeneratorBase {
+public abstract class JavaParsingAtomicQueueGenerator extends JavaParsingQueueGeneratorBase
+{
 
     /** The unpadded SPSC pool queue type used by xadd-family chunk pools in the atomic variant. */
     protected final String unpaddedPoolQueueName = "SpscAtomicUnpaddedArrayQueue";
     protected final String unpaddedPoolQueueImport = "org.jctools.queues.atomic.unpadded.SpscAtomicUnpaddedArrayQueue";
 
-    protected JavaParsingAtomicQueueGenerator(String sourceFileName, String outputPackage, String queueClassNamePrefix) {
+    protected JavaParsingAtomicQueueGenerator(String sourceFileName, String outputPackage, String queueClassNamePrefix)
+    {
         super(sourceFileName, outputPackage, queueClassNamePrefix);
     }
 
     abstract void processSpecialNodeTypes(NodeWithType<?, Type> node, String name);
+
     abstract String fieldUpdaterFieldName(String fieldName);
 
     @Override
-    public final void visit(Parameter n, Void arg) {
+    public final void visit(Parameter n, Void arg)
+    {
         super.visit(n, arg);
         // Process parameters to methods and ctors
         processSpecialNodeTypes(n, n.getNameAsString());
     }
 
     @Override
-    public final void visit(VariableDeclarator n, Void arg) {
+    public final void visit(VariableDeclarator n, Void arg)
+    {
         super.visit(n, arg);
         // Replace declared variables with altered types
         processSpecialNodeTypes(n, n.getNameAsString());
@@ -70,24 +75,30 @@ public abstract class JavaParsingAtomicQueueGenerator extends JavaParsingQueueGe
      * but no field updater is needed. {@link #NEEDS_UPDATER} means the body delegates to a
      * field updater and the field also needs to be {@code volatile}.
      */
-    enum FieldPatchResult {
-        NONE,
-        VOLATILE_ONLY,
-        NEEDS_UPDATER;
+    enum FieldPatchResult
+    {
+        NONE, VOLATILE_ONLY, NEEDS_UPDATER;
 
-        boolean atLeast(FieldPatchResult other) {
+        boolean atLeast(FieldPatchResult other)
+        {
             return ordinal() >= other.ordinal();
         }
 
-        static FieldPatchResult max(FieldPatchResult a, FieldPatchResult b) {
+        static FieldPatchResult max(FieldPatchResult a, FieldPatchResult b)
+        {
             return a.atLeast(b) ? a : b;
         }
     }
 
-    final FieldPatchResult patchAtomicFieldUpdaterAccessorMethod(String variableName, MethodDeclaration method, String methodNameSuffix)
+    final FieldPatchResult patchAtomicFieldUpdaterAccessorMethod(
+        String variableName,
+        MethodDeclaration method,
+        String methodNameSuffix
+    )
     {
         String methodName = method.getNameAsString();
-        if (!methodName.endsWith(methodNameSuffix)) {
+        if (!methodName.endsWith(methodNameSuffix))
+        {
             // Leave it untouched
             return FieldPatchResult.NONE;
         }
@@ -98,7 +109,8 @@ public abstract class JavaParsingAtomicQueueGenerator extends JavaParsingQueueGe
             // Read actual param name from the method — xadd sources use different names than the
             // original array queue sources (e.g. "value" vs "newValue").
             String fieldUpdaterFieldName = fieldUpdaterFieldName(variableName);
-            String valueName = method.getParameters().isEmpty() ? "newValue" :
+            String valueName = method.getParameters().isEmpty() ?
+                "newValue" :
                 method.getParameters().get(method.getParameters().size() - 1).getNameAsString();
             method.setBody(fieldUpdaterLazySet(fieldUpdaterFieldName, valueName));
             return FieldPatchResult.NEEDS_UPDATER;
@@ -108,18 +120,22 @@ public abstract class JavaParsingAtomicQueueGenerator extends JavaParsingQueueGe
             // Read actual param names — xadd sources use "expected"/"value" not "expect"/"newValue"
             String fieldUpdaterFieldName = fieldUpdaterFieldName(variableName);
             String expectedValueName = method.getParameters().size() >= 1 ?
-                method.getParameters().get(0).getNameAsString() : "expect";
+                method.getParameters().get(0).getNameAsString() :
+                "expect";
             String newValueName = method.getParameters().size() >= 2 ?
-                method.getParameters().get(1).getNameAsString() : "newValue";
-            method.setBody(
-                fieldUpdaterCompareAndSet(fieldUpdaterFieldName, expectedValueName, newValueName));
+                method.getParameters().get(1).getNameAsString() :
+                "newValue";
+            method
+                .setBody(
+                    fieldUpdaterCompareAndSet(fieldUpdaterFieldName, expectedValueName, newValueName));
             return FieldPatchResult.NEEDS_UPDATER;
         }
         else if (methodName.startsWith("getAndAdd"))
         {
             // Xadd queues use getAndAddProducerIndex(long delta) — maps to fieldUpdater.getAndAdd()
             String fieldUpdaterFieldName = fieldUpdaterFieldName(variableName);
-            String deltaName = method.getParameters().isEmpty() ? "delta" :
+            String deltaName = method.getParameters().isEmpty() ?
+                "delta" :
                 method.getParameters().get(0).getNameAsString();
             method.setBody(fieldUpdaterGetAndAdd(fieldUpdaterFieldName, deltaName));
             return FieldPatchResult.NEEDS_UPDATER;
@@ -135,7 +151,8 @@ public abstract class JavaParsingAtomicQueueGenerator extends JavaParsingQueueGe
         {
             // Plain field assignment — the caller adds volatile to the field, so this carries
             // volatile-store semantics without needing the field updater.
-            String valueName = method.getParameters().isEmpty() ? "newValue" :
+            String valueName = method.getParameters().isEmpty() ?
+                "newValue" :
                 method.getParameters().get(method.getParameters().size() - 1).getNameAsString();
             method.setBody(fieldAssignment(variableName, valueName));
             return FieldPatchResult.VOLATILE_ONLY;
@@ -154,24 +171,29 @@ public abstract class JavaParsingAtomicQueueGenerator extends JavaParsingQueueGe
     }
 
     @Override
-    public void organiseImports(CompilationUnit cu) {
+    public void organiseImports(CompilationUnit cu)
+    {
         List<ImportDeclaration> importDecls = new ArrayList<>();
 
         // remove irrelevant imports
-        for (ImportDeclaration importDeclaration : cu.getImports()) {
+        for (ImportDeclaration importDeclaration : cu.getImports())
+        {
             String name = importDeclaration.getNameAsString();
-            if (name.startsWith("org.jctools.util.Unsafe")) {
+            if (name.startsWith("org.jctools.util.Unsafe"))
+            {
                 continue;
             }
 
-            if (name.startsWith("org.jctools.queues.LinkedArrayQueueUtil")) {
+            if (name.startsWith("org.jctools.queues.LinkedArrayQueueUtil"))
+            {
                 continue;
             }
 
             importDecls.add(translateChunkStaticImportOrSelf(importDeclaration));
         }
         cu.getImports().clear();
-        for (ImportDeclaration importDecl : importDecls) {
+        for (ImportDeclaration importDecl : importDecls)
+        {
             cu.addImport(importDecl);
         }
 
@@ -180,48 +202,69 @@ public abstract class JavaParsingAtomicQueueGenerator extends JavaParsingQueueGe
         cu.addImport(new ImportDeclaration("org.jctools.queues", false, true));
         cu.addImport(staticImportDeclaration("org.jctools.queues.atomic.AtomicQueueUtil"));
 
-        if (referencesType(cu, unpaddedPoolQueueName)) {
+        if (referencesType(cu, unpaddedPoolQueueName))
+        {
             cu.addImport(new ImportDeclaration(unpaddedPoolQueueImport, false, false));
         }
     }
 
     /** Generates something like <code>P_INDEX_UPDATER.lazySet(this, newValue)</code>. */
-    private static BlockStmt fieldUpdaterLazySet(String fieldUpdaterFieldName, String newValueName) {
+    private static BlockStmt fieldUpdaterLazySet(String fieldUpdaterFieldName, String newValueName)
+    {
         BlockStmt body = new BlockStmt();
-        body.addStatement(new ExpressionStmt(
+        body
+            .addStatement(new ExpressionStmt(
                 methodCallExpr(fieldUpdaterFieldName, "lazySet", new ThisExpr(), new NameExpr(newValueName))));
         return body;
     }
 
     /** Generates something like <code>return P_INDEX_UPDATER.getAndAdd(this, delta)</code>. */
-    private static BlockStmt fieldUpdaterGetAndAdd(String fieldUpdaterFieldName, String deltaName) {
+    private static BlockStmt fieldUpdaterGetAndAdd(String fieldUpdaterFieldName, String deltaName)
+    {
         BlockStmt body = new BlockStmt();
-        body.addStatement(new ReturnStmt(methodCallExpr(fieldUpdaterFieldName, "getAndAdd", new ThisExpr(),
+        body
+            .addStatement(new ReturnStmt(methodCallExpr(fieldUpdaterFieldName,
+                "getAndAdd",
+                new ThisExpr(),
                 new NameExpr(deltaName))));
         return body;
     }
 
     /** Generates something like <code>return P_INDEX_UPDATER.getAndIncrement(this)</code>. */
-    private static BlockStmt fieldUpdaterGetAndIncrement(String fieldUpdaterFieldName) {
+    private static BlockStmt fieldUpdaterGetAndIncrement(String fieldUpdaterFieldName)
+    {
         BlockStmt body = new BlockStmt();
         body.addStatement(new ReturnStmt(methodCallExpr(fieldUpdaterFieldName, "getAndIncrement", new ThisExpr())));
         return body;
     }
 
     /** Generates something like <code>return P_INDEX_UPDATER.compareAndSet(this, expectedValue, newValue)</code>. */
-    private static BlockStmt fieldUpdaterCompareAndSet(String fieldUpdaterFieldName, String expectedValueName,
-            String newValueName) {
+    private static BlockStmt fieldUpdaterCompareAndSet(
+        String fieldUpdaterFieldName,
+        String expectedValueName,
+        String newValueName
+    )
+    {
         BlockStmt body = new BlockStmt();
-        body.addStatement(new ReturnStmt(methodCallExpr(fieldUpdaterFieldName, "compareAndSet", new ThisExpr(),
-                new NameExpr(expectedValueName), new NameExpr(newValueName))));
+        body
+            .addStatement(new ReturnStmt(methodCallExpr(fieldUpdaterFieldName,
+                "compareAndSet",
+                new ThisExpr(),
+                new NameExpr(expectedValueName),
+                new NameExpr(newValueName))));
         return body;
     }
 
     /**
      * Generates a field declaration {@code <type> <name> = <initializer>;} with the given modifiers.
      */
-    static FieldDeclaration fieldDeclarationWithInitialiser(Type type, String name, Expression initializer,
-            Keyword... modifiers) {
+    static FieldDeclaration fieldDeclarationWithInitialiser(
+        Type type,
+        String name,
+        Expression initializer,
+        Keyword... modifiers
+    )
+    {
         FieldDeclaration fieldDeclaration = new FieldDeclaration();
         VariableDeclarator variable = new VariableDeclarator(type, name, initializer);
         fieldDeclaration.getVariables().add(variable);
@@ -233,33 +276,50 @@ public abstract class JavaParsingAtomicQueueGenerator extends JavaParsingQueueGe
      * Generates something like
      * <code>private static final AtomicLongFieldUpdater&lt;MpmcAtomicArrayQueueProducerIndexField&gt; P_INDEX_UPDATER = AtomicLongFieldUpdater.newUpdater(MpmcAtomicArrayQueueProducerIndexField.class, "producerIndex");</code>
      */
-    final FieldDeclaration declareLongFieldUpdater(String className, String variableName) {
+    final FieldDeclaration declareLongFieldUpdater(String className, String variableName)
+    {
         MethodCallExpr initializer = newAtomicLongFieldUpdater(className, variableName);
 
         ClassOrInterfaceType type = simpleParametricType("AtomicLongFieldUpdater", className);
-        return fieldDeclarationWithInitialiser(type, fieldUpdaterFieldName(variableName),
-                initializer, Keyword.PRIVATE, Keyword.STATIC, Keyword.FINAL);
+        return fieldDeclarationWithInitialiser(type,
+            fieldUpdaterFieldName(variableName),
+            initializer,
+            Keyword.PRIVATE,
+            Keyword.STATIC,
+            Keyword.FINAL);
     }
 
     /**
      * Generates something like
      * <code>private static final AtomicReferenceFieldUpdater&lt;MpscBlockingConsumerAtomicArrayQueueConsumerFields, Thread&gt; BLOCKED = AtomicReferenceFieldUpdater.newUpdater(MpscBlockingConsumerAtomicArrayQueueConsumerFields.class, Thread.class, "blocked");</code>
      */
-    final FieldDeclaration declareRefFieldUpdater(String className, String typeName, String variableName) {
+    final FieldDeclaration declareRefFieldUpdater(String className, String typeName, String variableName)
+    {
         MethodCallExpr initializer = newAtomicRefFieldUpdater(className, typeName, variableName);
 
         ClassOrInterfaceType type = simpleParametricType("AtomicReferenceFieldUpdater", className, typeName);
-        return fieldDeclarationWithInitialiser(type, fieldUpdaterFieldName(variableName),
-            initializer, Keyword.PRIVATE, Keyword.STATIC, Keyword.FINAL);
+        return fieldDeclarationWithInitialiser(type,
+            fieldUpdaterFieldName(variableName),
+            initializer,
+            Keyword.PRIVATE,
+            Keyword.STATIC,
+            Keyword.FINAL);
     }
 
-    private static MethodCallExpr newAtomicLongFieldUpdater(String className, String variableName) {
-        return methodCallExpr("AtomicLongFieldUpdater", "newUpdater", new ClassExpr(classType(className)),
-                new StringLiteralExpr(variableName));
+    private static MethodCallExpr newAtomicLongFieldUpdater(String className, String variableName)
+    {
+        return methodCallExpr("AtomicLongFieldUpdater",
+            "newUpdater",
+            new ClassExpr(classType(className)),
+            new StringLiteralExpr(variableName));
     }
 
-    private static MethodCallExpr newAtomicRefFieldUpdater(String className, String typeName, String variableName) {
-        return methodCallExpr("AtomicReferenceFieldUpdater", "newUpdater", new ClassExpr(classType(className)), new ClassExpr(classType(typeName)),
+    private static MethodCallExpr newAtomicRefFieldUpdater(String className, String typeName, String variableName)
+    {
+        return methodCallExpr("AtomicReferenceFieldUpdater",
+            "newUpdater",
+            new ClassExpr(classType(className)),
+            new ClassExpr(classType(typeName)),
             new StringLiteralExpr(variableName));
     }
 }

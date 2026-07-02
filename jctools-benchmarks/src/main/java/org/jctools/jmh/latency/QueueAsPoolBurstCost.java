@@ -37,89 +37,106 @@ import org.openjdk.jmh.infra.Blackhole;
 @Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 10, time = 1)
 @SuppressWarnings("serial")
-public class QueueAsPoolBurstCost {
+public class QueueAsPoolBurstCost
+{
 
-   @Param({"None", "ArrayBlockingQueue", "ConcurrentLinkedQueue", "MpmcUnboundedXaddArrayQueue", "MpmcArrayQueue"})
-   String qType;
-   @Param({"1", "10"})
-   int burstSize;
-   @Param("true")
-   boolean warmup;
-   @Param(value = {"132000"})
-   String qCapacity;
-   Queue<Object> q;
+    @Param({"None", "ArrayBlockingQueue", "ConcurrentLinkedQueue", "MpmcUnboundedXaddArrayQueue", "MpmcArrayQueue"})
+    String qType;
+    @Param({"1", "10"})
+    int burstSize;
+    @Param("true")
+    boolean warmup;
+    @Param(value = {"132000"})
+    String qCapacity;
+    Queue<Object> q;
 
-   @Param({"0", "10", "100"})
-   int work;
+    @Param({"0", "10", "100"})
+    int work;
 
-   @Setup
-   public void init() {
-      final boolean noQ = qType.equals("None");
-      if (!noQ && warmup) {
-         q = QueueByTypeFactory.createQueue(qType, 128);
+    @Setup
+    public void init()
+    {
+        final boolean noQ = qType.equals("None");
+        if (!noQ && warmup)
+        {
+            q = QueueByTypeFactory.createQueue(qType, 128);
 
-         final Object o = new Object();
-
-         // stretch the queue to the limit, working through resizing and full
-         // 128 * 2 account for the xadd qs that pool by default 2 chunks
-         for (int i = 0; i < ((128 * 2) + 100); i++) {
-            q.offer(o);
-         }
-         for (int i = 0; i < ((128 * 2) + 100); i++) {
-            q.poll();
-         }
-         // make sure the important common case is exercised
-         for (int i = 0; i < 20000; i++) {
-            q.offer(o);
-            q.poll();
-         }
-      }
-      q = noQ ? null : QueueByTypeFactory.buildQ(qType, qCapacity);
-      // fill the qs, if any
-      final Object o = new Object();
-      if (q != null) {
-         for (int i = 0; i < Integer.parseInt(qCapacity); i++) {
-            if (!q.offer(o)) {
-               throw new IllegalStateException("qCapacity isn't enough to hold all elements for " + qType);
-            }
-         }
-      }
-   }
-
-   @Benchmark
-   @CompilerControl(CompilerControl.Mode.DONT_INLINE)
-   public void acquireAndRelease(ThreadLocalPool tlPool) {
-      final int work = this.work;
-      final int burst = burstSize;
-      final Queue<Object> pool = q == null ? tlPool.pool : q;
-      final ArrayDeque<Object> tmp = tlPool.acquired;
-      for (int i = 0; i < burst; i++) {
-         tmp.offer(pool.poll());
-      }
-      if (work > 0) {
-         Blackhole.consumeCPU(work);
-      }
-      for (int i = 0; i < burst; i++) {
-         pool.offer(tmp.pollLast());
-      }
-   }
-
-   @State(Scope.Thread)
-   public static class ThreadLocalPool {
-
-      private ArrayDeque<Object> pool;
-      private ArrayDeque<Object> acquired;
-
-      @Setup
-      public void init(QueueAsPoolBurstCost benchmark) {
-         acquired = new ArrayDeque<Object>(benchmark.burstSize);
-         pool = new ArrayDeque<Object>(benchmark.burstSize);
-         if ("None".equals(benchmark.qType)) {
             final Object o = new Object();
-            for (int i = 0; i < benchmark.burstSize; i++) {
-               pool.add(o);
+
+            // stretch the queue to the limit, working through resizing and full
+            // 128 * 2 account for the xadd qs that pool by default 2 chunks
+            for (int i = 0; i < ((128 * 2) + 100); i++)
+            {
+                q.offer(o);
             }
-         }
-      }
-   }
+            for (int i = 0; i < ((128 * 2) + 100); i++)
+            {
+                q.poll();
+            }
+            // make sure the important common case is exercised
+            for (int i = 0; i < 20000; i++)
+            {
+                q.offer(o);
+                q.poll();
+            }
+        }
+        q = noQ ? null : QueueByTypeFactory.buildQ(qType, qCapacity);
+        // fill the qs, if any
+        final Object o = new Object();
+        if (q != null)
+        {
+            for (int i = 0; i < Integer.parseInt(qCapacity); i++)
+            {
+                if (!q.offer(o))
+                {
+                    throw new IllegalStateException("qCapacity isn't enough to hold all elements for " + qType);
+                }
+            }
+        }
+    }
+
+    @Benchmark
+    @CompilerControl(CompilerControl.Mode.DONT_INLINE)
+    public void acquireAndRelease(ThreadLocalPool tlPool)
+    {
+        final int work = this.work;
+        final int burst = burstSize;
+        final Queue<Object> pool = q == null ? tlPool.pool : q;
+        final ArrayDeque<Object> tmp = tlPool.acquired;
+        for (int i = 0; i < burst; i++)
+        {
+            tmp.offer(pool.poll());
+        }
+        if (work > 0)
+        {
+            Blackhole.consumeCPU(work);
+        }
+        for (int i = 0; i < burst; i++)
+        {
+            pool.offer(tmp.pollLast());
+        }
+    }
+
+    @State(Scope.Thread)
+    public static class ThreadLocalPool
+    {
+
+        private ArrayDeque<Object> pool;
+        private ArrayDeque<Object> acquired;
+
+        @Setup
+        public void init(QueueAsPoolBurstCost benchmark)
+        {
+            acquired = new ArrayDeque<Object>(benchmark.burstSize);
+            pool = new ArrayDeque<Object>(benchmark.burstSize);
+            if ("None".equals(benchmark.qType))
+            {
+                final Object o = new Object();
+                for (int i = 0; i < benchmark.burstSize; i++)
+                {
+                    pool.add(o);
+                }
+            }
+        }
+    }
 }

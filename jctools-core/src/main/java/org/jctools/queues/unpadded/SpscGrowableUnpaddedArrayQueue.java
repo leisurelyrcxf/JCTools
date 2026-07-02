@@ -70,7 +70,8 @@ public class SpscGrowableUnpaddedArrayQueue<E> extends BaseSpscLinkedUnpaddedArr
         final long index,
         final long offset,
         final E v,
-        final Supplier<? extends E> s)
+        final Supplier<? extends E> s
+    )
     {
         final long lookAheadStep = this.lookAheadStep;
         // normal case, go around the buffer or resize if full (unless we hit max capacity)

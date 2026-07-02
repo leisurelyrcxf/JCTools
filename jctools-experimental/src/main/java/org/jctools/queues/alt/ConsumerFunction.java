@@ -1,6 +1,7 @@
 package org.jctools.queues.alt;
 
-public interface ConsumerFunction<E> {
+public interface ConsumerFunction<E>
+{
     /**
      * @param e not null
      */

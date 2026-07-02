@@ -16,7 +16,7 @@ public final class YieldTakeStrategy<E> implements TakeStrategy<E>
     public E waitPoll(Queue<E> q) throws InterruptedException
     {
         E e;
-        while((e = q.poll()) == null)
+        while ((e = q.poll()) == null)
         {
             Thread.yield();
         }

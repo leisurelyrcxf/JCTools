@@ -44,7 +44,7 @@ public class QueueSanityTestMpscBlockingConsumerOfferBelowThreshold extends Queu
     public void testIterator()
     {
     }
-    
+
     /**
      * This allows us to test the offersIfBelowThreshold through all the offer utilizing threads. The effect should be
      * as if the queue capacity is halved.

@@ -305,7 +305,8 @@ abstract class BaseSpscLinkedAtomicUnpaddedArrayQueue<E> extends BaseSpscLinkedA
         long pIndex,
         int offset,
         E v,
-        Supplier<? extends E> s);
+        Supplier<? extends E> s
+    );
 
     /**
      * {@inheritDoc}
@@ -361,9 +362,12 @@ abstract class BaseSpscLinkedAtomicUnpaddedArrayQueue<E> extends BaseSpscLinkedA
 
     final void linkOldToNew(
         final long currIndex,
-        final AtomicReferenceArray<E> oldBuffer, final int offset,
-        final AtomicReferenceArray<E> newBuffer, final int offsetInNew,
-        final E e)
+        final AtomicReferenceArray<E> oldBuffer,
+        final int offset,
+        final AtomicReferenceArray<E> newBuffer,
+        final int offsetInNew,
+        final E e
+    )
     {
         soRefElement(newBuffer, offsetInNew, e);
         // link to next buffer and add next indicator as element of old buffer

@@ -12,17 +12,21 @@ import org.jctools.queues.varhandle.JavaParsingVarHandleArrayQueueGenerator;
  * base {@code stripsPadding()} hook.
  */
 public class JavaParsingVarHandleUnpaddedArrayQueueGenerator
-    extends JavaParsingVarHandleArrayQueueGenerator {
-  public static void main(String[] args) throws Exception {
-    runJCToolsGenerator(JavaParsingVarHandleUnpaddedArrayQueueGenerator.class, args);
-  }
+    extends JavaParsingVarHandleArrayQueueGenerator
+{
+    public static void main(String[] args) throws Exception
+    {
+        runJCToolsGenerator(JavaParsingVarHandleUnpaddedArrayQueueGenerator.class, args);
+    }
 
-  public JavaParsingVarHandleUnpaddedArrayQueueGenerator(String sourceFileName) {
-    super(sourceFileName, "org.jctools.queues.varhandle.unpadded", "VarHandleUnpadded");
-  }
+    public JavaParsingVarHandleUnpaddedArrayQueueGenerator(String sourceFileName)
+    {
+        super(sourceFileName, "org.jctools.queues.varhandle.unpadded", "VarHandleUnpadded");
+    }
 
-  @Override
-  protected boolean stripsPadding() {
-    return true;
-  }
+    @Override
+    protected boolean stripsPadding()
+    {
+        return true;
+    }
 }

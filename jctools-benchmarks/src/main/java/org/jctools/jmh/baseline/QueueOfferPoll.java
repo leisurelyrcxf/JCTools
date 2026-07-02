@@ -30,9 +30,10 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
-public class QueueOfferPoll {
+public class QueueOfferPoll
+{
     private static final Integer DUMMY_MESSAGE = 1;
-    @Param(value = { "SpscArrayQueue", "MpscArrayQueue", "SpmcArrayQueue", "MpmcArrayQueue" })
+    @Param(value = {"SpscArrayQueue", "MpscArrayQueue", "SpmcArrayQueue", "MpmcArrayQueue"})
     String qType;
     @Param(value = "132000")
     int qCapacity;
@@ -41,18 +42,22 @@ public class QueueOfferPoll {
     Queue<Integer> q;
 
     @Setup(Level.Trial)
-    public void createQ() {
+    public void createQ()
+    {
         q = QueueByTypeFactory.createQueue(qType, qCapacity);
     }
 
     @Benchmark
-    public int offerAndPollLoops() {
+    public int offerAndPollLoops()
+    {
         final int burstSize = this.burstSize;
-        for (int i = 0; i < burstSize; i++) {
+        for (int i = 0; i < burstSize; i++)
+        {
             q.offer(DUMMY_MESSAGE);
         }
         Integer result = DUMMY_MESSAGE;
-        for (int i = 0; i < burstSize; i++) {
+        for (int i = 0; i < burstSize; i++)
+        {
             result = q.poll();
         }
         return result;

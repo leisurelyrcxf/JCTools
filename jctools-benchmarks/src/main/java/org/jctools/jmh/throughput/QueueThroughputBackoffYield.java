@@ -14,9 +14,11 @@
 package org.jctools.jmh.throughput;
 
 
-public class QueueThroughputBackoffYield extends QueueThroughputBackoffNone {
+public class QueueThroughputBackoffYield extends QueueThroughputBackoffNone
+{
     @Override
-    protected void backoff() {
+    protected void backoff()
+    {
         Thread.yield();
     }
 }

@@ -12,7 +12,7 @@ import static org.jctools.queues.varhandle.VarHandleQueueUtil.*;
  * which can found in the jctools-build module. The original source file is MpUnboundedXaddChunk.java.
  */
 @InternalAPI
-public class MpUnboundedXaddVarHandleUnpaddedChunk<R,E>
+public class MpUnboundedXaddVarHandleUnpaddedChunk<R, E>
 {
     private static final VarHandle VH_PREV;
     
@@ -38,6 +38,7 @@ public class MpUnboundedXaddVarHandleUnpaddedChunk<R,E>
     private volatile R prev;
     private volatile long index;
     private volatile R next;
+
     protected MpUnboundedXaddVarHandleUnpaddedChunk(long index, R prev, int size, boolean pooled)
     {
         buffer = allocateRefArray(size);

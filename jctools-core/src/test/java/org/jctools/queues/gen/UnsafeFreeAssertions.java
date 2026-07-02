@@ -44,16 +44,21 @@ import static org.junit.Assert.assertTrue;
  * irrelevant here. What matters is whether the family triggers JCTools' Unsafe wrapper
  * ({@link org.jctools.util.UnsafeAccess} and siblings) to initialise.
  */
-public final class UnsafeFreeAssertions {
+public final class UnsafeFreeAssertions
+{
 
-    public static final Set<String> UNSAFE_HOLDER_CLASSES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-            "org.jctools.util.UnsafeAccess",
-            "org.jctools.util.UnsafeRefArrayAccess",
-            "org.jctools.util.UnsafeLongArrayAccess",
-            "org.jctools.util.UnsafeJvmInfo"
-    )));
+    public static final Set<String> UNSAFE_HOLDER_CLASSES = Collections
+        .unmodifiableSet(new HashSet<>(Arrays
+            .asList(
+                "org.jctools.util.UnsafeAccess",
+                "org.jctools.util.UnsafeRefArrayAccess",
+                "org.jctools.util.UnsafeLongArrayAccess",
+                "org.jctools.util.UnsafeJvmInfo"
+            )));
 
-    private UnsafeFreeAssertions() {}
+    private UnsafeFreeAssertions()
+    {
+    }
 
     /**
      * Assert that loading any concrete {@link Queue}-implementing class discovered in the given
@@ -61,17 +66,22 @@ public final class UnsafeFreeAssertions {
      * @param familyName short label used in failure messages (e.g. "atomic", "VarHandle")
      */
     public static void assertConcreteQueuesDoNotLoadUnsafe(
-            List<String> packages, int minExpected, String familyName) throws Exception {
+        List<String> packages,
+        int minExpected,
+        String familyName
+    ) throws Exception
+    {
         List<String> queues = discoverConcreteQueues(packages);
         assertTrue("expected to discover concrete " + familyName + " queues, found " + queues.size(),
-                queues.size() >= minExpected);
+            queues.size() >= minExpected);
 
-        for (String fqn : queues) {
+        for (String fqn : queues)
+        {
             Set<String> leaked = unsafeHoldersLoadedBy(fqn);
             assertTrue(
-                    "Loading " + fqn + " transitively loaded Unsafe-holder classes: "
-                            + leaked + ". " + familyName + " family must remain Unsafe-free.",
-                    leaked.isEmpty());
+                "Loading " + fqn + " transitively loaded Unsafe-holder classes: " + leaked + ". " + familyName +
+                    " family must remain Unsafe-free.",
+                leaked.isEmpty());
         }
     }
 
@@ -80,7 +90,8 @@ public final class UnsafeFreeAssertions {
      * {@code org.jctools.*} load is observed locally) and return the subset of
      * {@link #UNSAFE_HOLDER_CLASSES} that ended up loaded.
      */
-    public static Set<String> unsafeHoldersLoadedBy(String fqn) throws Exception {
+    public static Set<String> unsafeHoldersLoadedBy(String fqn) throws Exception
+    {
         TrackingClassLoader loader = new TrackingClassLoader(currentClasspath());
         // initialize=true forces <clinit> to run on this class and the chain its static init
         // touches. That's the operative load — a static field of type UnsafeAccess would resolve
@@ -100,40 +111,51 @@ public final class UnsafeFreeAssertions {
      * @param familyName short label used in failure messages
      */
     public static void assertNoUnsafeImportsIn(
-            List<String> relativeSourceDirs, int minExpected, String familyName) throws Exception {
+        List<String> relativeSourceDirs,
+        int minExpected,
+        String familyName
+    ) throws Exception
+    {
         int filesScanned = 0;
-        for (String relDir : relativeSourceDirs) {
+        for (String relDir : relativeSourceDirs)
+        {
             Path dir = Paths.get(relDir);
             assertTrue("source dir not found from cwd " + Paths.get("").toAbsolutePath() + ": " + dir,
-                    Files.isDirectory(dir));
-            try (java.util.stream.Stream<Path> entries = Files.list(dir)) {
-                for (Path file : entries.sorted().toArray(Path[]::new)) {
-                    if (!file.toString().endsWith(".java")) {
+                Files.isDirectory(dir));
+            try (java.util.stream.Stream<Path> entries = Files.list(dir))
+            {
+                for (Path file : entries.sorted().toArray(Path[]::new))
+                {
+                    if (!file.toString().endsWith(".java"))
+                    {
                         continue;
                     }
                     String src = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
                     String offender = findUnsafeImport(src);
-                    if (offender != null) {
-                        throw new AssertionError(file + " — generated " + familyName + " source has"
-                                + " an Unsafe import that the patcher should have stripped: "
-                                + offender);
+                    if (offender != null)
+                    {
+                        throw new AssertionError(file + " — generated " + familyName + " source has" +
+                            " an Unsafe import that the patcher should have stripped: " + offender);
                     }
                     filesScanned++;
                 }
             }
         }
         assertTrue("expected to scan some " + familyName + " source files (got " + filesScanned + ")",
-                filesScanned >= minExpected);
+            filesScanned >= minExpected);
     }
 
     /**
      * @return the first import line in {@code src} that mentions {@code Unsafe} (trimmed), or
      * {@code null} if there is none.
      */
-    public static String findUnsafeImport(String src) {
-        for (String line : src.split("\n")) {
+    public static String findUnsafeImport(String src)
+    {
+        for (String line : src.split("\n"))
+        {
             String trimmed = line.trim();
-            if (trimmed.startsWith("import") && trimmed.contains("Unsafe")) {
+            if (trimmed.startsWith("import") && trimmed.contains("Unsafe"))
+            {
                 return trimmed;
             }
         }
@@ -145,9 +167,11 @@ public final class UnsafeFreeAssertions {
      * Loading happens through the regular test classloader and is independent of the tracking
      * classloader used by {@link #unsafeHoldersLoadedBy(String)}.
      */
-    private static List<String> discoverConcreteQueues(List<String> packageNames) throws Exception {
+    private static List<String> discoverConcreteQueues(List<String> packageNames) throws Exception
+    {
         List<String> queues = new ArrayList<>();
-        for (String packageName : packageNames) {
+        for (String packageName : packageNames)
+        {
             String resourcePath = packageName.replace('.', '/');
             URL packageUrl = Thread.currentThread().getContextClassLoader().getResource(resourcePath);
             assertNotNull("package not on classpath: " + packageName, packageUrl);
@@ -155,7 +179,8 @@ public final class UnsafeFreeAssertions {
             File[] classFiles = dir.listFiles((d, n) -> n.endsWith(".class") && !n.contains("$"));
             assertNotNull("no class files under " + dir, classFiles);
 
-            for (File f : classFiles) {
+            for (File f : classFiles)
+            {
                 String simpleName = f.getName().substring(0, f.getName().length() - ".class".length());
                 Class<?> cls = Class.forName(packageName + "." + simpleName);
                 if (Modifier.isAbstract(cls.getModifiers())) continue;
@@ -166,37 +191,48 @@ public final class UnsafeFreeAssertions {
         return queues;
     }
 
-    private static URL[] currentClasspath() throws Exception {
+    private static URL[] currentClasspath() throws Exception
+    {
         String[] entries = System.getProperty("java.class.path").split(File.pathSeparator);
         URL[] urls = new URL[entries.length];
-        for (int i = 0; i < entries.length; i++) {
+        for (int i = 0; i < entries.length; i++)
+        {
             urls[i] = new File(entries[i]).toURI().toURL();
         }
         return urls;
     }
 
-    private static ClassLoader platformOrBootstrap() {
+    private static ClassLoader platformOrBootstrap()
+    {
         // JDK 9+: Use the platform loader so JDK classes resolve there, not through our tracker.
         // JDK 8: getPlatformClassLoader doesn't exist; ClassLoader.getSystemClassLoader().getParent()
         // is the extension loader and works the same way for our purposes.
-        try {
+        try
+        {
             return (ClassLoader) ClassLoader.class.getMethod("getPlatformClassLoader").invoke(null);
-        } catch (NoSuchMethodException e) {
+        }
+        catch (NoSuchMethodException e)
+        {
             return ClassLoader.getSystemClassLoader().getParent();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new AssertionError(e);
         }
     }
 
-    private static final class TrackingClassLoader extends URLClassLoader {
+    private static final class TrackingClassLoader extends URLClassLoader
+    {
         final Set<String> loaded = new HashSet<>();
 
-        TrackingClassLoader(URL[] urls) {
+        TrackingClassLoader(URL[] urls)
+        {
             super(urls, platformOrBootstrap());
         }
 
         @Override
-        protected Class<?> findClass(String name) throws ClassNotFoundException {
+        protected Class<?> findClass(String name) throws ClassNotFoundException
+        {
             Class<?> c = super.findClass(name);
             loaded.add(name);
             return c;

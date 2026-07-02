@@ -8,7 +8,7 @@ import static org.jctools.util.UnsafeRefArrayAccess.*;
 
 // $gen:ordered-fields
 @InternalAPI
-public class MpUnboundedXaddChunk<R,E>
+public class MpUnboundedXaddChunk<R, E>
 {
     public final static int NOT_USED = -1;
 
@@ -22,6 +22,7 @@ public class MpUnboundedXaddChunk<R,E>
     private volatile R prev;
     private volatile long index;
     private volatile R next;
+
     protected MpUnboundedXaddChunk(long index, R prev, int size, boolean pooled)
     {
         buffer = allocateRefArray(size);

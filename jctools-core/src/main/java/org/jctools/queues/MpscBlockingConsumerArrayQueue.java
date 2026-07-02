@@ -48,10 +48,12 @@ abstract class MpscBlockingConsumerArrayQueuePad1<E> extends AbstractQueue<E> im
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
     byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 }
+
 // $gen:ordered-fields
 abstract class MpscBlockingConsumerArrayQueueColdProducerFields<E> extends MpscBlockingConsumerArrayQueuePad1<E>
 {
-    private final static long P_LIMIT_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueColdProducerFields.class,"producerLimit");
+    private final static long P_LIMIT_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueColdProducerFields.class,
+        "producerLimit");
 
     private volatile long producerLimit;
     protected final long producerMask;
@@ -155,8 +157,8 @@ abstract class MpscBlockingConsumerArrayQueuePad3<E> extends MpscBlockingConsume
 // $gen:ordered-fields
 abstract class MpscBlockingConsumerArrayQueueConsumerFields<E> extends MpscBlockingConsumerArrayQueuePad3<E>
 {
-    private final static long C_INDEX_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueConsumerFields.class,"consumerIndex");
-    private final static long BLOCKED_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueConsumerFields.class,"blocked");
+    private final static long C_INDEX_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueConsumerFields.class, "consumerIndex");
+    private final static long BLOCKED_OFFSET = fieldOffset(MpscBlockingConsumerArrayQueueConsumerFields.class, "blocked");
 
     private long consumerIndex;
     protected final long consumerMask;
@@ -202,7 +204,6 @@ abstract class MpscBlockingConsumerArrayQueueConsumerFields<E> extends MpscBlock
         UNSAFE.putOrderedObject(this, BLOCKED_OFFSET, newValue);
     }
 }
-
 
 
 /**
@@ -259,7 +260,7 @@ public class MpscBlockingConsumerArrayQueue<E> extends MpscBlockingConsumerArray
         // Loading consumer before producer allows for producer increments after consumer index is read.
         // This ensures this method is conservative in it's estimate. Note that as this is an MPMC there is
         // nothing we can do to make this an exact method.
-        return ((this.lvConsumerIndex()/2) == (this.lvProducerIndex()/2));
+        return ((this.lvConsumerIndex() / 2) == (this.lvProducerIndex() / 2));
     }
 
     @Override
@@ -294,7 +295,8 @@ public class MpscBlockingConsumerArrayQueue<E> extends MpscBlockingConsumerArray
             // lower bit is indicative of blocked consumer
             if ((pIndex & 1) == 1)
             {
-                if (offerAndWakeup(buffer, mask, pIndex, e)) {
+                if (offerAndWakeup(buffer, mask, pIndex, e))
+                {
                     return true;
                 }
                 continue;
@@ -405,7 +407,7 @@ public class MpscBlockingConsumerArrayQueue<E> extends MpscBlockingConsumerArray
         }
 
         // Claim the slot and the responsibility of unparking
-        if(!casProducerIndex(pIndex, pIndex + 1))
+        if (!casProducerIndex(pIndex, pIndex + 1))
         {
             return false;
         }
@@ -487,7 +489,8 @@ public class MpscBlockingConsumerArrayQueue<E> extends MpscBlockingConsumerArray
         return e;
     }
 
-    private E parkUntilNext(E[] buffer, long cIndex, long offset, long timeoutNs) throws InterruptedException {
+    private E parkUntilNext(E[] buffer, long cIndex, long offset, long timeoutNs) throws InterruptedException
+    {
         E e;
         final long pIndex = lvProducerIndex();
         if (cIndex == pIndex && // queue is empty
@@ -508,7 +511,8 @@ public class MpscBlockingConsumerArrayQueue<E> extends MpscBlockingConsumerArray
                         casProducerIndex(pIndex + 1, pIndex);
                         throw new InterruptedException();
                     }
-                    if ((lvProducerIndex() & 1) == 0) {
+                    if ((lvProducerIndex() & 1) == 0)
+                    {
                         break;
                     }
                     // ignore deadline when it's forever
@@ -711,7 +715,7 @@ public class MpscBlockingConsumerArrayQueue<E> extends MpscBlockingConsumerArray
                 blockedConsumer = lvBlocked();
                 if (blockedConsumer == null)
                     continue;// racing, retry
-                if(!casProducerIndex(pIndex, pIndex + 1))
+                if (!casProducerIndex(pIndex, pIndex + 1))
                 {
                     blockedConsumer = null;
                     continue;
@@ -757,7 +761,8 @@ public class MpscBlockingConsumerArrayQueue<E> extends MpscBlockingConsumerArray
         if (blockedConsumer != null)
         {
             // no point unblocking an unrelated blocked thread, things have obviously moved on
-            if (lvBlocked() == blockedConsumer) {
+            if (lvBlocked() == blockedConsumer)
+            {
                 LockSupport.unpark(blockedConsumer);
             }
         }
@@ -766,12 +771,15 @@ public class MpscBlockingConsumerArrayQueue<E> extends MpscBlockingConsumerArray
     }
 
     @Override
-    public int drain(Consumer<E> c, final int limit, long timeout, TimeUnit unit) throws InterruptedException {
-        if (limit == 0) {
+    public int drain(Consumer<E> c, final int limit, long timeout, TimeUnit unit) throws InterruptedException
+    {
+        if (limit == 0)
+        {
             return 0;
         }
         final int drained = drain(c, limit);
-        if (drained != 0) {
+        if (drained != 0)
+        {
             return drained;
         }
         final E e = poll(timeout, unit);

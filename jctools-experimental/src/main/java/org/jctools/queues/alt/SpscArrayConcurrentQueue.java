@@ -19,18 +19,21 @@ import static org.jctools.util.UnsafeAccess.fieldOffset;
 
 import org.jctools.util.UnsafeAccess;
 
-abstract class ProducerFields<E> extends ConcurrentCircularArray<E> {
-    protected static final long TAIL_OFFSET = fieldOffset(ProducerFields.class,"producerIndex");
+abstract class ProducerFields<E> extends ConcurrentCircularArray<E>
+{
+    protected static final long TAIL_OFFSET = fieldOffset(ProducerFields.class, "producerIndex");
 
     protected long producerIndex;
     protected long batchTail;
 
-    public ProducerFields(ConcurrentCircularArray<E> c) {
+    public ProducerFields(ConcurrentCircularArray<E> c)
+    {
         super(c);
     }
 }
 
-final class Producer<E> extends ProducerFields<E> implements ConcurrentQueueProducer<E> {
+final class Producer<E> extends ProducerFields<E> implements ConcurrentQueueProducer<E>
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -48,23 +51,30 @@ final class Producer<E> extends ProducerFields<E> implements ConcurrentQueueProd
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
     byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 
-    public Producer(ConcurrentCircularArray<E> c) {
+    public Producer(ConcurrentCircularArray<E> c)
+    {
         super(c);
     }
 
     @Override
-    public boolean offer(final E e) {
-        if (null == e) {
+    public boolean offer(final E e)
+    {
+        if (null == e)
+        {
             throw new NullPointerException("Null is not a valid element");
         }
 
         final E[] lb = buffer;
         final long mask = this.mask;
         final long pIndex = producerIndex;
-        if (pIndex >= batchTail) {
-            if (null == lvElement(lb, calcOffset(pIndex + OFFER_BATCH_SIZE, mask))) {
+        if (pIndex >= batchTail)
+        {
+            if (null == lvElement(lb, calcOffset(pIndex + OFFER_BATCH_SIZE, mask)))
+            {
                 batchTail = pIndex + OFFER_BATCH_SIZE;
-            } else if (null != lvElement(lb, calcOffset(pIndex, mask))) {
+            }
+            else if (null != lvElement(lb, calcOffset(pIndex, mask)))
+            {
                 return false;
             }
         }
@@ -74,35 +84,45 @@ final class Producer<E> extends ProducerFields<E> implements ConcurrentQueueProd
         return true;
     }
 
-    long getProducerIndexForSize() {
+    long getProducerIndexForSize()
+    {
         return Math.max(lvProducerIndex(), producerIndex);
     }
 
-    private long lvProducerIndex() {
+    private long lvProducerIndex()
+    {
         return UNSAFE.getLongVolatile(this, TAIL_OFFSET);
     }
 
-    private void soProducerIndex(long newHead) {
+    private void soProducerIndex(long newHead)
+    {
         UNSAFE.putOrderedLong(this, TAIL_OFFSET, newHead);
     }
 
     @Override
-    public boolean weakOffer(E e) {
+    public boolean weakOffer(E e)
+    {
         return offer(e);
     }
 
     @Override
-    public int produce(ProducerFunction<E> p, int batchSize) {
+    public int produce(ProducerFunction<E> p, int batchSize)
+    {
         final E[] lb = buffer;
         final long mask = this.mask;
         long pIndex = producerIndex;
         final long tIndex = pIndex + batchSize - 1;
 
-        if (tIndex >= batchTail) {
-            if (null == lvElement(lb, calcOffset(tIndex + OFFER_BATCH_SIZE, mask))) {
+        if (tIndex >= batchTail)
+        {
+            if (null == lvElement(lb, calcOffset(tIndex + OFFER_BATCH_SIZE, mask)))
+            {
                 batchTail = tIndex + OFFER_BATCH_SIZE;
-            } else {
-                for(int i=0;i<batchSize;i++) {
+            }
+            else
+            {
+                for (int i = 0; i < batchSize; i++)
+                {
                     if (null != lvElement(lb, calcOffset(pIndex, mask)))
                         return i;
                     soElement(lb, calcOffset(pIndex, mask), p.produce());
@@ -112,24 +132,28 @@ final class Producer<E> extends ProducerFields<E> implements ConcurrentQueueProd
             }
         }
         soProducerIndex(pIndex + batchSize);
-        for(int i=0;i<batchSize;i++) {
+        for (int i = 0; i < batchSize; i++)
+        {
             soElement(lb, calcOffset(pIndex++, mask), p.produce());
         }
         return batchSize;
     }
 }
 
-abstract class ConsumerFields<E> extends ConcurrentCircularArray<E> {
+abstract class ConsumerFields<E> extends ConcurrentCircularArray<E>
+{
     protected static final long HEAD_OFFSET = fieldOffset(ConsumerFields.class, "head");
 
     protected long head = 0;
 
-    public ConsumerFields(ConcurrentCircularArray<E> c) {
+    public ConsumerFields(ConcurrentCircularArray<E> c)
+    {
         super(c);
     }
 }
 
-final class Consumer<E> extends ConsumerFields<E> implements ConcurrentQueueConsumer<E> {
+final class Consumer<E> extends ConsumerFields<E> implements ConcurrentQueueConsumer<E>
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -147,17 +171,20 @@ final class Consumer<E> extends ConsumerFields<E> implements ConcurrentQueueCons
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
     byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 
-    Consumer(ConcurrentCircularArray<E> c) {
+    Consumer(ConcurrentCircularArray<E> c)
+    {
         super(c);
     }
 
     @Override
-    public E poll() {
+    public E poll()
+    {
         final long head = this.head;
         final long offset = calcOffset(head);
         final E[] lb = buffer;
         final E e = lvElement(lb, offset);
-        if (null == e) {
+        if (null == e)
+        {
             return null;
         }
         soElement(lb, offset, null);
@@ -166,36 +193,43 @@ final class Consumer<E> extends ConsumerFields<E> implements ConcurrentQueueCons
     }
 
     @Override
-    public E peek() {
+    public E peek()
+    {
         return lpElement(calcOffset(head));
     }
 
     @Override
-    public void clear() {
+    public void clear()
+    {
         while (null != poll())
             ;
     }
 
-    long getHeadForSize() {
+    long getHeadForSize()
+    {
         return Math.max(lvHead(), head);
     }
 
-    private long lvHead() {
+    private long lvHead()
+    {
         return UNSAFE.getLongVolatile(this, HEAD_OFFSET);
     }
 
-    private void soHead(long newHead) {
+    private void soHead(long newHead)
+    {
         UNSAFE.putOrderedLong(this, HEAD_OFFSET, newHead);
     }
 
     @Override
-    public int consume(ConsumerFunction<E> c, int batch) {
+    public int consume(ConsumerFunction<E> c, int batch)
+    {
         final E[] lb = buffer;
         long currHead = head;
         long offset = calcOffset(currHead);
         E e = lvElement(lb, offset);
         int i = 0;
-        for (; i < batch && null != e; i++) {
+        for (; i < batch && null != e; i++)
+        {
             soElement(lb, offset, null);
             soHead(++currHead);
             c.consume(e); // NOTE: we've committed to consuming the batch, no check.
@@ -206,21 +240,25 @@ final class Consumer<E> extends ConsumerFields<E> implements ConcurrentQueueCons
     }
 
     @Override
-    public E weakPoll() {
+    public E weakPoll()
+    {
         return poll();
     }
 
     @Override
-    public E weakPeek() {
+    public E weakPeek()
+    {
         return peek();
     }
 }
 
-abstract class SpscArrayConcurrentQueueColdFields<E> extends ConcurrentCircularArray<E> {
+abstract class SpscArrayConcurrentQueueColdFields<E> extends ConcurrentCircularArray<E>
+{
     protected final Consumer<E> consumer;
     protected final Producer<E> producer;
 
-    public SpscArrayConcurrentQueueColdFields(int capacity) {
+    public SpscArrayConcurrentQueueColdFields(int capacity)
+    {
         super(capacity);
         consumer = new Consumer<E>(this);
         producer = new Producer<E>(this);
@@ -228,7 +266,8 @@ abstract class SpscArrayConcurrentQueueColdFields<E> extends ConcurrentCircularA
 }
 
 public final class SpscArrayConcurrentQueue<E> extends SpscArrayConcurrentQueueColdFields<E> implements
-        ConcurrentQueue<E> {
+    ConcurrentQueue<E>
+{
     // Layout field/data offsets are runtime constants
     protected static final int OFFER_BATCH_SIZE = Integer.getInteger("offer.batch.size", 4096);
     // post pad queue fields
@@ -249,29 +288,34 @@ public final class SpscArrayConcurrentQueue<E> extends SpscArrayConcurrentQueueC
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
     byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 
-    public SpscArrayConcurrentQueue(final int capacity) {
+    public SpscArrayConcurrentQueue(final int capacity)
+    {
         super(Math.max(capacity, 2 * OFFER_BATCH_SIZE));
     }
 
     @Override
-    public int size() {
+    public int size()
+    {
         long headForSize = consumer.getHeadForSize();
         long tailForSize = producer.getProducerIndexForSize();
         return (int) (tailForSize - headForSize);
     }
 
     @Override
-    public int capacity() {
+    public int capacity()
+    {
         return (int) mask + 1;
     }
 
     @Override
-    public ConcurrentQueueConsumer<E> consumer() {
+    public ConcurrentQueueConsumer<E> consumer()
+    {
         return consumer;
     }
 
     @Override
-    public ConcurrentQueueProducer<E> producer() {
+    public ConcurrentQueueProducer<E> producer()
+    {
         return producer;
     }
 }

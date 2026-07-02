@@ -16,12 +16,14 @@ package org.jctools.queues.gen;
 import java.util.Collections;
 
 /** The unpadded VarHandle family. */
-public class UnpaddedVarHandlePadClassesTest extends AbstractUnpaddedPadClassesTest {
+public class UnpaddedVarHandlePadClassesTest extends AbstractUnpaddedPadClassesTest
+{
 
-    public UnpaddedVarHandlePadClassesTest() {
+    public UnpaddedVarHandlePadClassesTest()
+    {
         super(
-                Collections.singletonList("org.jctools.queues.varhandle.unpadded"),
-                Collections.singletonList("src/main/java/org/jctools/queues/varhandle/unpadded"),
-                10);
+            Collections.singletonList("org.jctools.queues.varhandle.unpadded"),
+            Collections.singletonList("src/main/java/org/jctools/queues/varhandle/unpadded"),
+            10);
     }
 }

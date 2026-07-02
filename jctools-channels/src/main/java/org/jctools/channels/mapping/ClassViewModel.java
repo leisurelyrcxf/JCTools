@@ -19,7 +19,8 @@ import java.util.List;
 
 import org.jctools.channels.spsc.SpscOffHeapFixedSizeRingBuffer;
 
-public class ClassViewModel {
+public class ClassViewModel
+{
 
     private final Class<?> implementationParent;
     private final Class<?>[] constructorParams;
@@ -27,8 +28,12 @@ public class ClassViewModel {
     private final TypeInspector inspector;
 
     public ClassViewModel(
-            Class<?> implementationParent, Class<?>[] constructorParams, Class<?> structInterface,
-            TypeInspector inspector) {
+        Class<?> implementationParent,
+        Class<?>[] constructorParams,
+        Class<?> structInterface,
+        TypeInspector inspector
+    )
+    {
 
         this.implementationParent = implementationParent;
         this.constructorParams = constructorParams;
@@ -36,35 +41,43 @@ public class ClassViewModel {
         this.inspector = inspector;
     }
 
-    public String className() {
+    public String className()
+    {
         return implementationParent.getSimpleName() + "_" + structInterface.getSimpleName();
     }
 
-    public String implementationParent() {
+    public String implementationParent()
+    {
         return cleanClassName(implementationParent);
     }
 
-    public String flyweightInterface() {
+    public String flyweightInterface()
+    {
         return cleanClassName(structInterface);
     }
 
     // Account for anonymous inner classes
-    private String cleanClassName(Class<?> cls) {
+    private String cleanClassName(Class<?> cls)
+    {
         return cls.getName().replace('$', '.');
     }
 
-    public List<Variable> constructorParams() {
+    public List<Variable> constructorParams()
+    {
         List<Variable> variables = new ArrayList<Variable>(constructorParams.length);
-        for (int i = 0; i < constructorParams.length; i++) {
+        for (int i = 0; i < constructorParams.length; i++)
+        {
             variables.add(new Variable(constructorParams[i].getName(), "arg" + i, 0, ""));
         }
         return variables;
     }
 
-    public List<Variable> fields() {
+    public List<Variable> fields()
+    {
         int fieldOffset = SpscOffHeapFixedSizeRingBuffer.MESSAGE_INDICATOR_SIZE;
         List<Variable> fields = new ArrayList<Variable>();
-        for (Method method : inspector.getters) {
+        for (Method method : inspector.getters)
+        {
             Primitive type = Primitive.of(method.getReturnType());
             String name = method.getName().substring(3);
             fields.add(new Variable(type.javaEquivalent.getName(), name, fieldOffset, type.unsafeMethodSuffix()));

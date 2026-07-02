@@ -45,7 +45,7 @@ abstract class SpmcArrayQueueL1Pad<E> extends ConcurrentCircularArrayQueue<E>
 //$gen:ordered-fields
 abstract class SpmcArrayQueueProducerIndexField<E> extends SpmcArrayQueueL1Pad<E>
 {
-    protected final static long P_INDEX_OFFSET = fieldOffset(SpmcArrayQueueProducerIndexField.class,"producerIndex");
+    protected final static long P_INDEX_OFFSET = fieldOffset(SpmcArrayQueueProducerIndexField.class, "producerIndex");
 
     private long producerIndex;
 

@@ -36,7 +36,7 @@ abstract class SpmcUnpaddedArrayQueueL1Pad<E> extends ConcurrentCircularUnpadded
  */
 abstract class SpmcUnpaddedArrayQueueProducerIndexField<E> extends SpmcUnpaddedArrayQueueL1Pad<E>
 {
-    protected final static long P_INDEX_OFFSET = fieldOffset(SpmcUnpaddedArrayQueueProducerIndexField.class,"producerIndex");
+    protected final static long P_INDEX_OFFSET = fieldOffset(SpmcUnpaddedArrayQueueProducerIndexField.class, "producerIndex");
 
     private long producerIndex;
 

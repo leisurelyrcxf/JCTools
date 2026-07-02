@@ -219,7 +219,7 @@ abstract class MpUnboundedXaddVarHandleUnpaddedArrayQueue<R extends MpUnboundedX
     {
         if (maxPooledChunks < 0)
         {
-            throw new IllegalArgumentException("Expecting a positive maxPooledChunks, but got:"+maxPooledChunks);
+            throw new IllegalArgumentException("Expecting a positive maxPooledChunks, but got:" + maxPooledChunks);
         }
         chunkSize = Pow2.roundToPowerOfTwo(chunkSize);
 
@@ -272,7 +272,8 @@ abstract class MpUnboundedXaddVarHandleUnpaddedArrayQueue<R extends MpUnboundedX
      */
     final R producerChunkForIndex(
         final R initialChunk,
-        final long requiredChunkIndex)
+        final long requiredChunkIndex
+    )
     {
         R currentChunk = initialChunk;
         long jumpBackward;
@@ -315,7 +316,8 @@ abstract class MpUnboundedXaddVarHandleUnpaddedArrayQueue<R extends MpUnboundedX
     protected final R appendNextChunks(
         R currentChunk,
         long currentChunkIndex,
-        long chunksToAppend)
+        long chunksToAppend
+    )
     {
         assert currentChunkIndex != NOT_USED;
         // prevent other concurrent attempts on appendNextChunk

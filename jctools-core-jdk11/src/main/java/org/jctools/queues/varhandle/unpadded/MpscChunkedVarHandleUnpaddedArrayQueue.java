@@ -35,8 +35,10 @@ abstract class MpscChunkedVarHandleUnpaddedArrayQueueColdProducerFields<E> exten
     {
         super(initialCapacity);
         RangeUtil.checkGreaterThanOrEqual(maxCapacity, 4, "maxCapacity");
-        RangeUtil.checkLessThan(roundToPowerOfTwo(initialCapacity), roundToPowerOfTwo(maxCapacity),
-            "initialCapacity");
+        RangeUtil
+            .checkLessThan(roundToPowerOfTwo(initialCapacity),
+                roundToPowerOfTwo(maxCapacity),
+                "initialCapacity");
         maxQueueCapacity = ((long) Pow2.roundToPowerOfTwo(maxCapacity)) << 1;
     }
 }

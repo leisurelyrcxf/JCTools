@@ -20,7 +20,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class MapperTest {
+public class MapperTest
+{
 
     private static final int EXAMPLE_SIZE_IN_BYTES = 16;
 
@@ -28,18 +29,21 @@ public class MapperTest {
     private Mapper<Example> mapper;
 
     @Before
-    public void malloc() {
+    public void malloc()
+    {
         startAddress = UnsafeAccess.UNSAFE.allocateMemory(EXAMPLE_SIZE_IN_BYTES * 2);
         mapper = new Mapper<Example>(Example.class, false);
     }
 
     @After
-    public void free() {
+    public void free()
+    {
         UnsafeAccess.UNSAFE.freeMemory(startAddress);
     }
 
     @Test
-    public void shouldUnderstandInterfaceFields() {
+    public void shouldUnderstandInterfaceFields()
+    {
         assertEquals(EXAMPLE_SIZE_IN_BYTES, mapper.getSizeInBytes());
         StubFlyweight example = newFlyweight();
         assertNotNull(example);
@@ -47,7 +51,8 @@ public class MapperTest {
     }
 
     @Test
-    public void shouldBeAbleToReadAndWriteData() {
+    public void shouldBeAbleToReadAndWriteData()
+    {
         Example writer = (Example) newFlyweight();
         Example reader = (Example) newFlyweight();
 
@@ -59,7 +64,8 @@ public class MapperTest {
     }
 
     @Test
-    public void shouldBeAbleToMoveFlyweights() {
+    public void shouldBeAbleToMoveFlyweights()
+    {
         Example writer = (Example) newFlyweight();
         Example reader = (Example) newFlyweight();
 
@@ -76,13 +82,15 @@ public class MapperTest {
         assertEquals(6L, reader.getBar());
     }
 
-    private StubFlyweight newFlyweight() {
+    private StubFlyweight newFlyweight()
+    {
         return mapper.newFlyweight(StubFlyweight.class, "StubTemplate.java", startAddress);
     }
 
     // ---------------------------------------------------
 
-    public interface Example {
+    public interface Example
+    {
 
         int getFoo();
 

@@ -27,7 +27,7 @@ public class KeyAtomicityTest
         {
             putKeys[i] = new PutKey(map, "K", keepRunning, ready, start, done, i * THREAD_SEGMENT);
             Thread t = new Thread(putKeys[i]);
-            t.setName("Putty McPutkey-"+i);
+            t.setName("Putty McPutkey-" + i);
             t.start();
         }
         ready.await();
@@ -35,7 +35,7 @@ public class KeyAtomicityTest
         Thread.sleep(1000);
         keepRunning.set(false);
         done.await();
-        Set<Long> values = new HashSet((int)(processors*THREAD_SEGMENT));
+        Set<Long> values = new HashSet((int) (processors * THREAD_SEGMENT));
         long totalKeys = 0;
         for (PutKey putKey : putKeys)
         {
@@ -61,10 +61,12 @@ public class KeyAtomicityTest
         PutKey(
             Map<String, Long> map,
             String key,
-            AtomicBoolean keepRunning, CountDownLatch ready,
+            AtomicBoolean keepRunning,
+            CountDownLatch ready,
             CountDownLatch start,
             CountDownLatch done,
-            int startIndex)
+            int startIndex
+        )
         {
             this.map = map;
             this.key = key;

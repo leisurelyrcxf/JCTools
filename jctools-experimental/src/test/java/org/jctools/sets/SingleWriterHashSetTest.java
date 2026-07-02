@@ -15,21 +15,26 @@ import java.util.Set;
  * @author Tolstopyatov Vsevolod
  * @since 23/04/17
  */
-public class SingleWriterHashSetTest extends TestCase {
+public class SingleWriterHashSetTest extends TestCase
+{
 
-    public static Test suite() throws Exception {
-        return SetTestSuiteBuilder.using(new TestStringSetGenerator() {
+    public static Test suite() throws Exception
+    {
+        return SetTestSuiteBuilder.using(new TestStringSetGenerator()
+        {
             @Override
-            protected Set<String> create(String[] elements) {
+            protected Set<String> create(String[] elements)
+            {
                 Set<String> set = new SingleWriterHashSet<>(elements.length);
                 Collections.addAll(set, elements);
                 return set;
             }
-        }).withFeatures(
+        })
+            .withFeatures(
                 SetFeature.GENERAL_PURPOSE,
                 CollectionSize.ANY,
                 CollectionFeature.NON_STANDARD_TOSTRING)
-          .named(SingleWriterHashSet.class.getSimpleName())
-          .createTestSuite();
+            .named(SingleWriterHashSet.class.getSimpleName())
+            .createTestSuite();
     }
 }

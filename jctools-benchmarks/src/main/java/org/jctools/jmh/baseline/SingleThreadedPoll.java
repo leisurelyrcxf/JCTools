@@ -15,21 +15,22 @@ public class SingleThreadedPoll
 {
     public static final int OPS = 1 << 15;
     public static final Integer TOKEN = 1;
-   
+
     volatile boolean preventUnrolling = true;
-    @Param(value = { "SpscArrayQueue", "MpscArrayQueue", "SpmcArrayQueue", "MpmcArrayQueue" })
+    @Param(value = {"SpscArrayQueue", "MpscArrayQueue", "SpmcArrayQueue", "MpmcArrayQueue"})
     String qType;
     Queue<Integer> q;
-    
+
     @Setup(Level.Trial)
-    public void createQ() {
-        q = QueueByTypeFactory.createQueue(qType, OPS*2);
+    public void createQ()
+    {
+        q = QueueByTypeFactory.createQueue(qType, OPS * 2);
     }
-    
+
     @Setup(Level.Invocation)
     public void fill()
     {
-        for( int i=0; i<OPS; i++)
+        for (int i = 0; i < OPS; i++)
         {
             q.offer(TOKEN);
         }
@@ -53,5 +54,7 @@ public class SingleThreadedPoll
     }
 
     @CompilerControl(CompilerControl.Mode.DONT_INLINE)
-    public void blackhole(Object e) {}
+    public void blackhole(Object e)
+    {
+    }
 }

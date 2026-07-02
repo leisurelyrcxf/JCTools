@@ -38,66 +38,82 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 10, time = 1)
-public class MpscIntrusiveLinkedQueueThroughputBackoffNone {
+public class MpscIntrusiveLinkedQueueThroughputBackoffNone
+{
     private static final long DELAY_PRODUCER = Long.getLong("delay.p", 0L);
     private static final long DELAY_CONSUMER = Long.getLong("delay.c", 0L);
 
     MpscIntrusiveLinkedQueue q;
 
     @Setup()
-    public void createQandPrimeCompilation() {
+    public void createQandPrimeCompilation()
+    {
         q = new MpscIntrusiveLinkedQueue();
     }
 
     @AuxCounters
     @State(Scope.Thread)
-    public static class PollCounters {
+    public static class PollCounters
+    {
         public long pollsFailed;
         public long pollsMade;
     }
 
     @AuxCounters
     @State(Scope.Thread)
-    public static class OfferCounters {
+    public static class OfferCounters
+    {
         public long offersFailed;
         public long offersMade;
     }
 
     @Benchmark
     @Group("tpt")
-    public void offer(OfferCounters counters) {
-        if (!q.offer(new NodeImpl())) {
+    public void offer(OfferCounters counters)
+    {
+        if (!q.offer(new NodeImpl()))
+        {
             counters.offersFailed++;
             backoff();
-        } else {
+        }
+        else
+        {
             counters.offersMade++;
         }
-        if (DELAY_PRODUCER != 0) {
+        if (DELAY_PRODUCER != 0)
+        {
             Blackhole.consumeCPU(DELAY_PRODUCER);
         }
     }
 
     @Benchmark
     @Group("tpt")
-    public void poll(PollCounters counters) {
+    public void poll(PollCounters counters)
+    {
         Node n = q.poll();
-        if (n == null) {
+        if (n == null)
+        {
             counters.pollsFailed++;
             backoff();
-        } else {
+        }
+        else
+        {
             counters.pollsMade++;
         }
-        if (DELAY_CONSUMER != 0) {
+        if (DELAY_CONSUMER != 0)
+        {
             Blackhole.consumeCPU(DELAY_CONSUMER);
         }
     }
 
-    protected void backoff() {
+    protected void backoff()
+    {
     }
 
     // iteration tear down is performed for each thread, only consumer should clear queue
     @TearDown(Level.Iteration)
-    public void consumerClearQueue() {
+    public void consumerClearQueue()
+    {
         synchronized (q)
         {
             q.clear();

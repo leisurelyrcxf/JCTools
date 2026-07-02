@@ -23,7 +23,8 @@ import java.util.Queue;
 import static org.jctools.util.UnsafeAccess.UNSAFE;
 import static org.jctools.util.UnsafeAccess.fieldOffset;
 
-abstract class InlinedRingBufferL0Pad {
+abstract class InlinedRingBufferL0Pad
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -42,7 +43,8 @@ abstract class InlinedRingBufferL0Pad {
     byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 }
 
-abstract class InlinedRingBufferColdFields<E> extends InlinedRingBufferL0Pad {
+abstract class InlinedRingBufferColdFields<E> extends InlinedRingBufferL0Pad
+{
     protected static final int BUFFER_PAD = 32;
     protected static final int SPARSE_SHIFT = Integer.getInteger("sparse.shift", 0);
     protected final int capacity;
@@ -50,10 +52,14 @@ abstract class InlinedRingBufferColdFields<E> extends InlinedRingBufferL0Pad {
     protected final E[] buffer;
 
     @SuppressWarnings("unchecked")
-    InlinedRingBufferColdFields(int capacity) {
-        if (Pow2.isPowerOfTwo(capacity)) {
+    InlinedRingBufferColdFields(int capacity)
+    {
+        if (Pow2.isPowerOfTwo(capacity))
+        {
             this.capacity = capacity;
-        } else {
+        }
+        else
+        {
             this.capacity = Pow2.roundToPowerOfTwo(capacity);
         }
         mask = this.capacity - 1;
@@ -61,7 +67,8 @@ abstract class InlinedRingBufferColdFields<E> extends InlinedRingBufferL0Pad {
     }
 }
 
-abstract class InlinedRingBufferL1Pad<E> extends InlinedRingBufferColdFields<E> {
+abstract class InlinedRingBufferL1Pad<E> extends InlinedRingBufferColdFields<E>
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -79,21 +86,25 @@ abstract class InlinedRingBufferL1Pad<E> extends InlinedRingBufferColdFields<E> 
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
 //    byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 
-    InlinedRingBufferL1Pad(int capacity) {
+    InlinedRingBufferL1Pad(int capacity)
+    {
         super(capacity);
     }
 }
 
-abstract class InlinedRingBufferOfferFields<E> extends InlinedRingBufferL1Pad<E> {
+abstract class InlinedRingBufferOfferFields<E> extends InlinedRingBufferL1Pad<E>
+{
     protected volatile long tail;
     protected long headCache;
 
-    InlinedRingBufferOfferFields(int capacity) {
+    InlinedRingBufferOfferFields(int capacity)
+    {
         super(capacity);
     }
 }
 
-abstract class InlinedRingBufferL2Pad<E> extends InlinedRingBufferOfferFields<E> {
+abstract class InlinedRingBufferL2Pad<E> extends InlinedRingBufferOfferFields<E>
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -111,21 +122,25 @@ abstract class InlinedRingBufferL2Pad<E> extends InlinedRingBufferOfferFields<E>
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
 //    byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 
-    InlinedRingBufferL2Pad(int capacity) {
+    InlinedRingBufferL2Pad(int capacity)
+    {
         super(capacity);
     }
 }
 
-abstract class InlinedRingBufferPollFields<E> extends InlinedRingBufferL2Pad<E> {
+abstract class InlinedRingBufferPollFields<E> extends InlinedRingBufferL2Pad<E>
+{
     protected volatile long head;
     protected long tailCache;
 
-    InlinedRingBufferPollFields(int capacity) {
+    InlinedRingBufferPollFields(int capacity)
+    {
         super(capacity);
     }
 }
 
-abstract class InlinedRingBufferL3Pad<E> extends InlinedRingBufferPollFields<E> {
+abstract class InlinedRingBufferL3Pad<E> extends InlinedRingBufferPollFields<E>
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -143,74 +158,93 @@ abstract class InlinedRingBufferL3Pad<E> extends InlinedRingBufferPollFields<E> 
     byte b160,b161,b162,b163,b164,b165,b166,b167;//120b
 //    byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 
-    InlinedRingBufferL3Pad(int capacity) {
+    InlinedRingBufferL3Pad(int capacity)
+    {
         super(capacity);
     }
 }
 
-public final class InlinedCountersSpscConcurrentArrayQueue<E> extends InlinedRingBufferL3Pad<E> implements Queue<E> {
+public final class InlinedCountersSpscConcurrentArrayQueue<E> extends InlinedRingBufferL3Pad<E> implements Queue<E>
+{
     private final static long TAIL_OFFSET;
     private final static long HEAD_OFFSET;
     private static final long ARRAY_BASE;
     private static final int ELEMENT_SHIFT;
-    static {
-        TAIL_OFFSET = fieldOffset(InlinedRingBufferOfferFields.class,"tail");
+    static
+    {
+        TAIL_OFFSET = fieldOffset(InlinedRingBufferOfferFields.class, "tail");
         HEAD_OFFSET = fieldOffset(InlinedRingBufferPollFields.class, "head");
 
         final int scale = UNSAFE.arrayIndexScale(Object[].class);
 
-        if (4 == scale) {
+        if (4 == scale)
+        {
             ELEMENT_SHIFT = 2 + SPARSE_SHIFT;
-        } else if (8 == scale) {
+        }
+        else if (8 == scale)
+        {
             ELEMENT_SHIFT = 3 + SPARSE_SHIFT;
-        } else {
+        }
+        else
+        {
             throw new IllegalStateException("Unknown pointer size");
         }
-        ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class)
-                + (BUFFER_PAD << (ELEMENT_SHIFT - SPARSE_SHIFT));
+        ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + (BUFFER_PAD << (ELEMENT_SHIFT - SPARSE_SHIFT));
     }
 
-    public InlinedCountersSpscConcurrentArrayQueue(final int capacity) {
+    public InlinedCountersSpscConcurrentArrayQueue(final int capacity)
+    {
         super(capacity);
     }
 
-    private void headLazySet(long v) {
+    private void headLazySet(long v)
+    {
         UNSAFE.putOrderedLong(this, HEAD_OFFSET, v);
     }
 
-    private long getHead() {
+    private long getHead()
+    {
         return head;
     }
 
-    private void tailLazySet(long v) {
+    private void tailLazySet(long v)
+    {
         UNSAFE.putOrderedLong(this, TAIL_OFFSET, v);
     }
 
-    private long getTail() {
+    private long getTail()
+    {
         return tail;
     }
 
-    public boolean add(final E e) {
-        if (offer(e)) {
+    public boolean add(final E e)
+    {
+        if (offer(e))
+        {
             return true;
         }
         throw new IllegalStateException("Queue is full");
     }
 
-    private long offset(long index) {
+    private long offset(long index)
+    {
         return ARRAY_BASE + ((index & mask) << ELEMENT_SHIFT);
     }
 
-    public boolean offer(final E e) {
-        if (null == e) {
+    public boolean offer(final E e)
+    {
+        if (null == e)
+        {
             throw new NullPointerException("Null is not a valid element");
         }
 
         final long currentTail = getTail();
         final long wrapPoint = currentTail - capacity + 32;
-        if (headCache <= wrapPoint) {
+        if (headCache <= wrapPoint)
+        {
             headCache = getHead();
-            if (headCache <= wrapPoint) {
+            if (headCache <= wrapPoint)
+            {
                 return false;
             }
         }
@@ -220,18 +254,20 @@ public final class InlinedCountersSpscConcurrentArrayQueue<E> extends InlinedRin
         return true;
     }
 
-    public E poll() {
+    public E poll()
+    {
         final long currentHead = getHead();
-        if (currentHead >= tailCache) {
+        if (currentHead >= tailCache)
+        {
             tailCache = getTail();
-            if (currentHead >= tailCache) {
+            if (currentHead >= tailCache)
+            {
                 return null;
             }
         }
 
         final long offset = offset(currentHead);
-        @SuppressWarnings("unchecked")
-        final E e = (E) UNSAFE.getObject(buffer, offset);
+        @SuppressWarnings("unchecked") final E e = (E) UNSAFE.getObject(buffer, offset);
         UNSAFE.putObject(buffer, offset, null);
 
         headLazySet(currentHead + 1);
@@ -239,51 +275,63 @@ public final class InlinedCountersSpscConcurrentArrayQueue<E> extends InlinedRin
         return e;
     }
 
-    public E remove() {
+    public E remove()
+    {
         final E e = poll();
-        if (null == e) {
+        if (null == e)
+        {
             throw new NoSuchElementException("Queue is empty");
         }
 
         return e;
     }
 
-    public E element() {
+    public E element()
+    {
         final E e = peek();
-        if (null == e) {
+        if (null == e)
+        {
             throw new NoSuchElementException("Queue is empty");
         }
 
         return e;
     }
 
-    public E peek() {
+    public E peek()
+    {
         long currentHead = getHead();
         return getElement(currentHead);
     }
 
     @SuppressWarnings("unchecked")
-    private E getElement(long index) {
+    private E getElement(long index)
+    {
         final long offset = offset(index);
         return (E) UNSAFE.getObject(buffer, offset);
     }
 
-    public int size() {
+    public int size()
+    {
         return (int) (getTail() - getHead());
     }
 
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return getTail() == getHead();
     }
 
-    public boolean contains(final Object o) {
-        if (null == o) {
+    public boolean contains(final Object o)
+    {
+        if (null == o)
+        {
             return false;
         }
 
-        for (long i = getHead(), limit = getTail(); i < limit; i++) {
+        for (long i = getHead(), limit = getTail(); i < limit; i++)
+        {
             final E e = getElement(i);
-            if (o.equals(e)) {
+            if (o.equals(e))
+            {
                 return true;
             }
         }
@@ -291,25 +339,32 @@ public final class InlinedCountersSpscConcurrentArrayQueue<E> extends InlinedRin
         return false;
     }
 
-    public Iterator<E> iterator() {
+    public Iterator<E> iterator()
+    {
         throw new UnsupportedOperationException();
     }
 
-    public Object[] toArray() {
+    public Object[] toArray()
+    {
         throw new UnsupportedOperationException();
     }
 
-    public <T> T[] toArray(final T[] a) {
+    public <T> T[] toArray(final T[] a)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean remove(final Object o) {
+    public boolean remove(final Object o)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean containsAll(final Collection<?> c) {
-        for (final Object o : c) {
-            if (!contains(o)) {
+    public boolean containsAll(final Collection<?> c)
+    {
+        for (final Object o : c)
+        {
+            if (!contains(o))
+            {
                 return false;
             }
         }
@@ -317,26 +372,33 @@ public final class InlinedCountersSpscConcurrentArrayQueue<E> extends InlinedRin
         return true;
     }
 
-    public boolean addAll(final Collection<? extends E> c) {
-        for (final E e : c) {
+    public boolean addAll(final Collection<? extends E> c)
+    {
+        for (final E e : c)
+        {
             add(e);
         }
 
         return true;
     }
 
-    public boolean removeAll(final Collection<?> c) {
+    public boolean removeAll(final Collection<?> c)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public boolean retainAll(final Collection<?> c) {
+    public boolean retainAll(final Collection<?> c)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public void clear() {
+    public void clear()
+    {
         Object value;
-        do {
+        do
+        {
             value = poll();
-        } while (null != value);
+        }
+        while (null != value);
     }
 }

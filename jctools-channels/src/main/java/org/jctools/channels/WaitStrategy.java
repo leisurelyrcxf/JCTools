@@ -1,6 +1,7 @@
 package org.jctools.channels;
 
-public interface WaitStrategy {
+public interface WaitStrategy
+{
     /**
      * This method can implement static or dynamic backoff. Dynamic backoff will rely on the counter for
      * estimating how long the caller has been idling. The expected usage is:

@@ -38,7 +38,8 @@ public final class IndexedQueueSizeUtil
     public static final int PLAIN_DIVISOR = 1;
     public static final int IGNORE_PARITY_DIVISOR = 2;
 
-    public static int size(IndexedQueue iq, int divisor) {
+    public static int size(IndexedQueue iq, int divisor)
+    {
         /*
          * It is possible for a thread to be interrupted or reschedule between the reads of the producer and
          * consumer indices. It is also for the indices to be updated in a `weakly` visible way. It follows that
@@ -61,7 +62,8 @@ public final class IndexedQueueSizeUtil
         return sanitizedSize(iq.capacity(), size);
     }
 
-    public static int sanitizedSize(int capacity, long size) {
+    public static int sanitizedSize(int capacity, long size)
+    {
         // Concurrent updates to cIndex and pIndex may lag behind other progress enablers (e.g. FastFlow), so we need
         // to check bounds [0,capacity]
         if (size < 0)

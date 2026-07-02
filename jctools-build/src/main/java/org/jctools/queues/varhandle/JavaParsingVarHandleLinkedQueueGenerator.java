@@ -23,23 +23,28 @@ import static org.jctools.queues.util.GeneratorUtils.runJCToolsGenerator;
  * A 'LinkedQueue' is one that is backed by a linked list and uses a <code>producerNode</code> and a
  * <code>consumerNode</code> field to track the positions of each.
  */
-public class JavaParsingVarHandleLinkedQueueGenerator extends JavaParsingVarHandleQueueGenerator {
+public class JavaParsingVarHandleLinkedQueueGenerator extends JavaParsingVarHandleQueueGenerator
+{
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         runJCToolsGenerator(JavaParsingVarHandleLinkedQueueGenerator.class, args);
     }
 
-    public JavaParsingVarHandleLinkedQueueGenerator(String sourceFileName) {
+    public JavaParsingVarHandleLinkedQueueGenerator(String sourceFileName)
+    {
         this(sourceFileName, "org.jctools.queues.varhandle", "VarHandle");
     }
 
     /** Constructor for unpadded subclasses to pass through different package/prefix values. */
-    protected JavaParsingVarHandleLinkedQueueGenerator(String sourceFileName, String outputPackage, String queueClassNamePrefix) {
+    protected JavaParsingVarHandleLinkedQueueGenerator(String sourceFileName, String outputPackage, String queueClassNamePrefix)
+    {
         super(sourceFileName, outputPackage, queueClassNamePrefix);
     }
 
     @Override
-    public void visit(ConstructorDeclaration n, Void arg) {
+    public void visit(ConstructorDeclaration n, Void arg)
+    {
         super.visit(n, arg);
         // Update the ctor to match the class name
         String nameAsString = n.getNameAsString();
@@ -50,21 +55,25 @@ public class JavaParsingVarHandleLinkedQueueGenerator extends JavaParsingVarHand
     }
 
     @Override
-    protected void visitClass(ClassOrInterfaceDeclaration node, Void arg) {
+    protected void visitClass(ClassOrInterfaceDeclaration node, Void arg)
+    {
         replaceParentClasses(node);
 
         String nameAsString = node.getNameAsString();
         if (nameAsString.contains("Queue"))
             node.setName(translateQueueName(nameAsString));
 
-        if (isCommentPresent(node, GEN_DIRECTIVE_CLASS_CONTAINS_ORDERED_FIELD_ACCESSORS)) {
+        if (isCommentPresent(node, GEN_DIRECTIVE_CLASS_CONTAINS_ORDERED_FIELD_ACCESSORS))
+        {
             node.setComment(null);
             removeStaticFieldsAndInitialisers(node);
             patchVarHandleAccessorMethods(node);
         }
 
-        for (MethodDeclaration method : node.getMethods()) {
-            if (isCommentPresent(method, GEN_DIRECTIVE_METHOD_IGNORE)) {
+        for (MethodDeclaration method : node.getMethods())
+        {
+            if (isCommentPresent(method, GEN_DIRECTIVE_METHOD_IGNORE))
+            {
                 method.remove();
             }
         }
@@ -73,35 +82,40 @@ public class JavaParsingVarHandleLinkedQueueGenerator extends JavaParsingVarHand
     }
 
     @Override
-    public void visit(MethodDeclaration n, Void arg) {
+    public void visit(MethodDeclaration n, Void arg)
+    {
         super.visit(n, arg);
         // Replace the return type of a method with altered types
         processSpecialNodeTypes(n, n.getNameAsString());
     }
 
     @Override
-    public void visit(ObjectCreationExpr n, Void arg) {
+    public void visit(ObjectCreationExpr n, Void arg)
+    {
         super.visit(n, arg);
         Type type = n.getType();
-        if (isRefType(type, "LinkedQueueNode")) {
+        if (isRefType(type, "LinkedQueueNode"))
+        {
             n.setType(simpleParametricType("LinkedQueueVarHandleNode", "E"));
         }
     }
 
-    String varHandleFieldName(String fieldName) {
-        switch (fieldName) {
-        case "producerNode":
-            return "VH_PRODUCER_NODE";
-        case "consumerNode":
-            return "VH_CONSUMER_NODE";
-        case "consumerIndex":
-            return "VH_CONSUMER_INDEX";
-        case "producerIndex":
-            return "VH_PRODUCER_INDEX";
-        case "producerLimit":
-            return "VH_PRODUCER_LIMIT";
-        default:
-            throw new IllegalArgumentException("Unhandled field: " + fieldName);
+    String varHandleFieldName(String fieldName)
+    {
+        switch (fieldName)
+        {
+            case "producerNode":
+                return "VH_PRODUCER_NODE";
+            case "consumerNode":
+                return "VH_CONSUMER_NODE";
+            case "consumerIndex":
+                return "VH_CONSUMER_INDEX";
+            case "producerIndex":
+                return "VH_PRODUCER_INDEX";
+            case "producerLimit":
+                return "VH_PRODUCER_LIMIT";
+            default:
+                throw new IllegalArgumentException("Unhandled field: " + fieldName);
         }
     }
 
@@ -112,12 +126,14 @@ public class JavaParsingVarHandleLinkedQueueGenerator extends JavaParsingVarHand
      * {@code LinkedQueueVarHandleNode}. VarHandle keeps {@code long} offsets and raw
      * {@code E[]} arrays as-is (unlike the atomic variant which wraps them).
      */
-    void processSpecialNodeTypes(NodeWithType<?, Type> node, String name) {
+    void processSpecialNodeTypes(NodeWithType<?, Type> node, String name)
+    {
         Type type = node.getType();
         // VarHandle uses long offsets, unlike Atomic which uses int array indices
         // So we don't convert offset types for VarHandle. E[] arrays are also kept as-is
         // (atomic queues wrap E[] in AtomicReferenceArray<E>; VarHandle uses the raw array).
-        if (isRefType(type, "LinkedQueueNode")) {
+        if (isRefType(type, "LinkedQueueNode"))
+        {
             node.setType(simpleParametricType("LinkedQueueVarHandleNode", "E"));
         }
     }
@@ -132,36 +148,46 @@ public class JavaParsingVarHandleLinkedQueueGenerator extends JavaParsingVarHand
      *
      * @param n the AST node for the containing class
      */
-    private void patchVarHandleAccessorMethods(ClassOrInterfaceDeclaration n) {
+    private void patchVarHandleAccessorMethods(ClassOrInterfaceDeclaration n)
+    {
         String className = n.getNameAsString();
         List<FieldInfo> varHandleFields = new ArrayList<>();
 
-        for (FieldDeclaration field : n.getFields()) {
-            if (field.getModifiers().contains(Modifier.staticModifier())) {
+        for (FieldDeclaration field : n.getFields())
+        {
+            if (field.getModifiers().contains(Modifier.staticModifier()))
+            {
                 // Ignore statics
                 continue;
             }
             // Skip final fields — see JavaParsingVarHandleArrayQueueGenerator for the same guard.
             // Final fields can't have so/cas/sv accessors, and a final field whose name happens
             // to match a method suffix would otherwise get a stray VarHandle declaration.
-            if (field.getModifiers().contains(Modifier.finalModifier())) {
+            if (field.getModifiers().contains(Modifier.finalModifier()))
+            {
                 continue;
             }
 
             // Check if the field is volatile in the original source
             boolean isFieldVolatile = field.getModifiers().contains(Modifier.volatileModifier());
 
-            for (VariableDeclarator variable : field.getVariables()) {
+            for (VariableDeclarator variable : field.getVariables())
+            {
                 String variableName = variable.getNameAsString();
                 String methodNameSuffix = capitalise(variableName);
                 Type fieldType = variable.getType();
 
                 boolean variableUsesVarHandle = false;
-                for (MethodDeclaration method : n.getMethods()) {
-                    variableUsesVarHandle |= patchVarHandleAccessorMethod(variableName, method, methodNameSuffix, isFieldVolatile);
+                for (MethodDeclaration method : n.getMethods())
+                {
+                    variableUsesVarHandle |= patchVarHandleAccessorMethod(variableName,
+                        method,
+                        methodNameSuffix,
+                        isFieldVolatile);
                 }
 
-                if ("producerNode".equals(variableName)) {
+                if ("producerNode".equals(variableName))
+                {
                     variableUsesVarHandle = true;
                     String varHandleFieldName = varHandleFieldName(variableName);
 
@@ -171,7 +197,8 @@ public class JavaParsingVarHandleLinkedQueueGenerator extends JavaParsingVarHand
                     method.setBody(varHandleGetAndSet(varHandleFieldName, "newValue", method.getType()));
                 }
 
-                if (variableUsesVarHandle) {
+                if (variableUsesVarHandle)
+                {
                     varHandleFields.add(new FieldInfo(variableName, fieldType));
                 }
             }
@@ -181,8 +208,10 @@ public class JavaParsingVarHandleLinkedQueueGenerator extends JavaParsingVarHand
 
         // Prepend the VarHandle field declarations (in original order) and the static initializer
         // that wires them up. See JavaParsingVarHandleArrayQueueGenerator for the same pattern.
-        if (!varHandleFields.isEmpty()) {
-            for (int i = 0; i < varHandleFields.size(); i++) {
+        if (!varHandleFields.isEmpty())
+        {
+            for (int i = 0; i < varHandleFields.size(); i++)
+            {
                 n.getMembers().add(i, declareVarHandle(className, varHandleFields.get(i).name));
             }
             n.getMembers().add(varHandleFields.size(), createVarHandleStaticInitializerWithTypes(n, className, varHandleFields));
@@ -190,12 +219,14 @@ public class JavaParsingVarHandleLinkedQueueGenerator extends JavaParsingVarHand
     }
 
     @Override
-    protected String resolveVarHandleClassType(ClassOrInterfaceDeclaration n, Type fieldType) {
+    protected String resolveVarHandleClassType(ClassOrInterfaceDeclaration n, Type fieldType)
+    {
         // Linked queues store producerNode/consumerNode as LinkedQueueNode<E> in source. By the
         // time the static-initializer builder runs, processSpecialNodeTypes has already rewritten
         // these to LinkedQueueVarHandleNode. Either way, findVarHandle's third argument must
         // erase to LinkedQueueVarHandleNode.
-        if (isRefType(fieldType, "LinkedQueueNode") || isRefType(fieldType, "LinkedQueueVarHandleNode")) {
+        if (isRefType(fieldType, "LinkedQueueNode") || isRefType(fieldType, "LinkedQueueVarHandleNode"))
+        {
             return "LinkedQueueVarHandleNode";
         }
         return super.resolveVarHandleClassType(n, fieldType);
@@ -205,11 +236,12 @@ public class JavaParsingVarHandleLinkedQueueGenerator extends JavaParsingVarHand
      * Generates something like
      * <code>return (LinkedQueueVarHandleNode<E>) VH_PRODUCER_NODE.getAndSet(this, newValue)</code>
      */
-    private BlockStmt varHandleGetAndSet(String varHandleFieldName, String newValueName, Type returnType) {
+    private BlockStmt varHandleGetAndSet(String varHandleFieldName, String newValueName, Type returnType)
+    {
         BlockStmt body = new BlockStmt();
         CastExpr castExpr = new CastExpr(
-                returnType,
-                methodCallExpr(varHandleFieldName, "getAndSet", new ThisExpr(), new NameExpr(newValueName)));
+            returnType,
+            methodCallExpr(varHandleFieldName, "getAndSet", new ThisExpr(), new NameExpr(newValueName)));
         body.addStatement(new ReturnStmt(castExpr));
         return body;
     }

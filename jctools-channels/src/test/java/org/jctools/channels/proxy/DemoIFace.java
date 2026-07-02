@@ -1,9 +1,11 @@
 package org.jctools.channels.proxy;
 
-public interface DemoIFace {
-    
-    public static class CustomType {
-        
+public interface DemoIFace
+{
+
+    public static class CustomType
+    {
+
     }
 
     void call1(int x, int y);

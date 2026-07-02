@@ -86,7 +86,7 @@ abstract class BaseSpscLinkedUnpaddedArrayQueueL2Pad<E> extends BaseSpscLinkedUn
  */
 abstract class BaseSpscLinkedUnpaddedArrayQueueProducerFields<E> extends BaseSpscLinkedUnpaddedArrayQueueL2Pad<E>
 {
-    private final static long P_INDEX_OFFSET = fieldOffset(BaseSpscLinkedUnpaddedArrayQueueProducerFields.class,"producerIndex");
+    private final static long P_INDEX_OFFSET = fieldOffset(BaseSpscLinkedUnpaddedArrayQueueProducerFields.class, "producerIndex");
 
     private long producerIndex;
 
@@ -307,7 +307,8 @@ abstract class BaseSpscLinkedUnpaddedArrayQueue<E> extends BaseSpscLinkedUnpadde
         long pIndex,
         long offset,
         E v,
-        Supplier<? extends E> s);
+        Supplier<? extends E> s
+    );
 
     /**
      * {@inheritDoc}
@@ -363,9 +364,12 @@ abstract class BaseSpscLinkedUnpaddedArrayQueue<E> extends BaseSpscLinkedUnpadde
 
     final void linkOldToNew(
         final long currIndex,
-        final E[] oldBuffer, final long offset,
-        final E[] newBuffer, final long offsetInNew,
-        final E e)
+        final E[] oldBuffer,
+        final long offset,
+        final E[] newBuffer,
+        final long offsetInNew,
+        final E e
+    )
     {
         soRefElement(newBuffer, offsetInNew, e);
         // link to next buffer and add next indicator as element of old buffer

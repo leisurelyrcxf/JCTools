@@ -38,7 +38,8 @@ import static org.junit.Assert.assertTrue;
  * padding bytes or their associated trailing comments. Used by both the unpadded family in
  * jctools-core and the VarHandle unpadded family in jctools-core-jdk11.
  */
-public final class PadClassAssertions {
+public final class PadClassAssertions
+{
 
     /**
      * Pad-class name pattern: ends with {@code Pad} optionally followed by digits (e.g.
@@ -46,28 +47,38 @@ public final class PadClassAssertions {
      */
     private static final Pattern PAD_CLASS_NAME = Pattern.compile(".*Pad\\d*");
 
-    private static final Pattern PAD_CLASS_DECL = Pattern.compile(
-            "^abstract class (\\w+Pad\\d*)\\b[^{]*\\{", Pattern.MULTILINE);
+    private static final Pattern PAD_CLASS_DECL = Pattern
+        .compile(
+            "^abstract class (\\w+Pad\\d*)\\b[^{]*\\{",
+            Pattern.MULTILINE);
 
-    private PadClassAssertions() {}
+    private PadClassAssertions()
+    {
+    }
 
     /**
      * Assert every {@code *Pad} class in the given packages declares zero fields.
      */
     public static void assertPadClassesDeclareNoFields(
-            List<String> packages, int minExpected) throws Exception {
+        List<String> packages,
+        int minExpected
+    ) throws Exception
+    {
         List<Class<?>> padClasses = new ArrayList<>();
-        for (String pkg : packages) {
+        for (String pkg : packages)
+        {
             padClasses.addAll(findPadClasses(pkg));
         }
         assertTrue("expected to find some *Pad classes (got " + padClasses.size() + ")",
-                padClasses.size() >= minExpected);
+            padClasses.size() >= minExpected);
 
-        for (Class<?> cls : padClasses) {
+        for (Class<?> cls : padClasses)
+        {
             Field[] fields = cls.getDeclaredFields();
             assertEquals(
-                    cls.getName() + " is a *Pad class but declares fields: " + Arrays.toString(fields),
-                    0, fields.length);
+                cls.getName() + " is a *Pad class but declares fields: " + Arrays.toString(fields),
+                0,
+                fields.length);
         }
     }
 
@@ -76,16 +87,21 @@ public final class PadClassAssertions {
      * source directories has an empty body (no {@code //} or {@code /*} occurrence).
      */
     public static void assertPadClassBodiesHaveNoComments(
-            List<String> relativeSourceDirs, int minExpected) throws Exception {
+        List<String> relativeSourceDirs,
+        int minExpected
+    ) throws Exception
+    {
         int padClassesScanned = 0;
-        for (String relDir : relativeSourceDirs) {
+        for (String relDir : relativeSourceDirs)
+        {
             padClassesScanned += scanForCommentFreePadBodies(relDir);
         }
         assertTrue("expected to scan some *Pad classes (got " + padClassesScanned + ")",
-                padClassesScanned >= minExpected);
+            padClassesScanned >= minExpected);
     }
 
-    private static List<Class<?>> findPadClasses(String packageName) throws Exception {
+    private static List<Class<?>> findPadClasses(String packageName) throws Exception
+    {
         String resourcePath = packageName.replace('.', '/');
         URL packageUrl = Thread.currentThread().getContextClassLoader().getResource(resourcePath);
         assertNotNull("package not on classpath: " + packageName, packageUrl);
@@ -94,9 +110,11 @@ public final class PadClassAssertions {
         assertNotNull("directory has no class files: " + dir, classFiles);
 
         List<Class<?>> padClasses = new ArrayList<>();
-        for (File f : classFiles) {
+        for (File f : classFiles)
+        {
             String simpleName = f.getName().substring(0, f.getName().length() - ".class".length());
-            if (!PAD_CLASS_NAME.matcher(simpleName).matches()) {
+            if (!PAD_CLASS_NAME.matcher(simpleName).matches())
+            {
                 continue;
             }
             padClasses.add(Class.forName(packageName + "." + simpleName));
@@ -104,26 +122,31 @@ public final class PadClassAssertions {
         return padClasses;
     }
 
-    private static int scanForCommentFreePadBodies(String relativeSourceDir) throws Exception {
+    private static int scanForCommentFreePadBodies(String relativeSourceDir) throws Exception
+    {
         Path dir = Paths.get(relativeSourceDir);
         assertTrue("source dir not found from cwd " + Paths.get("").toAbsolutePath() + ": " + dir,
-                Files.isDirectory(dir));
+            Files.isDirectory(dir));
 
         int count = 0;
-        try (java.util.stream.Stream<Path> entries = Files.list(dir)) {
-            for (Path file : entries.sorted().toArray(Path[]::new)) {
-                if (!file.toString().endsWith(".java")) {
+        try (java.util.stream.Stream<Path> entries = Files.list(dir))
+        {
+            for (Path file : entries.sorted().toArray(Path[]::new))
+            {
+                if (!file.toString().endsWith(".java"))
+                {
                     continue;
                 }
                 String src = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
                 Matcher matcher = PAD_CLASS_DECL.matcher(src);
-                while (matcher.find()) {
+                while (matcher.find())
+                {
                     String name = matcher.group(1);
                     String body = extractBody(src, matcher.end() - 1);
                     assertFalse(
-                            file + "::" + name + " body contains a comment — Pad classes must be"
-                                    + " empty of comments. Body:\n" + body,
-                            containsComment(body));
+                        file + "::" + name + " body contains a comment — Pad classes must be" + " empty of comments. Body:\n" +
+                            body,
+                        containsComment(body));
                     count++;
                 }
             }
@@ -135,16 +158,22 @@ public final class PadClassAssertions {
      * Extract the substring between the matching {@code {} and {@code }} starting at
      * {@code openBraceIndex} (inclusive of the opening brace).
      */
-    private static String extractBody(String src, int openBraceIndex) {
+    private static String extractBody(String src, int openBraceIndex)
+    {
         assertEquals("expected '{' at index " + openBraceIndex, '{', src.charAt(openBraceIndex));
         int depth = 0;
-        for (int i = openBraceIndex; i < src.length(); i++) {
+        for (int i = openBraceIndex; i < src.length(); i++)
+        {
             char c = src.charAt(i);
-            if (c == '{') {
+            if (c == '{')
+            {
                 depth++;
-            } else if (c == '}') {
+            }
+            else if (c == '}')
+            {
                 depth--;
-                if (depth == 0) {
+                if (depth == 0)
+                {
                     return src.substring(openBraceIndex + 1, i);
                 }
             }
@@ -152,7 +181,8 @@ public final class PadClassAssertions {
         throw new AssertionError("unterminated class body starting at " + openBraceIndex);
     }
 
-    private static boolean containsComment(String body) {
+    private static boolean containsComment(String body)
+    {
         // Crude but sufficient: Pad class bodies are tiny (constructor + braces). A literal "//" or
         // "/*" anywhere in the body indicates a comment, since strings containing those tokens
         // would never appear in a Pad class.

@@ -44,7 +44,8 @@ import static org.jctools.queues.util.GeneratorUtils.renameType;
  * the JCTools queue sources and are not suitable for general-purpose use.
  */
 public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<Void>
-        implements JCToolsGenerator {
+    implements JCToolsGenerator
+{
 
     /**
      * When set on a class using a single-line comment, the class has fields that have unsafe
@@ -69,31 +70,37 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      */
     protected final String queueClassNamePrefix;
 
-    protected JavaParsingQueueGeneratorBase(String sourceFileName, String outputPackage, String queueClassNamePrefix) {
+    protected JavaParsingQueueGeneratorBase(String sourceFileName, String outputPackage, String queueClassNamePrefix)
+    {
         this.sourceFileName = sourceFileName;
         this.outputPackage = outputPackage;
         this.queueClassNamePrefix = queueClassNamePrefix;
     }
 
     @Override
-    public final String translateQueueName(String qName) {
-        if (qName.contains("LinkedQueue") || qName.contains("LinkedArrayQueue")) {
+    public final String translateQueueName(String qName)
+    {
+        if (qName.contains("LinkedQueue") || qName.contains("LinkedArrayQueue"))
+        {
             return qName.replace("Linked", "Linked" + queueClassNamePrefix);
         }
         // ArrayQueue check must come before Chunk check because some inner hierarchy classes
         // contain both "ArrayQueue" and end with "Chunk" (e.g. MpUnboundedXaddArrayQueueProducerChunk)
-        if (qName.contains("ArrayQueue")) {
+        if (qName.contains("ArrayQueue"))
+        {
             return qName.replace("ArrayQueue", queueClassNamePrefix + "ArrayQueue");
         }
         // Standalone Chunk classes (e.g. MpUnboundedXaddChunk -> MpUnboundedXaddAtomicChunk)
-        if (qName.endsWith("Chunk")) {
+        if (qName.endsWith("Chunk"))
+        {
             return qName.replace("Chunk", queueClassNamePrefix + "Chunk");
         }
         throw new IllegalArgumentException("Unexpected queue name: " + qName);
     }
 
     @Override
-    public final void visit(PackageDeclaration n, Void arg) {
+    public final void visit(PackageDeclaration n, Void arg)
+    {
         super.visit(n, arg);
         n.setName(outputPackage);
     }
@@ -106,10 +113,12 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * visitor call and standalone references the generator itself synthesises.
      */
     @Override
-    public final void visit(ClassOrInterfaceType n, Void arg) {
+    public final void visit(ClassOrInterfaceType n, Void arg)
+    {
         super.visit(n, arg);
         String name = n.getNameAsString();
-        if (name.endsWith("Chunk") && !name.contains(queueClassNamePrefix)) {
+        if (name.endsWith("Chunk") && !name.contains(queueClassNamePrefix))
+        {
             renameType(n, translateQueueName(name));
         }
     }
@@ -120,10 +129,12 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * end with "Chunk" but are not class names.
      */
     @Override
-    public final void visit(NameExpr n, Void arg) {
+    public final void visit(NameExpr n, Void arg)
+    {
         super.visit(n, arg);
         String name = n.getNameAsString();
-        if (name.endsWith("Chunk") && Character.isUpperCase(name.charAt(0)) && !name.contains(queueClassNamePrefix)) {
+        if (name.endsWith("Chunk") && Character.isUpperCase(name.charAt(0)) && !name.contains(queueClassNamePrefix))
+        {
             n.setName(translateQueueName(name));
         }
     }
@@ -136,10 +147,12 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * post-visit padding step always runs in the right order.
      */
     @Override
-    public final void visit(ClassOrInterfaceDeclaration node, Void arg) {
+    public final void visit(ClassOrInterfaceDeclaration node, Void arg)
+    {
         super.visit(node, arg);
         visitClass(node, arg);
-        if (stripsPadding()) {
+        if (stripsPadding())
+        {
             removePaddingFields(node);
         }
     }
@@ -148,7 +161,8 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * Hook called after the recursive visit of a class declaration. Default no-op; concrete
      * generators override to rewrite class names, parents, methods, and fields.
      */
-    protected void visitClass(ClassOrInterfaceDeclaration node, Void arg) {
+    protected void visitClass(ClassOrInterfaceDeclaration node, Void arg)
+    {
     }
 
     /**
@@ -157,7 +171,8 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * decision means each concrete generator declares intent in one line rather than overriding
      * both {@code visit(ClassOrInterfaceDeclaration)} and {@code cleanupComments}.
      */
-    protected boolean stripsPadding() {
+    protected boolean stripsPadding()
+    {
         return false;
     }
 
@@ -167,15 +182,18 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * padding cleanup always runs.
      */
     @Override
-    public final void cleanupComments(com.github.javaparser.ast.CompilationUnit cu) {
-        if (stripsPadding()) {
+    public final void cleanupComments(com.github.javaparser.ast.CompilationUnit cu)
+    {
+        if (stripsPadding())
+        {
             cleanupPaddingComments(cu);
         }
         cleanupCommentsExtra(cu);
     }
 
     /** Hook for subclasses to add extra cleanup passes; default no-op. */
-    protected void cleanupCommentsExtra(com.github.javaparser.ast.CompilationUnit cu) {
+    protected void cleanupCommentsExtra(com.github.javaparser.ast.CompilationUnit cu)
+    {
     }
 
     /**
@@ -183,13 +201,17 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * {@link #translateQueueName(String)}, leaving {@code AbstractQueue} alone (it is the JDK
      * parent). Already-translated parents are skipped via the {@code contains(prefix)} guard.
      */
-    protected final void replaceParentClasses(ClassOrInterfaceDeclaration n) {
-        for (ClassOrInterfaceType parent : n.getExtendedTypes()) {
+    protected final void replaceParentClasses(ClassOrInterfaceDeclaration n)
+    {
+        for (ClassOrInterfaceType parent : n.getExtendedTypes())
+        {
             String parentName = parent.getNameAsString();
-            if ("AbstractQueue".equals(parentName)) {
+            if ("AbstractQueue".equals(parentName))
+            {
                 continue;
             }
-            if (!parentName.contains(queueClassNamePrefix)) {
+            if (!parentName.contains(queueClassNamePrefix))
+            {
                 parent.setName(translateQueueName(parentName));
             }
         }
@@ -199,7 +221,8 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * Returns whether {@code node} carries a comment whose trimmed content equals {@code wanted}.
      * Used to detect {@code $gen:ordered-fields} and {@code $gen:ignore} directives.
      */
-    protected static boolean isCommentPresent(Node node, String wanted) {
+    protected static boolean isCommentPresent(Node node, String wanted)
+    {
         Optional<Comment> maybeComment = node.getComment();
         return maybeComment.isPresent() && wanted.equals(maybeComment.get().getContent().trim());
     }
@@ -213,49 +236,64 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * On a multi-declarator row like {@code static long P_OFFSET = ..., MASK = ...;}, only the
      * {@code _OFFSET} declarators are dropped — surviving declarators stay on the field.
      */
-    protected static void removeStaticFieldsAndInitialisers(ClassOrInterfaceDeclaration node) {
-        for (InitializerDeclaration child : node.getChildNodesByType(InitializerDeclaration.class)) {
-            if (referencesUnsafe(child)) {
+    protected static void removeStaticFieldsAndInitialisers(ClassOrInterfaceDeclaration node)
+    {
+        for (InitializerDeclaration child : node.getChildNodesByType(InitializerDeclaration.class))
+        {
+            if (referencesUnsafe(child))
+            {
                 child.remove();
             }
         }
-        for (FieldDeclaration field : node.getFields()) {
-            if (!field.getModifiers().contains(Modifier.staticModifier())) {
+        for (FieldDeclaration field : node.getFields())
+        {
+            if (!field.getModifiers().contains(Modifier.staticModifier()))
+            {
                 continue;
             }
             field.getVariables().removeIf(v -> v.getNameAsString().endsWith("_OFFSET"));
-            if (field.getVariables().isEmpty()) {
+            if (field.getVariables().isEmpty())
+            {
                 field.remove();
             }
         }
     }
 
-    private static boolean referencesUnsafe(Node node) {
-        for (NameExpr ref : node.findAll(NameExpr.class)) {
+    private static boolean referencesUnsafe(Node node)
+    {
+        for (NameExpr ref : node.findAll(NameExpr.class))
+        {
             String name = ref.getNameAsString();
-            if ("UNSAFE".equals(name) || "UnsafeAccess".equals(name) || "UnsafeRefArrayAccess".equals(name)) {
+            if ("UNSAFE".equals(name) || "UnsafeAccess".equals(name) || "UnsafeRefArrayAccess".equals(name))
+            {
                 return true;
             }
-            if (name.endsWith("_OFFSET")) {
+            if (name.endsWith("_OFFSET"))
+            {
                 return true;
             }
         }
         return false;
     }
 
-    protected static String capitalise(String s) {
+    protected static String capitalise(String s)
+    {
         return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
-    protected static ClassOrInterfaceType classType(String className) {
+    protected static ClassOrInterfaceType classType(String className)
+    {
         return new ClassOrInterfaceType(null, className);
     }
 
-    protected static ClassOrInterfaceType simpleParametricType(String className, String... typeArgs) {
+    protected static ClassOrInterfaceType simpleParametricType(String className, String... typeArgs)
+    {
         ClassOrInterfaceType type = new ClassOrInterfaceType(null, new SimpleName(className), null);
-        if (typeArgs.length > 0) {
+        if (typeArgs.length > 0)
+        {
             NodeList<Type> typeArguments = new NodeList<>();
-            for (String typeArg : typeArgs) {
+            for (String typeArg : typeArgs)
+            {
                 typeArguments.add(classType(typeArg));
             }
             type.setTypeArguments(typeArguments);
@@ -263,44 +301,54 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
         return type;
     }
 
-    protected static boolean isRefType(Type in, String className) {
-        if (in instanceof ClassOrInterfaceType) {
+    protected static boolean isRefType(Type in, String className)
+    {
+        if (in instanceof ClassOrInterfaceType)
+        {
             return className.equals(((ClassOrInterfaceType) in).getNameAsString());
         }
         return false;
     }
 
-    protected static boolean isRefArray(Type in, String refClassName) {
-        if (in instanceof ArrayType) {
+    protected static boolean isRefArray(Type in, String refClassName)
+    {
+        if (in instanceof ArrayType)
+        {
             return isRefType(((ArrayType) in).getComponentType(), refClassName);
         }
         return false;
     }
 
-    protected static MethodCallExpr methodCallExpr(String owner, String method, Expression... args) {
+    protected static MethodCallExpr methodCallExpr(String owner, String method, Expression... args)
+    {
         MethodCallExpr methodCallExpr = new MethodCallExpr(new NameExpr(owner), method);
-        for (Expression expr : args) {
+        for (Expression expr : args)
+        {
             methodCallExpr.addArgument(expr);
         }
         return methodCallExpr;
     }
 
     /** Generates {@code field = newValue;} as a single-statement block. */
-    protected static BlockStmt fieldAssignment(String fieldName, String valueName) {
+    protected static BlockStmt fieldAssignment(String fieldName, String valueName)
+    {
         BlockStmt body = new BlockStmt();
-        body.addStatement(new ExpressionStmt(
+        body
+            .addStatement(new ExpressionStmt(
                 new AssignExpr(new NameExpr(fieldName), new NameExpr(valueName), AssignExpr.Operator.ASSIGN)));
         return body;
     }
 
     /** Generates {@code return field;} as a single-statement block. */
-    protected static BlockStmt returnField(String fieldName) {
+    protected static BlockStmt returnField(String fieldName)
+    {
         BlockStmt body = new BlockStmt();
         body.addStatement(new ReturnStmt(fieldName));
         return body;
     }
 
-    protected static ImportDeclaration staticImportDeclaration(String name) {
+    protected static ImportDeclaration staticImportDeclaration(String name)
+    {
         return new ImportDeclaration(name, true, true);
     }
 
@@ -311,18 +359,26 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * {@code @deprecated} Javadoc.
      */
     @SuppressWarnings("SameParameterValue")
-    protected static void patchMethodAsDeprecatedRedirector(MethodDeclaration methodToPatch, String toMethodName,
-            Type returnType, Parameter... parameters) {
+    protected static void patchMethodAsDeprecatedRedirector(
+        MethodDeclaration methodToPatch,
+        String toMethodName,
+        Type returnType,
+        Parameter... parameters
+    )
+    {
         methodToPatch.setType(returnType);
-        for (Parameter parameter : parameters) {
+        for (Parameter parameter : parameters)
+        {
             methodToPatch.addParameter(parameter);
         }
         methodToPatch.addAnnotation(new MarkerAnnotationExpr("Deprecated"));
-        methodToPatch.setJavadocComment(
+        methodToPatch
+            .setJavadocComment(
                 formatMultilineJavadoc(1, "@deprecated This was renamed to " + toMethodName + " please migrate"));
 
         MethodCallExpr methodCall = methodCallExpr("this", toMethodName);
-        for (Parameter parameter : parameters) {
+        for (Parameter parameter : parameters)
+        {
             methodCall.addArgument(new NameExpr(parameter.getName()));
         }
 
@@ -339,15 +395,18 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * generator bug, not a missing bound, and silently returning {@code "Object"} would emit a
      * field updater whose declared type is wrong.
      */
-    protected static String resolveErasedBound(ClassOrInterfaceDeclaration n, String typeParamName) {
-        for (com.github.javaparser.ast.type.TypeParameter tp : n.getTypeParameters()) {
-            if (tp.getNameAsString().equals(typeParamName)) {
+    protected static String resolveErasedBound(ClassOrInterfaceDeclaration n, String typeParamName)
+    {
+        for (com.github.javaparser.ast.type.TypeParameter tp : n.getTypeParameters())
+        {
+            if (tp.getNameAsString().equals(typeParamName))
+            {
                 NodeList<ClassOrInterfaceType> bounds = tp.getTypeBound();
                 return bounds.isEmpty() ? "Object" : bounds.get(0).getNameAsString();
             }
         }
-        throw new IllegalStateException("Type parameter '" + typeParamName + "' not declared on "
-                + n.getNameAsString() + " — cannot resolve its erased bound.");
+        throw new IllegalStateException("Type parameter '" + typeParamName + "' not declared on " + n.getNameAsString() +
+            " — cannot resolve its erased bound.");
     }
 
     /**
@@ -355,9 +414,12 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * {@code typeName}. Used by {@code organiseImports} to decide whether a generated import is
      * actually needed — replaces post-visit boolean side-channels that the visitor used to set.
      */
-    protected static boolean referencesType(com.github.javaparser.ast.CompilationUnit cu, String typeName) {
-        for (ClassOrInterfaceType t : cu.findAll(ClassOrInterfaceType.class)) {
-            if (typeName.equals(t.getNameAsString())) {
+    protected static boolean referencesType(com.github.javaparser.ast.CompilationUnit cu, String typeName)
+    {
+        for (ClassOrInterfaceType t : cu.findAll(ClassOrInterfaceType.class))
+        {
+            if (typeName.equals(t.getNameAsString()))
+            {
                 return true;
             }
         }
@@ -369,15 +431,18 @@ public abstract class JavaParsingQueueGeneratorBase extends VoidVisitorAdapter<V
      * {@code import static o.j.q.MpmcUnboundedXaddChunk.NOT_USED} becomes
      * {@code import static <outputPackage>.MpmcUnboundedXadd<prefix>Chunk.NOT_USED}.
      */
-    protected final ImportDeclaration translateChunkStaticImportOrSelf(ImportDeclaration imp) {
+    protected final ImportDeclaration translateChunkStaticImportOrSelf(ImportDeclaration imp)
+    {
         String name = imp.getNameAsString();
-        if (!imp.isStatic() || !name.startsWith("org.jctools.queues.") || !name.contains("Chunk.")) {
+        if (!imp.isStatic() || !name.startsWith("org.jctools.queues.") || !name.contains("Chunk."))
+        {
             return imp;
         }
         int lastDot = name.lastIndexOf('.');
         String simpleName = name.substring(lastDot + 1);
         String className = name.substring("org.jctools.queues.".length(), lastDot);
-        if (!className.endsWith("Chunk")) {
+        if (!className.endsWith("Chunk"))
+        {
             return imp;
         }
         return new ImportDeclaration(outputPackage + "." + translateQueueName(className) + "." + simpleName, true, false);

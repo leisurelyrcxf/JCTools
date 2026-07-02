@@ -22,13 +22,15 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 
-public class CompilerTest {
+public class CompilerTest
+{
 
     @Test
-    public void validJavaCodeCompiles() throws Exception {
+    public void validJavaCodeCompiles() throws Exception
+    {
         // given
         String javaSource =
-                "import java.util.concurrent.Callable;" +
+            "import java.util.concurrent.Callable;" +
                 "public class A implements Callable<String> { public String call() { return \"hi\"; } }";
         SimpleCompiler compiler = new SimpleCompiler();
 
@@ -39,13 +41,16 @@ public class CompilerTest {
         assertTrue("Failed compile: " + result.getDiagnostics(), result.isSuccessful());
         assertThat(result.getDiagnostics(), hasSize(0));
 
-        @SuppressWarnings("unchecked")
-        Callable<String> a = (Callable<String>) result.getClassLoader().loadClass("A").newInstance();
+        @SuppressWarnings("unchecked") Callable<String> a = (Callable<String>) result
+            .getClassLoader()
+            .loadClass("A")
+            .newInstance();
         assertEquals("hi", a.call());
     }
 
     @Test
-    public void invalidJavaFailsToCompile() throws Exception {
+    public void invalidJavaFailsToCompile() throws Exception
+    {
         // given
         String javaSource = "class A implements Callable<String> { public String call() { return \"hi\"; } }";
         SimpleCompiler compiler = new SimpleCompiler();

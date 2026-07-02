@@ -17,7 +17,8 @@ package org.jctools.channels;
  * The consumer is the object which controls the reading of messages from a
  * channel. Each consumer should only be assigned to a single thread.
  */
-public interface ChannelConsumer {
+public interface ChannelConsumer
+{
 
     /**
      * Read a message from the channel.

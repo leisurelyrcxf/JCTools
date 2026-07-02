@@ -6,7 +6,8 @@ package org.jctools.jmh.counters;
  *
  * @author Tolstopyatov Vsevolod
  */
-abstract class Counter {
+abstract class Counter
+{
 
     abstract void inc();
 

@@ -36,9 +36,9 @@ public class QueueBurstCost
 {
     private static final long DELAY_PRODUCER = Long.getLong("delay.p", 0L);
     private static final long DELAY_CONSUMER = Long.getLong("delay.c", 0L);
-    @Param( {"SpscArrayQueue", "MpscArrayQueue", "SpmcArrayQueue", "MpmcArrayQueue"})
+    @Param({"SpscArrayQueue", "MpscArrayQueue", "SpmcArrayQueue", "MpmcArrayQueue"})
     String qType;
-    @Param( {"100"})
+    @Param({"100"})
     int burstSize;
     @Param("1")
     int consumerCount;
@@ -236,8 +236,8 @@ public class QueueBurstCost
 
     static class ConsumerPad
     {
-        public long p40, p41, p42, p43, p44, p45, p46;
-        public long p30, p31, p32, p33, p34, p35, p36, p37;
+        public long p40,p41,p42,p43,p44,p45,p46;
+        public long p30,p31,p32,p33,p34,p35,p36,p37;
     }
 
     static class ConsumerFields extends ConsumerPad
@@ -250,8 +250,8 @@ public class QueueBurstCost
 
     static class Consumer extends ConsumerFields implements Runnable
     {
-        public long p40, p41, p42, p43, p44, p45, p46;
-        public long p30, p31, p32, p33, p34, p35, p36, p37;
+        public long p40,p41,p42,p43,p44,p45,p46;
+        public long p30,p31,p32,p33,p34,p35,p36,p37;
         private final int consumerId;
 
         public Consumer(Queue<Event> q, int consumerId)

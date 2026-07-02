@@ -37,37 +37,47 @@ import org.openjdk.jmh.annotations.Warmup;
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @SuppressWarnings("serial")
-public class MpqRelaxedBurstCost {
-    abstract static class AbstractEvent extends AtomicBoolean {
+public class MpqRelaxedBurstCost
+{
+    abstract static class AbstractEvent extends AtomicBoolean
+    {
         abstract void handle();
     }
 
-    static class Go extends AbstractEvent {
+    static class Go extends AbstractEvent
+    {
         @Override
-        void handle() {
+        void handle()
+        {
             // do nothing
         }
     }
 
-    static class Stop extends AbstractEvent {
+    static class Stop extends AbstractEvent
+    {
         @Override
-        void handle() {
+        void handle()
+        {
             lazySet(true);
         }
     }
 
-    static class Consumer implements Runnable {
+    static class Consumer implements Runnable
+    {
         final MessagePassingQueue<AbstractEvent> q;
         volatile boolean isRunning = true;
 
-        public Consumer(MessagePassingQueue<AbstractEvent> q) {
+        public Consumer(MessagePassingQueue<AbstractEvent> q)
+        {
             this.q = q;
         }
 
         @Override
-        public void run() {
+        public void run()
+        {
             final MessagePassingQueue<AbstractEvent> q = this.q;
-            while (isRunning) {
+            while (isRunning)
+            {
                 AbstractEvent e = null;
                 while ((e = q.relaxedPoll()) == null);
                 e.handle();
@@ -79,10 +89,10 @@ public class MpqRelaxedBurstCost {
     static final Go GO = new Go();
     final Stop stop = new Stop();
 
-    @Param({ "SpscArrayQueue", "MpscArrayQueue", "SpmcArrayQueue", "MpmcArrayQueue" })
+    @Param({"SpscArrayQueue", "MpscArrayQueue", "SpmcArrayQueue", "MpmcArrayQueue"})
     String qType;
 
-    @Param({ "1", "10", "100", "1000" })
+    @Param({"1", "10", "100", "1000"})
     int burstSize;
 
     MessagePassingQueue<AbstractEvent> q;
@@ -91,18 +101,22 @@ public class MpqRelaxedBurstCost {
     private Consumer consumer;
 
     @Setup(Level.Trial)
-    public void setupQueueAndConsumer() {
+    public void setupQueueAndConsumer()
+    {
         q = MessagePassingQueueByTypeFactory.createQueue(qType, 128);
 
         // stretch the queue to the limit, working through resizing and full
-        for (int i = 0; i < 128 + 100; i++) {
+        for (int i = 0; i < 128 + 100; i++)
+        {
             q.relaxedOffer(GO);
         }
-        for (int i = 0; i < 128 + 100; i++) {
+        for (int i = 0; i < 128 + 100; i++)
+        {
             q.relaxedPoll();
         }
         // make sure the important common case is exercised
-        for (int i = 0; i < 20000; i++) {
+        for (int i = 0; i < 20000; i++)
+        {
             q.relaxedOffer(GO);
             q.relaxedPoll();
         }
@@ -113,13 +127,15 @@ public class MpqRelaxedBurstCost {
     }
 
     @Benchmark
-    public void burstCost() {
+    public void burstCost()
+    {
         final Stop stop = this.stop;
         final int burst = burstSize;
         final MessagePassingQueue<AbstractEvent> q = this.q;
         final Go go = GO;
         stop.lazySet(false);
-        for (int i = 0; i < burst - 1; i++) {
+        for (int i = 0; i < burst - 1; i++)
+        {
             while (!q.relaxedOffer(go));
         }
 
@@ -129,7 +145,8 @@ public class MpqRelaxedBurstCost {
     }
 
     @TearDown
-    public void killConsumer() throws InterruptedException {
+    public void killConsumer() throws InterruptedException
+    {
         consumer.isRunning = false;
         while (!q.relaxedOffer(GO));
         consumerThread.join();

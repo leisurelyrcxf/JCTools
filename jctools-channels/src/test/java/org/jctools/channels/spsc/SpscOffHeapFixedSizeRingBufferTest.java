@@ -16,13 +16,15 @@ package org.jctools.channels.spsc;
 import org.jctools.channels.AbstractOffHeapFixedSizeRingBufferTest;
 import org.junit.Test;
 
-public class SpscOffHeapFixedSizeRingBufferTest extends AbstractOffHeapFixedSizeRingBufferTest {
+public class SpscOffHeapFixedSizeRingBufferTest extends AbstractOffHeapFixedSizeRingBufferTest
+{
 
-	@Test
-	public void test() {
+    @Test
+    public void test()
+    {
         // TODO: Needs test for when referenceMessageSize > 0
-		SpscOffHeapFixedSizeRingBuffer rb = new SpscOffHeapFixedSizeRingBuffer(1024, 31, 0);
-		test(rb);
-	}
+        SpscOffHeapFixedSizeRingBuffer rb = new SpscOffHeapFixedSizeRingBuffer(1024, 31, 0);
+        test(rb);
+    }
 
 }

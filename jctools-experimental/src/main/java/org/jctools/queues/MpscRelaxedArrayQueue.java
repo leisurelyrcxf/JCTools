@@ -1,5 +1,4 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
+/** Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -15,8 +14,7 @@
  * limitations under the License.
  *
  * This is a port of the algorithm used here:
- * https://github.com/real-logic/aeron/blob/c715c19852c8455c92e73c3167e7d43021d9a384/aeron-client/src/main/java/io/aeron/Publication.java
- */
+ * https://github.com/real-logic/aeron/blob/c715c19852c8455c92e73c3167e7d43021d9a384/aeron-client/src/main/java/io/aeron/Publication.java */
 
 package org.jctools.queues;
 
@@ -54,7 +52,8 @@ abstract class MpscRelaxedArrayQueueL0Pad<E> extends AbstractQueue<E>
 
 abstract class MpscRelaxedArrayQueueActiveCycleIdField<E> extends MpscRelaxedArrayQueueL0Pad<E>
 {
-    private static final long ACTIVE_CYCLE_ID_OFFSET = fieldOffset(MpscRelaxedArrayQueueActiveCycleIdField.class, "activeCycleId");
+    private static final long ACTIVE_CYCLE_ID_OFFSET = fieldOffset(MpscRelaxedArrayQueueActiveCycleIdField.class,
+        "activeCycleId");
 
     private volatile long activeCycleId;
 
@@ -227,8 +226,8 @@ abstract class MpscRelaxedArrayQueueProducerCycleClaimFields<E> extends MpscRela
 
 abstract class MpscRelaxedArrayQueueL4Pad<E> extends MpscRelaxedArrayQueueProducerCycleClaimFields<E>
 {
-    long p01, p02, p03, p04, p05, p06;
-    long p10, p11, p12, p13, p14, p15, p16, p17;
+    long p01,p02,p03,p04,p05,p06;
+    long p10,p11,p12,p13,p14,p15,p16,p17;
 }
 
 /**
@@ -354,7 +353,8 @@ public class MpscRelaxedArrayQueue<E> extends MpscRelaxedArrayQueueL4Pad<E> impl
                     producerCycleClaim,
                     cycleId,
                     positionWithinCycle,
-                    cycleLengthLog2, slowProducer))
+                    cycleLengthLog2,
+                    slowProducer))
                 {
                     //the claim has been rollbacked and can be retried
                     continue;
@@ -392,7 +392,8 @@ public class MpscRelaxedArrayQueue<E> extends MpscRelaxedArrayQueueL4Pad<E> impl
     private void rotateCycle(
         final long claimCycleId,
         final int cycleIdBitShift,
-        final long maxCycleId)
+        final long maxCycleId
+    )
     {
         if (claimCycleId >= maxCycleId)
         {
@@ -439,7 +440,8 @@ public class MpscRelaxedArrayQueue<E> extends MpscRelaxedArrayQueueL4Pad<E> impl
         final long cycleId,
         final int positionOnCycle,
         final int cycleLengthLog2,
-        final boolean slowProducer)
+        final boolean slowProducer
+    )
     {
         final long producerPosition = producerPosition(positionOnCycle, cycleId, cycleLengthLog2);
         final long claimLimit = lvProducerLimit();
@@ -462,7 +464,8 @@ public class MpscRelaxedArrayQueue<E> extends MpscRelaxedArrayQueueL4Pad<E> impl
     private boolean fixProducerOverClaim(
         final int activeCycleIndex,
         final long producerCycleClaim,
-        final boolean slowProducer)
+        final boolean slowProducer
+    )
     {
         final long expectedProducerCycleClaim = producerCycleClaim + 1;
         //try to fix the overclaim bringing it back to a lower or a safe position
@@ -866,7 +869,8 @@ public class MpscRelaxedArrayQueue<E> extends MpscRelaxedArrayQueueL4Pad<E> impl
         long producerCycleClaim,
         int positionOnCycleMask,
         int cycleIdBitShift,
-        int cycleLengthLog2)
+        int cycleLengthLog2
+    )
     {
         final int positionWithinCycle = positionWithinCycle(producerCycleClaim, positionOnCycleMask);
         final long producerClaimCycleId = producerClaimCycleId(producerCycleClaim, cycleIdBitShift);
@@ -883,7 +887,8 @@ public class MpscRelaxedArrayQueue<E> extends MpscRelaxedArrayQueueL4Pad<E> impl
     private static long producerPosition(
         int positionWithinCycle,
         long cycleId,
-        int cycleLengthLog2)
+        int cycleLengthLog2
+    )
     {
         return (cycleId << cycleLengthLog2) + positionWithinCycle;
     }
@@ -894,7 +899,8 @@ public class MpscRelaxedArrayQueue<E> extends MpscRelaxedArrayQueueL4Pad<E> impl
     private static int calcElementIndexInBuffer(
         int positionWithinCycle,
         int cycleIndex,
-        int cycleLengthLog2)
+        int cycleLengthLog2
+    )
     {
         return (cycleIndex << cycleLengthLog2) + positionWithinCycle;
     }

@@ -19,34 +19,41 @@ import java.util.List;
 import static java.util.Collections.unmodifiableList;
 
 
-public final class CompilationResult {
+public final class CompilationResult
+{
 
     private final List<Diagnostic<StringWrappingJavaFile>> diagnostics;
     private final ClassLoader classLoader;
 
-    public CompilationResult(final ClassLoader classLoader, List<Diagnostic<StringWrappingJavaFile>> diagnostics) {
+    public CompilationResult(final ClassLoader classLoader, List<Diagnostic<StringWrappingJavaFile>> diagnostics)
+    {
         this.diagnostics = diagnostics;
         this.classLoader = classLoader;
     }
 
-    public CompilationResult(List<Diagnostic<StringWrappingJavaFile>> diagnostics) {
+    public CompilationResult(List<Diagnostic<StringWrappingJavaFile>> diagnostics)
+    {
         this(null, diagnostics);
     }
 
-    public List<Diagnostic<StringWrappingJavaFile>> getDiagnostics() {
+    public List<Diagnostic<StringWrappingJavaFile>> getDiagnostics()
+    {
         return unmodifiableList(diagnostics);
     }
 
-    public boolean isSuccessful() {
+    public boolean isSuccessful()
+    {
         return classLoader != null;
     }
 
-    public ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader()
+    {
         return classLoader;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return isSuccessful() ? "Compilation was successful" : "Errors:\n" + diagnostics.toString();
     }
 }

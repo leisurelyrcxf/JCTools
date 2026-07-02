@@ -18,7 +18,8 @@ package org.jctools.channels;
  *
  * @param <E> element type
  */
-public interface ChannelReceiver<E> {
+public interface ChannelReceiver<E>
+{
 
     /**
      * New elements are passed into this method.

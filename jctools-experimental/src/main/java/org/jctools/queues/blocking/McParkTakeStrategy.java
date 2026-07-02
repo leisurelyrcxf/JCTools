@@ -7,7 +7,8 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 public final class McParkTakeStrategy<E> implements TakeStrategy<E>
 {
-    private static final AtomicLongFieldUpdater<McParkTakeStrategy> WAITERS_UPDATER = AtomicLongFieldUpdater.newUpdater(McParkTakeStrategy.class, "waiters");
+    private static final AtomicLongFieldUpdater<McParkTakeStrategy> WAITERS_UPDATER = AtomicLongFieldUpdater
+        .newUpdater(McParkTakeStrategy.class, "waiters");
     private volatile long waiters = 0;
     private final Object obj = new Object();
 

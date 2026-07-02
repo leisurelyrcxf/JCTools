@@ -14,7 +14,6 @@
 package org.jctools.queues;
 
 
-
 /**
  * An MPMC array queue which grows unbounded in linked chunks.<br>
  * Differently from {@link MpmcArrayQueue} it is designed to provide a better scaling when more
@@ -112,7 +111,8 @@ public class MpmcUnboundedXaddArrayQueue<E> extends MpUnboundedXaddArrayQueue<Mp
             ciChunkIndex = cIndex >> chunkShift;
 
             final long ccChunkIndex = cChunk.lvIndex();
-            if (ciChunkOffset == 0 && cIndex != 0) {
+            if (ciChunkOffset == 0 && cIndex != 0)
+            {
                 if (ciChunkIndex - ccChunkIndex != 1)
                 {
                     continue;
@@ -204,7 +204,7 @@ public class MpmcUnboundedXaddArrayQueue<E> extends MpUnboundedXaddArrayQueue<Mp
             {
                 e = cChunk.lvElement(ciChunkOffset);
             }
-            assert !cChunk.isPooled() ||  (cChunk.isPooled() && cChunk.lvSequence(ciChunkOffset) == ciChunkIndex);
+            assert !cChunk.isPooled() || (cChunk.isPooled() && cChunk.lvSequence(ciChunkOffset) == ciChunkIndex);
 
             cChunk.soElement(ciChunkOffset, null);
         }
@@ -214,12 +214,15 @@ public class MpmcUnboundedXaddArrayQueue<E> extends MpUnboundedXaddArrayQueue<Mp
     private E switchToNextConsumerChunkAndPoll(
         MpmcUnboundedXaddChunk<E> cChunk,
         MpmcUnboundedXaddChunk<E> next,
-        long expectedChunkIndex)
+        long expectedChunkIndex
+    )
     {
-        if (next == null) {
+        if (next == null)
+        {
             final long ccChunkIndex = expectedChunkIndex - 1;
             assert cChunk.lvIndex() == ccChunkIndex;
-            if (lvProducerChunkIndex() == ccChunkIndex) {
+            if (lvProducerChunkIndex() == ccChunkIndex)
+            {
                 // no need to help too much here or the consumer latency will be hurt
                 next = appendNextChunks(cChunk, ccChunkIndex, 1);
             }
@@ -278,7 +281,9 @@ public class MpmcUnboundedXaddArrayQueue<E> extends MpUnboundedXaddArrayQueue<Mp
                 {
                     continue;
                 }
-            } else {
+            }
+            else
+            {
                 if (cChunk.lvIndex() != ciChunkIndex)
                 {
                     continue;

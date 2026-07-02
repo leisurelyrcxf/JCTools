@@ -24,6 +24,7 @@ import static org.jctools.util.TestUtil.makeParams;
 public class MpqSanityTestMpscBlockingConsumerExtended
 {
     final Supplier<MessagePassingBlockingQueue<Object>> factory;
+
     public MpqSanityTestMpscBlockingConsumerExtended(Supplier<MessagePassingBlockingQueue<Object>> factory)
     {
         this.factory = factory;
@@ -45,9 +46,11 @@ public class MpqSanityTestMpscBlockingConsumerExtended
      * You will need to debug to observe the spin.
      */
     @Test
-    public void testSpinWaitForUnblockForeverFill() throws InterruptedException {
+    public void testSpinWaitForUnblockForeverFill() throws InterruptedException
+    {
 
-        class Echo<T> implements Runnable {
+        class Echo<T> implements Runnable
+        {
             final MessagePassingBlockingQueue<T> source;
             final MessagePassingBlockingQueue<T> sink;
             final int interations;
@@ -56,32 +59,42 @@ public class MpqSanityTestMpscBlockingConsumerExtended
             Echo(
                 MessagePassingBlockingQueue<T> source,
                 MessagePassingBlockingQueue<T> sink,
-                    int iterations,
-                    int batch) {
+                int iterations,
+                int batch
+            )
+            {
                 this.source = source;
                 this.sink = sink;
                 this.interations = iterations;
                 this.batch = batch;
             }
 
-            public void run() {
+            public void run()
+            {
                 Queue<T> batchContainer = new ArrayDeque<>(batch);
-                try {
-                    for (int i = 0; i < interations; ++i) {
-                        for (int j = 0; j < batch; j++) {
+                try
+                {
+                    for (int i = 0; i < interations; ++i)
+                    {
+                        for (int j = 0; j < batch; j++)
+                        {
                             T t;
-                            do {
+                            do
+                            {
                                 t = source.poll(1, TimeUnit.NANOSECONDS);
                             }
                             while (t == null);
                             batchContainer.add(t);
                         }
-                        do {
+                        do
+                        {
                             sink.fill(() -> batchContainer.poll(), batchContainer.size());
-                        } while (!batchContainer.isEmpty());
+                        }
+                        while (!batchContainer.isEmpty());
                     }
                 }
-                catch (InterruptedException e) {
+                catch (InterruptedException e)
+                {
                     throw new AssertionError(e);
                 }
             }
@@ -103,9 +116,11 @@ public class MpqSanityTestMpscBlockingConsumerExtended
     }
 
     @Test(timeout = TEST_TIMEOUT)
-    public void testSpinWaitForUnblockDrainForever() throws InterruptedException {
+    public void testSpinWaitForUnblockDrainForever() throws InterruptedException
+    {
 
-        class Echo<T> implements Runnable{
+        class Echo<T> implements Runnable
+        {
             private MessagePassingBlockingQueue<T> source;
             private MessagePassingBlockingQueue<T> sink;
             private int interations;
@@ -113,18 +128,24 @@ public class MpqSanityTestMpscBlockingConsumerExtended
             Echo(
                 MessagePassingBlockingQueue<T> source,
                 MessagePassingBlockingQueue<T> sink,
-                int interations) {
+                int interations
+            )
+            {
                 this.source = source;
                 this.sink = sink;
                 this.interations = interations;
             }
 
-            public void run() {
+            public void run()
+            {
                 ArrayDeque<T> ints = new ArrayDeque<>();
-                try {
-                    for (int i = 0; i < interations; ++i) {
+                try
+                {
+                    for (int i = 0; i < interations; ++i)
+                    {
                         T t;
-                        do {
+                        do
+                        {
                             source.drain(ints::offer, 1, 1, NANOSECONDS);
                             t = ints.poll();
                         }
@@ -133,7 +154,8 @@ public class MpqSanityTestMpscBlockingConsumerExtended
                         sink.put(t);
                     }
                 }
-                catch (InterruptedException e) {
+                catch (InterruptedException e)
+                {
                     throw new AssertionError(e);
                 }
             }

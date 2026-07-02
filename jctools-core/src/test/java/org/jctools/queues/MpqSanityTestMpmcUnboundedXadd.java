@@ -146,7 +146,8 @@ public class MpqSanityTestMpmcUnboundedXadd extends MpqSanityTest
 
                 while (messageQueue.size() >= capacity - chunkSize)
                 {
-                    if (stop.getCount() == 0) {
+                    if (stop.getCount() == 0)
+                    {
                         return;
                     }
                     Thread.yield();
@@ -179,7 +180,8 @@ public class MpqSanityTestMpmcUnboundedXadd extends MpqSanityTest
 
                 while (messageQueue.size() < chunkSize)
                 {
-                    if (stop.getCount() == 0) {
+                    if (stop.getCount() == 0)
+                    {
                         return;
                     }
                     Thread.yield();

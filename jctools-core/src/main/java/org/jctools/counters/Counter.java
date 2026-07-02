@@ -5,7 +5,8 @@ package org.jctools.counters;
  *
  * @author Tolstopyatov Vsevolod
  */
-public interface Counter {
+public interface Counter
+{
 
     void inc();
 

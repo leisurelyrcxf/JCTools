@@ -4,7 +4,8 @@ package org.jctools.queues;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
-public final class MpscLinkedArrayQueue<T> extends AbstractQueue<T> {
+public final class MpscLinkedArrayQueue<T> extends AbstractQueue<T>
+{
     final AtomicLong producerIndex;
     final AtomicReference<ARA2> producerArray;
 
@@ -16,7 +17,8 @@ public final class MpscLinkedArrayQueue<T> extends AbstractQueue<T> {
 
     static final Object ALLOCATING = new Object();
 
-    public MpscLinkedArrayQueue(int arrayCapacity) {
+    public MpscLinkedArrayQueue(int arrayCapacity)
+    {
         int c = arrayCapacity;
         this.maxOffset = c - 1;
         ARA2 array = new ARA2(c + 1, 0);
@@ -28,7 +30,8 @@ public final class MpscLinkedArrayQueue<T> extends AbstractQueue<T> {
     }
 
     @Override
-    public boolean offer(T value) {
+    public boolean offer(T value)
+    {
         Objects.requireNonNull(value);
 
         final int m = maxOffset;
@@ -39,40 +42,53 @@ public final class MpscLinkedArrayQueue<T> extends AbstractQueue<T> {
         long start = array.start;
         long end = array.end;
 
-        if (start - index > 0L) {
+        if (start - index > 0L)
+        {
             throw new IllegalStateException(index + " vs. " + start);
-        } else
-        if (index < end) {
-            int offset = (int)(index - start);
+        }
+        else
+            if (index < end)
+        {
+            int offset = (int) (index - start);
             array.lazySet(offset, value);
         }
-        else { //(index >= end)
-            for (;;) {
+            else
+        { //(index >= end)
+            for (;;)
+            {
                 Object nextArray = array.next();
-                if (nextArray == null) {
-                    if (array.casNext(null, ALLOCATING)) {
+                if (nextArray == null)
+                {
+                    if (array.casNext(null, ALLOCATING))
+                    {
                         nextArray = new ARA2(m + 2, end);
                         array.svNext(nextArray);
-                    } else {
+                    }
+                    else
+                    {
                         while ((nextArray = array.next()) == ALLOCATING);
                     }
-                } else {
+                }
+                else
+                {
                     while ((nextArray = array.next()) == ALLOCATING);
                 }
 
-                ARA2 nextArray2 = (ARA2)nextArray;
-                if (array.end < index) {
+                ARA2 nextArray2 = (ARA2) nextArray;
+                if (array.end < index)
+                {
                     producerArray.compareAndSet(array, nextArray2);
                 }
                 array = nextArray2;
 
                 start = end;
                 end = array.end;
-                if (index < end) {
+                if (index < end)
+                {
                     break;
                 }
             }
-            int offset = (int)(index - start);
+            int offset = (int) (index - start);
             array.lazySet(offset, value);
         }
 
@@ -81,161 +97,201 @@ public final class MpscLinkedArrayQueue<T> extends AbstractQueue<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public T poll() {
+    public T poll()
+    {
         final long index = consumerIndex.get();
         ARA2 array = consumerArray;
         int offset = consumerOffset;
         final int m = maxOffset;
-        if (offset > m) {
-            for (;;) {
+        if (offset > m)
+        {
+            for (;;)
+            {
                 Object next = array.next();
-                if (next == ALLOCATING) {
+                if (next == ALLOCATING)
+                {
                     continue;
                 }
-                if (next != null) {
+                if (next != null)
+                {
                     offset = 0;
-                    array = (ARA2)next;
+                    array = (ARA2) next;
                     consumerArray = array;
                     break;
                 }
-                if (producerIndex.get() <= index) {
+                if (producerIndex.get() <= index)
+                {
                     return null;
                 }
             }
         }
-        for (;;) {
+        for (;;)
+        {
             Object o = array.get(offset);
-            if (o != null) {
+            if (o != null)
+            {
                 consumerOffset = offset + 1;
                 consumerIndex.lazySet(index + 1);
                 array.lazySet(offset, null);
-                return (T)o;
+                return (T) o;
             }
-            if (producerIndex.get() <= index) {
+            if (producerIndex.get() <= index)
+            {
                 return null;
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    public T weakPoll() {
+    public T weakPoll()
+    {
         final long index = consumerIndex.get();
         ARA2 array = consumerArray;
         int offset = consumerOffset;
         final int m = maxOffset;
-        if (offset > m) {
+        if (offset > m)
+        {
             Object next = array.next();
-            if (next == null || next == ALLOCATING) {
+            if (next == null || next == ALLOCATING)
+            {
                 return null;
             }
             offset = 0;
-            array = (ARA2)next;
+            array = (ARA2) next;
             consumerOffset = 0;
             consumerArray = array;
         }
         Object o = array.get(offset);
-        if (o != null) {
+        if (o != null)
+        {
             consumerOffset = offset + 1;
             consumerIndex.lazySet(index + 1);
             array.lazySet(offset, null);
-            return (T)o;
+            return (T) o;
         }
         return null;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public T peek() {
+    public T peek()
+    {
         final long index = consumerIndex.get();
         ARA2 array = consumerArray;
         int offset = consumerOffset;
         final int m = maxOffset;
-        if (offset > m) {
-            for (;;) {
+        if (offset > m)
+        {
+            for (;;)
+            {
                 Object next = array.next();
-                if (next == ALLOCATING) {
+                if (next == ALLOCATING)
+                {
                     continue;
                 }
-                if (next != null) {
+                if (next != null)
+                {
                     offset = 0;
-                    array = (ARA2)next;
+                    array = (ARA2) next;
                     break;
                 }
-                if (producerIndex.get() <= index) {
+                if (producerIndex.get() <= index)
+                {
                     return null;
                 }
             }
         }
-        for (;;) {
+        for (;;)
+        {
             Object o = array.get(offset);
-            if (o != null) {
-                return (T)o;
+            if (o != null)
+            {
+                return (T) o;
             }
-            if (producerIndex.get() <= index) {
+            if (producerIndex.get() <= index)
+            {
                 return null;
             }
         }
     }
+
     @SuppressWarnings("unchecked")
-    public T weakPeek() {
+    public T weakPeek()
+    {
         ARA2 array = consumerArray;
         int offset = consumerOffset;
         final int m = maxOffset;
-        if (offset > m) {
+        if (offset > m)
+        {
             Object next = array.next();
-            if (next == null || next == ALLOCATING) {
+            if (next == null || next == ALLOCATING)
+            {
                 return null;
             }
             offset = 0;
-            array = (ARA2)next;
+            array = (ARA2) next;
         }
         Object o = array.get(offset);
-        return (T)o;
+        return (T) o;
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return consumerIndex.get() == producerIndex.get();
     }
 
     @Override
-    public int size() {
+    public int size()
+    {
         long after = consumerIndex.get();
-        for (;;) {
+        for (;;)
+        {
             final long before = after;
             final long pidx = producerIndex.get();
             after = consumerIndex.get();
-            if (before == after) {
-                return (int)(pidx - before);
+            if (before == after)
+            {
+                return (int) (pidx - before);
             }
         }
     }
 
-    static final class ARA2 extends AtomicReferenceArray<Object> {
+    static final class ARA2 extends AtomicReferenceArray<Object>
+    {
         /** */
         private static final long serialVersionUID = -2977670280800260365L;
         public final long start;
         public final long end;
         final int nextOffset;
-        public ARA2(int capacity, long start) {
+
+        public ARA2(int capacity, long start)
+        {
             super(capacity);
             this.start = start;
             this.end = start + capacity - 1;
             this.nextOffset = capacity - 1;
         }
-        public Object next() {
+
+        public Object next()
+        {
             return get(nextOffset);
         }
-        public boolean casNext(Object expected, Object newValue) {
+
+        public boolean casNext(Object expected, Object newValue)
+        {
             return compareAndSet(nextOffset, expected, newValue);
         }
-        public void svNext(Object newNext) {
+
+        public void svNext(Object newNext)
+        {
             set(nextOffset, newNext);
         }
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<T> iterator()
+    {
         throw new UnsupportedOperationException();
     }
 }

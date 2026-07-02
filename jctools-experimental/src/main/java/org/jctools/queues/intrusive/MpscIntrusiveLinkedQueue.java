@@ -22,7 +22,8 @@ import static org.jctools.util.UnsafeAccess.fieldOffset;
  *
  * @see Node
  */
-abstract class MpscIntrusiveLinkedQueuePad0 {
+abstract class MpscIntrusiveLinkedQueuePad0
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -41,21 +42,26 @@ abstract class MpscIntrusiveLinkedQueuePad0 {
 //    byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 }
 
-abstract class MpscIntrusiveLinkedQueueProducerNodeRef extends MpscIntrusiveLinkedQueuePad0 {
+abstract class MpscIntrusiveLinkedQueueProducerNodeRef extends MpscIntrusiveLinkedQueuePad0
+{
     private final static long P_NODE_OFFSET = fieldOffset(MpscIntrusiveLinkedQueueProducerNodeRef.class, "producerNode");
 
     private volatile Node producerNode;
 
-    protected final Node lvProducerNode() {
+    protected final Node lvProducerNode()
+    {
         return producerNode;
     }
-    protected final Node xchgProducerNode(Node node) {
+
+    protected final Node xchgProducerNode(Node node)
+    {
         // TODO: add support for JDK < 8 per org.jctools.queues.MpscLinkedQueue / MpscLinkedQueue8
         return (Node) UNSAFE.getAndSetObject(this, P_NODE_OFFSET, node);
     }
 }
 
-abstract class MpscIntrusiveLinkedQueuePad1 extends MpscIntrusiveLinkedQueueProducerNodeRef {
+abstract class MpscIntrusiveLinkedQueuePad1 extends MpscIntrusiveLinkedQueueProducerNodeRef
+{
     byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b
     byte b010,b011,b012,b013,b014,b015,b016,b017;// 16b
     byte b020,b021,b022,b023,b024,b025,b026,b027;// 24b
@@ -74,37 +80,46 @@ abstract class MpscIntrusiveLinkedQueuePad1 extends MpscIntrusiveLinkedQueueProd
 //    byte b170,b171,b172,b173,b174,b175,b176,b177;//128b
 }
 
-abstract class MpscIntrusiveLinkedQueueConsumerNodeRef extends MpscIntrusiveLinkedQueuePad1 {
+abstract class MpscIntrusiveLinkedQueueConsumerNodeRef extends MpscIntrusiveLinkedQueuePad1
+{
     private final static long C_NODE_OFFSET = fieldOffset(MpscIntrusiveLinkedQueueConsumerNodeRef.class, "consumerNode");
 
     private Node consumerNode;
 
     protected final Node stub = new NodeImpl();
 
-    protected final void spConsumerNode(Node node) {
+    protected final void spConsumerNode(Node node)
+    {
         consumerNode = node;
     }
 
-    protected final Node lvConsumerNode() {
+    protected final Node lvConsumerNode()
+    {
         return (Node) UNSAFE.getObjectVolatile(this, C_NODE_OFFSET);
     }
 
-    protected final Node lpConsumerNode() {
+    protected final Node lpConsumerNode()
+    {
         return consumerNode;
     }
 }
-public class MpscIntrusiveLinkedQueue extends MpscIntrusiveLinkedQueueConsumerNodeRef {
-    long p01, p02, p03, p04, p05, p06, p07;
-    long p10, p11, p12, p13, p14, p15, p16, p17;
 
-    public MpscIntrusiveLinkedQueue() {
+public class MpscIntrusiveLinkedQueue extends MpscIntrusiveLinkedQueueConsumerNodeRef
+{
+    long p01,p02,p03,p04,p05,p06,p07;
+    long p10,p11,p12,p13,p14,p15,p16,p17;
+
+    public MpscIntrusiveLinkedQueue()
+    {
         super();
         spConsumerNode(stub);
         xchgProducerNode(stub);
     }
 
-    public boolean offer(Node node) {
-        if (node == null) {
+    public boolean offer(Node node)
+    {
+        if (node == null)
+        {
             throw new NullPointerException();
         }
         node.setNext(null);
@@ -114,13 +129,16 @@ public class MpscIntrusiveLinkedQueue extends MpscIntrusiveLinkedQueueConsumerNo
         return true;
     }
 
-    public Node poll() {
+    public Node poll()
+    {
         Node cNode = this.lpConsumerNode();
         Node next = cNode.getNext();
 
-        if (cNode == this.stub) {
+        if (cNode == this.stub)
+        {
             // consumer is stub, and next is null means queue is empty
-            if (next == null) {
+            if (next == null)
+            {
                 return null;
             }
 
@@ -130,7 +148,8 @@ public class MpscIntrusiveLinkedQueue extends MpscIntrusiveLinkedQueueConsumerNo
             next = next.getNext();
         }
         // cNode is not stub AND next is not null
-        if (next != null) {
+        if (next != null)
+        {
             this.spConsumerNode(next);
             // prevent GC nepotism, signal consumed to size
             cNode.setNext(stub);
@@ -139,13 +158,15 @@ public class MpscIntrusiveLinkedQueue extends MpscIntrusiveLinkedQueueConsumerNo
 
         Node pNode = this.lvProducerNode();
         // doesn't this imply a bubble?
-        if (cNode != pNode) {
+        if (cNode != pNode)
+        {
             return null;
         }
 
         offer(stub);
         next = cNode.getNext();
-        if (next != null) {
+        if (next != null)
+        {
             this.spConsumerNode(next);
             // prevent GC nepotism, signal consumed to size
             cNode.setNext(stub);
@@ -155,18 +176,23 @@ public class MpscIntrusiveLinkedQueue extends MpscIntrusiveLinkedQueueConsumerNo
         return null;
     }
 
-    public Node peek() {
+    public Node peek()
+    {
         final Node tail = this.lpConsumerNode();
 
-        if (tail == stub) {
+        if (tail == stub)
+        {
             return tail.getNext();
-        } else {
+        }
+        else
+        {
             return tail;
         }
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    public void clear() {
+    public void clear()
+    {
         while (poll() != null);
     }
 
@@ -177,12 +203,14 @@ public class MpscIntrusiveLinkedQueue extends MpscIntrusiveLinkedQueueConsumerNo
      * Note that passing nodes between queues, or concurrent requeuing of nodes can cause this method to return strange
      * values.
      */
-    public int size() {
+    public int size()
+    {
         // Read consumer first, this is important because if the producer is node is 'older' than the consumer
         // the consumer may overtake it (consume past it) invalidating the 'snapshot' notion of size.
         final Node stub = this.stub;
         Node chaserNode = lvConsumerNode();
-        if (chaserNode == stub) {
+        if (chaserNode == stub)
+        {
             chaserNode = chaserNode.getNext();
         }
 
@@ -190,9 +218,10 @@ public class MpscIntrusiveLinkedQueue extends MpscIntrusiveLinkedQueueConsumerNo
         int size = 0;
         // must chase the nodes all the way to the producer node, but there's no need to count beyond expected head.
         while (chaserNode != null && chaserNode != stub &&
-               size < Integer.MAX_VALUE) // stop at max int
+            size < Integer.MAX_VALUE) // stop at max int
         {
-            if (chaserNode == producerNode) {
+            if (chaserNode == producerNode)
+            {
                 return size + 1;
             }
             chaserNode = chaserNode.getNext();
@@ -201,7 +230,8 @@ public class MpscIntrusiveLinkedQueue extends MpscIntrusiveLinkedQueueConsumerNo
         return size;
     }
 
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return peek() == null;
     }
 

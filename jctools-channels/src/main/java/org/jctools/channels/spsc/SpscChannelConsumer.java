@@ -21,17 +21,20 @@ import java.nio.ByteBuffer;
 /**
  * Package Scoped: not part of public API.
  */
-public abstract class SpscChannelConsumer<E> extends SpscOffHeapFixedSizeRingBuffer implements ChannelConsumer {
+public abstract class SpscChannelConsumer<E> extends SpscOffHeapFixedSizeRingBuffer implements ChannelConsumer
+{
 
     protected final ChannelReceiver<E> receiver;
 
     protected long pointer;
 
     public SpscChannelConsumer(
-            final ByteBuffer buffer,
-            final int capacity,
-            final int messageSize,
-            final ChannelReceiver<E> receiver) {
+        final ByteBuffer buffer,
+        final int capacity,
+        final int messageSize,
+        final ChannelReceiver<E> receiver
+    )
+    {
 
         super(buffer, capacity, false, true, false, messageSize, null, 0);
 

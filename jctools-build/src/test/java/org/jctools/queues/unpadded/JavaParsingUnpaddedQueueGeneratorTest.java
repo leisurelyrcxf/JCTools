@@ -14,19 +14,27 @@ import static org.junit.Assert.fail;
  * End-to-end behavioural tests for {@link JavaParsingUnpaddedQueueGenerator}. The unpadded variant
  * does not patch Unsafe — it only renames classes and strips the byte-padding fields/comments.
  */
-public class JavaParsingUnpaddedQueueGeneratorTest {
+public class JavaParsingUnpaddedQueueGeneratorTest
+{
 
-    private static String generate(String source) {
-        CompilationUnit cu = new JavaParser().parse(source).getResult().orElseThrow(
+    private static String generate(String source)
+    {
+        CompilationUnit cu = new JavaParser()
+            .parse(source)
+            .getResult()
+            .orElseThrow(
                 () -> new AssertionError("parse failed"));
-        return GeneratorUtils.applyGenerator(
-                new JavaParsingUnpaddedQueueGenerator("Synthetic.java"), cu);
+        return GeneratorUtils
+            .applyGenerator(
+                new JavaParsingUnpaddedQueueGenerator("Synthetic.java"),
+                cu);
     }
 
     @Test
-    public void renamesArrayQueueAndRewritesPackage() {
+    public void renamesArrayQueueAndRewritesPackage()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class SpscArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  SpscArrayQueue(int c) { super(c); }\n" +
                 "}";
@@ -40,11 +48,12 @@ public class JavaParsingUnpaddedQueueGeneratorTest {
     }
 
     @Test
-    public void removesBytePaddingFieldsAndTheirComments() {
+    public void removesBytePaddingFieldsAndTheirComments()
+    {
         // The unpadded variant must drop both the padding declarations and the inline comments
         // that document them. cleanupPaddingComments handles any orphaned `// 8b` bands.
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class SpscArrayQueueL1Pad<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  byte b000,b001,b002,b003,b004,b005,b006,b007;//  8b\n" +
                 "  byte b170,b171,b172,b173,b174,b175,b176,b177;//128b\n" +
@@ -61,9 +70,10 @@ public class JavaParsingUnpaddedQueueGeneratorTest {
     }
 
     @Test
-    public void preservesNonPaddingComments() {
+    public void preservesNonPaddingComments()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class SpscArrayQueueL1Pad<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  // important explanation\n" +
                 "  long real;\n" +
@@ -78,9 +88,10 @@ public class JavaParsingUnpaddedQueueGeneratorTest {
     }
 
     @Test
-    public void prependsGenerationNoteJavadocPreservingOriginal() {
+    public void prependsGenerationNoteJavadocPreservingOriginal()
+    {
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "/** Original docs. */\n" +
                 "class SpscArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  SpscArrayQueue(int c) { super(c); }\n" +
@@ -93,7 +104,8 @@ public class JavaParsingUnpaddedQueueGeneratorTest {
     }
 
     @Test
-    public void translatesQueueNames() {
+    public void translatesQueueNames()
+    {
         JavaParsingUnpaddedQueueGenerator g = new JavaParsingUnpaddedQueueGenerator("x.java");
         assertEquals("SpscUnpaddedArrayQueue", g.translateQueueName("SpscArrayQueue"));
         assertEquals("MpUnboundedXaddUnpaddedChunk", g.translateQueueName("MpUnboundedXaddChunk"));
@@ -101,11 +113,12 @@ public class JavaParsingUnpaddedQueueGeneratorTest {
     }
 
     @Test
-    public void rewritesClassLiteralInsideFieldOffset() {
+    public void rewritesClassLiteralInsideFieldOffset()
+    {
         // The fieldOffset class literal is rewritten so the generated unpadded class points at
         // its own translated parent class rather than reflecting back into the padded source class.
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class MpUnboundedXaddArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  static final long P_OFFSET = fieldOffset(MpUnboundedXaddArrayQueueProducerFields.class, \"producerIndex\");\n" +
                 "  MpUnboundedXaddArrayQueue(int c) { super(c); }\n" +
@@ -114,40 +127,45 @@ public class JavaParsingUnpaddedQueueGeneratorTest {
         String out = generate(src);
 
         assertTrue("class literal rewritten: " + out,
-                out.contains("MpUnboundedXaddUnpaddedArrayQueueProducerFields.class"));
+            out.contains("MpUnboundedXaddUnpaddedArrayQueueProducerFields.class"));
         assertFalse("padded class literal removed: " + out,
-                out.contains("MpUnboundedXaddArrayQueueProducerFields.class"));
+            out.contains("MpUnboundedXaddArrayQueueProducerFields.class"));
     }
 
     @Test
-    public void failsLoudOnUnknownClassLiteralHelper() {
+    public void failsLoudOnUnknownClassLiteralHelper()
+    {
         // A class literal of a translatable type passed to anything other than fieldOffset would
         // silently leak a padded-class reference into the generated unpadded variant. The generator
         // must throw so the build fails instead.
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class SpscArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  static { Class<?> k = lookup(SpscArrayQueueProducerIndexFields.class); }\n" +
                 "  SpscArrayQueue(int c) { super(c); }\n" +
                 "  static Class<?> lookup(Class<?> c) { return c; }\n" +
                 "}";
 
-        try {
+        try
+        {
             generate(src);
             fail("expected IllegalStateException");
-        } catch (IllegalStateException expected) {
+        }
+        catch (IllegalStateException expected)
+        {
             assertTrue(expected.getMessage(),
-                    expected.getMessage().contains("SpscArrayQueueProducerIndexFields.class"));
+                expected.getMessage().contains("SpscArrayQueueProducerIndexFields.class"));
             assertTrue(expected.getMessage(), expected.getMessage().contains("lookup"));
         }
     }
 
     @Test
-    public void ignoresClassLiteralsWithoutTranslatableNames() {
+    public void ignoresClassLiteralsWithoutTranslatableNames()
+    {
         // An Integer.class arg to a non-fieldOffset helper isn't a queue/chunk type, so the
         // generator must let it through without throwing.
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "import java.util.Objects;\n" +
                 "class SpscArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  static { Objects.requireNonNull(Integer.class); }\n" +
@@ -160,12 +178,13 @@ public class JavaParsingUnpaddedQueueGeneratorTest {
     }
 
     @Test
-    public void renamesAnyPoolQueueTypeNotJustSpsc() {
+    public void renamesAnyPoolQueueTypeNotJustSpsc()
+    {
         // The pool-queue rewrite used to be hard-coded to SpscArrayQueue. A future xadd queue using
         // any other ArrayQueue for pooling would have silently kept a padded reference. Generalised
         // so any type ending with Queue or Chunk is renamed.
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class FooArrayQueue<E> extends ConcurrentCircularArrayQueue<E> {\n" +
                 "  final MpscArrayQueue<E> pool = new MpscArrayQueue<E>(8);\n" +
                 "  void take(MpscArrayQueue<E> p) {}\n" +
@@ -180,11 +199,12 @@ public class JavaParsingUnpaddedQueueGeneratorTest {
     }
 
     @Test
-    public void leavesNonQueueHelperTypesAlone() {
+    public void leavesNonQueueHelperTypesAlone()
+    {
         // LinkedQueueNode is referenced by linked queues but is not itself an outer Queue/Chunk
         // class. The unpadded variant must keep it unchanged.
         String src =
-                "package org.jctools.queues;\n" +
+            "package org.jctools.queues;\n" +
                 "class FooLinkedQueue<E> extends BaseLinkedQueue<E> {\n" +
                 "  LinkedQueueNode<E> head;\n" +
                 "  LinkedQueueNode<E> get() { return head; }\n" +

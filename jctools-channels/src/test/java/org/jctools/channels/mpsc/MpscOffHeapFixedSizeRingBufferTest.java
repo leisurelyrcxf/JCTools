@@ -16,17 +16,20 @@ package org.jctools.channels.mpsc;
 import org.jctools.channels.AbstractOffHeapFixedSizeRingBufferTest;
 import org.junit.Test;
 
-public class MpscOffHeapFixedSizeRingBufferTest extends AbstractOffHeapFixedSizeRingBufferTest {
+public class MpscOffHeapFixedSizeRingBufferTest extends AbstractOffHeapFixedSizeRingBufferTest
+{
 
     @Test
-    public void test() {
+    public void test()
+    {
         // TODO: Needs test for when referenceMessageSize > 0
         MpscOffHeapFixedSizeRingBuffer rb = new MpscOffHeapFixedSizeRingBuffer(1024, 31, 0);
         test(rb);
     }
 
     @Test
-    public void testFFLamport() {
+    public void testFFLamport()
+    {
         // TODO: Needs test for when referenceMessageSize > 0
         MpscFFLamportOffHeapFixedSizeRingBuffer rb = new MpscFFLamportOffHeapFixedSizeRingBuffer(1024, 31, 0);
         test(rb);

@@ -32,136 +32,172 @@ import static org.jctools.util.UnsafeDirectByteBuffer.allocateAlignedByteBuffer;
  * method for polling from the queue (with minor change to correctly publish the index) and an extension of
  * the Leslie Lamport concurrent queue algorithm (originated by Martin Thompson) on the producer side.<br>
  **/
-public final class MpscFFLamportOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingBuffer {
+public final class MpscFFLamportOffHeapFixedSizeRingBuffer extends OffHeapFixedMessageSizeRingBuffer
+{
 
-   public MpscFFLamportOffHeapFixedSizeRingBuffer(final int capacity, final int primitiveMessageSize, final int referenceMessageSize) {
-      this(allocateAlignedByteBuffer(getRequiredBufferSize(capacity, primitiveMessageSize), PortableJvmInfo.CACHE_LINE_SIZE), Pow2.roundToPowerOfTwo(capacity), true, true, true, primitiveMessageSize, createReferenceArray(capacity, referenceMessageSize), referenceMessageSize);
-   }
+    public MpscFFLamportOffHeapFixedSizeRingBuffer(
+        final int capacity,
+        final int primitiveMessageSize,
+        final int referenceMessageSize
+    )
+    {
+        this(allocateAlignedByteBuffer(getRequiredBufferSize(capacity, primitiveMessageSize), PortableJvmInfo.CACHE_LINE_SIZE),
+            Pow2.roundToPowerOfTwo(capacity),
+            true,
+            true,
+            true,
+            primitiveMessageSize,
+            createReferenceArray(capacity, referenceMessageSize),
+            referenceMessageSize);
+    }
 
-   private final long consumerIndexCacheAddress;
+    private final long consumerIndexCacheAddress;
 
-   /**
+    /**
     * This is to be used for an IPC queue with the direct buffer used being a memory mapped file.
     *
     * @param buff
     * @param capacity
     */
-   protected MpscFFLamportOffHeapFixedSizeRingBuffer(final ByteBuffer buff,
-                                                     final int capacity,
-                                                     final boolean isProducer,
-                                                     final boolean isConsumer,
-                                                     final boolean initialize,
-                                                     final int primitiveMessageSize,
-                                                     final Object[] references,
-                                                     final int referenceMessageSize) {
-      super(buff, capacity, isProducer, isConsumer, initialize, primitiveMessageSize, references, referenceMessageSize);
-      // Layout of the RingBuffer (assuming 64b cache line):
-      // consumerIndex(8b), pad(56b) |
-      // pad(64b) |
-      // producerIndex(8b), consumerIndexCache(8b), pad(48b) |
-      // pad(64b) |
-      // buffer (capacity * slotSize)
-      this.consumerIndexCacheAddress = this.producerIndexAddress + 8;
-   }
+    protected MpscFFLamportOffHeapFixedSizeRingBuffer(
+        final ByteBuffer buff,
+        final int capacity,
+        final boolean isProducer,
+        final boolean isConsumer,
+        final boolean initialize,
+        final int primitiveMessageSize,
+        final Object[] references,
+        final int referenceMessageSize
+    )
+    {
+        super(buff, capacity, isProducer, isConsumer, initialize, primitiveMessageSize, references, referenceMessageSize);
+        // Layout of the RingBuffer (assuming 64b cache line):
+        // consumerIndex(8b), pad(56b) |
+        // pad(64b) |
+        // producerIndex(8b), consumerIndexCache(8b), pad(48b) |
+        // pad(64b) |
+        // buffer (capacity * slotSize)
+        this.consumerIndexCacheAddress = this.producerIndexAddress + 8;
+    }
 
-   private long slowPathWriteAcquire(final long wrapPoint) {
-      final long currHead = lvConsumerIndex(); // LoadLoad
-      if (currHead <= wrapPoint) {
-         return EOF; // FULL :(
-      }
-      else {
-         // update cached value of the consumerIndex
-         spConsumerIndexCache(currHead);
-         return currHead;
-      }
-   }
+    private long slowPathWriteAcquire(final long wrapPoint)
+    {
+        final long currHead = lvConsumerIndex(); // LoadLoad
+        if (currHead <= wrapPoint)
+        {
+            return EOF; // FULL :(
+        }
+        else
+        {
+            // update cached value of the consumerIndex
+            spConsumerIndexCache(currHead);
+            return currHead;
+        }
+    }
 
-   @Override
-   protected final long writeAcquire() {
-      final long mask = this.mask;
-      final long capacity = mask + 1;
-      long consumerIndexCache = lpConsumerIndexCache();
-      long currentProducerIndex;
-      do {
-         currentProducerIndex = lvProducerIndex(); // LoadLoad
-         final long wrapPoint = currentProducerIndex - capacity;
-         if (consumerIndexCache <= wrapPoint) {
-            // update on stack copy, we might need this value again if we lose the CAS.
-            consumerIndexCache = slowPathWriteAcquire(wrapPoint);
-            if (consumerIndexCache == EOF) {
-               return EOF;
+    @Override
+    protected final long writeAcquire()
+    {
+        final long mask = this.mask;
+        final long capacity = mask + 1;
+        long consumerIndexCache = lpConsumerIndexCache();
+        long currentProducerIndex;
+        do
+        {
+            currentProducerIndex = lvProducerIndex(); // LoadLoad
+            final long wrapPoint = currentProducerIndex - capacity;
+            if (consumerIndexCache <= wrapPoint)
+            {
+                // update on stack copy, we might need this value again if we lose the CAS.
+                consumerIndexCache = slowPathWriteAcquire(wrapPoint);
+                if (consumerIndexCache == EOF)
+                {
+                    return EOF;
+                }
             }
-         }
-      } while (!casProducerIndex(currentProducerIndex, currentProducerIndex + 1));
+        }
+        while (!casProducerIndex(currentProducerIndex, currentProducerIndex + 1));
         /*
          * NOTE: the new producer index value is made visible BEFORE the element in the array. If we relied on
          * the index visibility to read it, we would need to handle the case where the element is not visible.
          */
-      // Won CAS, move on to storing
-      final long offsetForIndex = offsetForIndex(currentProducerIndex);
-      // return offset for current producer index
-      return offsetForIndex;
-   }
+        // Won CAS, move on to storing
+        final long offsetForIndex = offsetForIndex(currentProducerIndex);
+        // return offset for current producer index
+        return offsetForIndex;
+    }
 
-   @Override
-   protected final void writeRelease(long offset) {
-      //Store-Store: ensure publishing for the consumer - only one single writer per offset
-      writeReleaseState(offset);
-   }
+    @Override
+    protected final void writeRelease(long offset)
+    {
+        //Store-Store: ensure publishing for the consumer - only one single writer per offset
+        writeReleaseState(offset);
+    }
 
-   @Override
-   protected final void writeRelease(long offset, int callTypeId) {
-       UNSAFE.putOrderedInt(null, offset, callTypeId);
-   }
+    @Override
+    protected final void writeRelease(long offset, int callTypeId)
+    {
+        UNSAFE.putOrderedInt(null, offset, callTypeId);
+    }
 
-   @Override
-   protected final long readAcquire() {
-      final long consumerIndex = lpConsumerIndex();
-      final long offset = offsetForIndex(consumerIndex);
-      // If we can't see the next available element we can't poll
-      if (isReadReleased(offset)) { // LoadLoad
+    @Override
+    protected final long readAcquire()
+    {
+        final long consumerIndex = lpConsumerIndex();
+        final long offset = offsetForIndex(consumerIndex);
+        // If we can't see the next available element we can't poll
+        if (isReadReleased(offset))
+        { // LoadLoad
             /*
              * NOTE: Queue may not actually be empty in the case of a producer (P1) being interrupted after
              * winning the CAS on offer but before storing the element in the queue. Other producers may go on
              * to fill up the queue after this element.
              */
-         if (consumerIndex != lvProducerIndex()) {
-            while (isReadReleased(offset)) {
-               //NOP
+            if (consumerIndex != lvProducerIndex())
+            {
+                while (isReadReleased(offset))
+                {
+                    //NOP
+                }
             }
-         }
-         else {
-            return EOF;
-         }
-      }
-      return offset;
-   }
+            else
+            {
+                return EOF;
+            }
+        }
+        return offset;
+    }
 
-   @Override
-   protected final void readRelease(long offset) {
-      //it will not used by producer hence it can be a plain store
-      spReadReleaseState(offset);
-      //retrieve the old stored consumer index
-      //TO_TEST: on-heap variable vs off-heap
-      final long consumerIndex = lpConsumerIndex();
-      //ensure visibility of the new index AFTER writing on the slot!!!
-      soConsumerIndex(consumerIndex + 1); // StoreStore
-   }
+    @Override
+    protected final void readRelease(long offset)
+    {
+        //it will not used by producer hence it can be a plain store
+        spReadReleaseState(offset);
+        //retrieve the old stored consumer index
+        //TO_TEST: on-heap variable vs off-heap
+        final long consumerIndex = lpConsumerIndex();
+        //ensure visibility of the new index AFTER writing on the slot!!!
+        soConsumerIndex(consumerIndex + 1); // StoreStore
+    }
 
-   private boolean casProducerIndex(final long expected, long update) {
-      return UNSAFE.compareAndSwapLong(null, producerIndexAddress, expected, update);
-   }
+    private boolean casProducerIndex(final long expected, long update)
+    {
+        return UNSAFE.compareAndSwapLong(null, producerIndexAddress, expected, update);
+    }
 
-   private long lpConsumerIndexCache() {
-      return UNSAFE.getLong(null, consumerIndexCacheAddress);
-   }
+    private long lpConsumerIndexCache()
+    {
+        return UNSAFE.getLong(null, consumerIndexCacheAddress);
+    }
 
-   private void spConsumerIndexCache(final long value) {
-      UNSAFE.putLong(null, consumerIndexCacheAddress, value);
-   }
+    private void spConsumerIndexCache(final long value)
+    {
+        UNSAFE.putLong(null, consumerIndexCacheAddress, value);
+    }
 
-   private static void spReadReleaseState(final long offset) {
-      UNSAFE.putInt(null, offset, READ_RELEASE_INDICATOR);
-   }
+    private static void spReadReleaseState(final long offset)
+    {
+        UNSAFE.putInt(null, offset, READ_RELEASE_INDICATOR);
+    }
 
 }

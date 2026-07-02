@@ -38,24 +38,27 @@ import org.openjdk.jmh.annotations.Warmup;
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 10, time = 1)
-public class MpqDrainFillThroughputBackoffNone {
+public class MpqDrainFillThroughputBackoffNone
+{
     static final Object TEST_ELEMENT = 1;
     MessagePassingQueue<Integer> q;
 
-    @Param(value = { "SpscArrayQueue", "MpscArrayQueue", "SpmcArrayQueue", "MpmcArrayQueue" })
+    @Param(value = {"SpscArrayQueue", "MpscArrayQueue", "SpmcArrayQueue", "MpmcArrayQueue"})
     String qType;
 
-    @Param(value = { "132000" })
+    @Param(value = {"132000"})
     int qCapacity;
 
     @Setup()
-    public void createQandPrimeCompilation() {
+    public void createQandPrimeCompilation()
+    {
         q = MessagePassingQueueByTypeFactory.createQueue(qType, qCapacity);
     }
 
     @AuxCounters
     @State(Scope.Thread)
-    public static class PollCounters implements MessagePassingQueue.Consumer<Integer>{
+    public static class PollCounters implements MessagePassingQueue.Consumer<Integer>
+    {
         public long pollsFailed;
         public long pollsMade;
         private Integer escape;
@@ -63,9 +66,12 @@ public class MpqDrainFillThroughputBackoffNone {
         @Override
         public void accept(Integer e)
         {
-            if (e == TEST_ELEMENT) {
+            if (e == TEST_ELEMENT)
+            {
                 pollsMade++;
-            } else {
+            }
+            else
+            {
                 escape = e;
             }
         }
@@ -73,7 +79,8 @@ public class MpqDrainFillThroughputBackoffNone {
 
     @AuxCounters
     @State(Scope.Thread)
-    public static class OfferCounters implements MessagePassingQueue.Supplier<Integer>{
+    public static class OfferCounters implements MessagePassingQueue.Supplier<Integer>
+    {
         public long offersFailed;
         public long offersMade;
         private Integer element = 1;
@@ -88,9 +95,11 @@ public class MpqDrainFillThroughputBackoffNone {
 
     @Benchmark
     @Group("normal")
-    public void fill(final OfferCounters counters) {
+    public void fill(final OfferCounters counters)
+    {
         long filled = q.fill(counters);
-        if (filled == 0) {
+        if (filled == 0)
+        {
             counters.offersFailed++;
             backoff();
         }
@@ -98,16 +107,19 @@ public class MpqDrainFillThroughputBackoffNone {
 
     @Benchmark
     @Group("normal")
-    public void drain(final PollCounters counters) {
+    public void drain(final PollCounters counters)
+    {
         long drained = q.drain(counters);
-        if (drained == 0) {
+        if (drained == 0)
+        {
             counters.pollsFailed++;
             backoff();
         }
     }
 
     @TearDown(Level.Iteration)
-    public void emptyQ() {
+    public void emptyQ()
+    {
         synchronized (q)
         {
             while (q.poll() != null)
@@ -116,6 +128,7 @@ public class MpqDrainFillThroughputBackoffNone {
     }
 
     @CompilerControl(CompilerControl.Mode.DONT_INLINE)
-    protected void backoff() {
+    protected void backoff()
+    {
     }
 }

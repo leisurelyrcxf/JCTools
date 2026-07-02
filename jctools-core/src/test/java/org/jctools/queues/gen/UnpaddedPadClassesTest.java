@@ -16,16 +16,20 @@ package org.jctools.queues.gen;
 import java.util.Arrays;
 
 /** The unpadded family in jctools-core (plain unpadded + atomic unpadded). */
-public class UnpaddedPadClassesTest extends AbstractUnpaddedPadClassesTest {
+public class UnpaddedPadClassesTest extends AbstractUnpaddedPadClassesTest
+{
 
-    public UnpaddedPadClassesTest() {
+    public UnpaddedPadClassesTest()
+    {
         super(
-                Arrays.asList(
-                        "org.jctools.queues.unpadded",
-                        "org.jctools.queues.atomic.unpadded"),
-                Arrays.asList(
-                        "src/main/java/org/jctools/queues/unpadded",
-                        "src/main/java/org/jctools/queues/atomic/unpadded"),
-                10);
+            Arrays
+                .asList(
+                    "org.jctools.queues.unpadded",
+                    "org.jctools.queues.atomic.unpadded"),
+            Arrays
+                .asList(
+                    "src/main/java/org/jctools/queues/unpadded",
+                    "src/main/java/org/jctools/queues/atomic/unpadded"),
+            10);
     }
 }

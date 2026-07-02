@@ -8,17 +8,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class PaddedAtomicLongTest {
+public class PaddedAtomicLongTest
+{
 
     @Test
-    public void testDefaultConstructor() {
+    public void testDefaultConstructor()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         assertEquals(0L, counter.get());
     }
 
     @Test
-    public void testConstructor_withValue() {
+    public void testConstructor_withValue()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong(20);
 
         assertEquals(20, counter.get());
@@ -26,7 +29,8 @@ public class PaddedAtomicLongTest {
 
 
     @Test
-    public void testSet() {
+    public void testSet()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         counter.set(10);
@@ -35,7 +39,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void lazySet() {
+    public void lazySet()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         counter.lazySet(10);
@@ -44,7 +49,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testGetAndSet() {
+    public void testGetAndSet()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong(1);
 
         long result = counter.getAndSet(2);
@@ -54,7 +60,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testCompareAndSet_whenSuccess() {
+    public void testCompareAndSet_whenSuccess()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         assertTrue(counter.compareAndSet(0, 1));
@@ -62,7 +69,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testCompareAndSet_whenFailure() {
+    public void testCompareAndSet_whenFailure()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         assertFalse(counter.compareAndSet(1, 2));
@@ -70,7 +78,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testWeakCompareAndSet_whenSuccess() {
+    public void testWeakCompareAndSet_whenSuccess()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         assertTrue(counter.weakCompareAndSet(0, 1));
@@ -78,7 +87,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testWeakCompareAndSet_whenFailure() {
+    public void testWeakCompareAndSet_whenFailure()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         assertFalse(counter.weakCompareAndSet(1, 2));
@@ -86,7 +96,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testGetAndIncrement() {
+    public void testGetAndIncrement()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         long value = counter.getAndIncrement();
@@ -95,7 +106,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testGetAndDecrement() {
+    public void testGetAndDecrement()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         long value = counter.getAndDecrement();
@@ -104,7 +116,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testGetAndAdd() {
+    public void testGetAndAdd()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         long value = counter.getAndAdd(10);
@@ -113,7 +126,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testIncrementAndGet() {
+    public void testIncrementAndGet()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         long value = counter.incrementAndGet();
@@ -122,7 +136,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testDecrementAndGet() {
+    public void testDecrementAndGet()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         long value = counter.decrementAndGet();
@@ -131,7 +146,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testAddAndGet() {
+    public void testAddAndGet()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         long value = counter.addAndGet(1);
@@ -140,7 +156,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testGetAndUpdate() {
+    public void testGetAndUpdate()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         long value = counter.getAndUpdate(operand -> operand + 2);
@@ -149,7 +166,8 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testUpdateAndGet() {
+    public void testUpdateAndGet()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong();
 
         long value = counter.updateAndGet(operand -> operand + 2);
@@ -158,55 +176,62 @@ public class PaddedAtomicLongTest {
     }
 
     @Test
-    public void testGetAndAccumulate() {
+    public void testGetAndAccumulate()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong(10);
-        
-        long value = counter.getAndAccumulate(1, (left, right) -> left+right);
+
+        long value = counter.getAndAccumulate(1, (left, right) -> left + right);
 
         assertEquals(value, 10);
         assertEquals(11, counter.get());
     }
 
     @Test
-    public void testAccumulateAndGet() {
+    public void testAccumulateAndGet()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong(10);
 
-        long value = counter.accumulateAndGet(1, (left, right) -> left+right);
+        long value = counter.accumulateAndGet(1, (left, right) -> left + right);
 
         assertEquals(value, 11);
         assertEquals(11, counter.get());
     }
 
     @Test
-    public void testIntValue() {
+    public void testIntValue()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong(10);
 
         assertEquals(10, counter.intValue());
     }
 
     @Test
-    public void testLongValue() {
+    public void testLongValue()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong(10);
 
         assertEquals(10, counter.longValue());
     }
 
     @Test
-    public void testFloatValue() {
+    public void testFloatValue()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong(10);
 
         assertEquals(10f, counter.floatValue(), 0.01);
     }
 
     @Test
-    public void testDoubleValue() {
+    public void testDoubleValue()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong(10);
 
         assertEquals(10d, counter.doubleValue(), 0.01);
     }
 
     @Test
-    public void testToString() {
+    public void testToString()
+    {
         PaddedAtomicLong counter = new PaddedAtomicLong(10);
 
         assertEquals("10", counter.toString());

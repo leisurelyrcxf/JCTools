@@ -12,15 +12,20 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author nitsanw
  * 
  */
-public class ConcurrentQueueFactory {
-    public static <E> ConcurrentQueue<E> newQueue(ConcurrentQueueSpec qs) {
-        if (qs.isBounded()) {
+public class ConcurrentQueueFactory
+{
+    public static <E> ConcurrentQueue<E> newQueue(ConcurrentQueueSpec qs)
+    {
+        if (qs.isBounded())
+        {
             // SPSC
-            if (qs.consumers == 1 && qs.producers == 1) {
+            if (qs.consumers == 1 && qs.producers == 1)
+            {
 
                 return new SpscArrayConcurrentQueue<E>(qs.capacity);
             }
-            else {
+            else
+            {
                 return new MpmcArrayConcurrentQueue<E>(qs.capacity);
             }
         }
@@ -29,61 +34,73 @@ public class ConcurrentQueueFactory {
 
     // generic queue solution to fill gaps for now
     public final static class GenericQueue<E> extends ConcurrentLinkedQueue<E> implements ConcurrentQueue<E>,
-            ConcurrentQueueConsumer<E>, ConcurrentQueueProducer<E> {
+        ConcurrentQueueConsumer<E>, ConcurrentQueueProducer<E>
+    {
         private static final long serialVersionUID = -599236378503873292L;
 
         @Override
-        public ConcurrentQueueConsumer<E> consumer() {
+        public ConcurrentQueueConsumer<E> consumer()
+        {
             return this;
         }
 
         @Override
-        public ConcurrentQueueProducer<E> producer() {
+        public ConcurrentQueueProducer<E> producer()
+        {
             return this;
         }
 
         @Override
-        public int capacity() {
+        public int capacity()
+        {
             return Integer.MAX_VALUE;
         }
 
         @Override
-        public int produce(ProducerFunction<E> producer, int batchSize) {
+        public int produce(ProducerFunction<E> producer, int batchSize)
+        {
             E e;
-            int i=0;
-            for(;i<batchSize;i++) {
+            int i = 0;
+            for (; i < batchSize; i++)
+            {
                 e = producer.produce();
                 assert e != null;
                 weakOffer(e);
             }
             return i;
         }
-        
+
         @Override
-        public int consume(ConsumerFunction<E> consumer, int batchSize) {
+        public int consume(ConsumerFunction<E> consumer, int batchSize)
+        {
             E e;
-            int i=0;
-            for(;i<batchSize;i++) {
-                if((e = weakPoll()) == null){
+            int i = 0;
+            for (; i < batchSize; i++)
+            {
+                if ((e = weakPoll()) == null)
+                {
                     break;
                 }
                 consumer.consume(e);
             }
             return i;
         }
-        
+
         @Override
-        public boolean weakOffer(E e) {
+        public boolean weakOffer(E e)
+        {
             return offer(e);
         }
-        
+
         @Override
-        public E weakPoll() {
+        public E weakPoll()
+        {
             return poll();
         }
 
         @Override
-        public E weakPeek() {
+        public E weakPeek()
+        {
             return peek();
         }
     }

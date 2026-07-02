@@ -11,7 +11,7 @@ import static org.jctools.queues.atomic.AtomicQueueUtil.*;
  * which can found in the jctools-build module. The original source file is MpUnboundedXaddChunk.java.
  */
 @InternalAPI
-public class MpUnboundedXaddAtomicChunk<R,E>
+public class MpUnboundedXaddAtomicChunk<R, E>
 {
     private static final AtomicReferenceFieldUpdater<MpUnboundedXaddAtomicChunk, Object> PREV_UPDATER = AtomicReferenceFieldUpdater.newUpdater(MpUnboundedXaddAtomicChunk.class, Object.class, "prev");
     
@@ -27,6 +27,7 @@ public class MpUnboundedXaddAtomicChunk<R,E>
     private volatile R prev;
     private volatile long index;
     private volatile R next;
+
     protected MpUnboundedXaddAtomicChunk(long index, R prev, int size, boolean pooled)
     {
         buffer = allocateRefArray(size);

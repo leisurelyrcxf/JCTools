@@ -16,15 +16,18 @@ package org.jctools.queues.intrusive;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("serial")
-public class NodeImpl extends AtomicReference<Node> implements Node {
+public class NodeImpl extends AtomicReference<Node> implements Node
+{
 
     @Override
-    public void setNext(Node next) {
+    public void setNext(Node next)
+    {
         lazySet(next);
     }
 
     @Override
-    public Node getNext() {
+    public Node getNext()
+    {
         return get();
     }
 }

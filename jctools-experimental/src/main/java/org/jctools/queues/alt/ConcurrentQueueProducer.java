@@ -17,7 +17,8 @@ package org.jctools.queues.alt;
  * @author nitsanw
  * 
  */
-public interface ConcurrentQueueProducer<E> {
+public interface ConcurrentQueueProducer<E>
+{
     /**
      * @param e
      * @return true if e was successfully offered, false if queue is full
@@ -29,6 +30,6 @@ public interface ConcurrentQueueProducer<E> {
      * @return true if e was successfully offered, false if not able to offer (queue may not be full)
      */
     boolean weakOffer(E e);
-    
+
     int produce(ProducerFunction<E> p, int batchSize);
 }

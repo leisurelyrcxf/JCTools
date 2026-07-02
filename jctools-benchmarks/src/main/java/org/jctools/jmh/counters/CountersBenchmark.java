@@ -10,7 +10,8 @@ import java.util.concurrent.TimeUnit;
 @Fork(2)
 @Warmup(iterations = 10)
 @Measurement(iterations = 10)
-public class CountersBenchmark {
+public class CountersBenchmark
+{
 
     private Counter counter;
 
@@ -21,7 +22,8 @@ public class CountersBenchmark {
     int stripes;
 
     @Setup
-    public void buildCounter() {
+    public void buildCounter()
+    {
         if (stripes <= 0)
             stripes = Runtime.getRuntime().availableProcessors();
         counter = CountersFactory.build(counterType, stripes);
@@ -29,13 +31,15 @@ public class CountersBenchmark {
 
     @Benchmark
     @Group("rw")
-    public void inc() {
+    public void inc()
+    {
         counter.inc();
     }
 
     @Benchmark
     @Group("rw")
-    public long get() {
+    public long get()
+    {
         return counter.get();
     }
 }

@@ -17,16 +17,19 @@ import static org.openjdk.jcstress.annotations.Expect.FORBIDDEN;
 @Outcome(id = "false, true", expect = ACCEPTABLE_INTERESTING, desc = "Offer broken.")
 @Outcome(id = "false, false", expect = FORBIDDEN, desc = "Nothing ran.")
 @State
-public class SpscArrayQueueProducerTest {
+public class SpscArrayQueueProducerTest
+{
     private final SpscArrayQueue<Integer> queue = new SpscArrayQueue<>(3);
 
     @Actor
-    public void actor1(ZZ_Result r) {
+    public void actor1(ZZ_Result r)
+    {
         r.r1 = queue.offer(1);
     }
 
     @Arbiter
-    public void arbiter1(ZZ_Result r) {
+    public void arbiter1(ZZ_Result r)
+    {
         r.r2 = !queue.isEmpty();
     }
 }

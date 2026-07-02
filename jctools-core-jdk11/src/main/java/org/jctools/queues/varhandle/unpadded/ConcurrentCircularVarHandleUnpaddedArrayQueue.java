@@ -107,21 +107,24 @@ abstract class ConcurrentCircularVarHandleUnpaddedArrayQueue<E> extends Concurre
      * @return The iterator.
      */
     @Override
-    public Iterator<E> iterator() {
+    public Iterator<E> iterator()
+    {
         final long cIndex = lvConsumerIndex();
         final long pIndex = lvProducerIndex();
 
         return new WeakIterator(cIndex, pIndex, mask, buffer);
     }
 
-    private static class WeakIterator<E> implements Iterator<E> {
+    private static class WeakIterator<E> implements Iterator<E>
+    {
         private final long pIndex;
         private final long mask;
         private final E[] buffer;
         private long nextIndex;
         private E nextElement;
 
-        WeakIterator(long cIndex, long pIndex, long mask, E[] buffer) {
+        WeakIterator(long cIndex, long pIndex, long mask, E[] buffer)
+        {
             this.nextIndex = cIndex;
             this.pIndex = pIndex;
             this.mask = mask;
@@ -130,17 +133,20 @@ abstract class ConcurrentCircularVarHandleUnpaddedArrayQueue<E> extends Concurre
         }
 
         @Override
-        public void remove() {
+        public void remove()
+        {
             throw new UnsupportedOperationException("remove");
         }
 
         @Override
-        public boolean hasNext() {
+        public boolean hasNext()
+        {
             return nextElement != null;
         }
 
         @Override
-        public E next() {
+        public E next()
+        {
             final E e = nextElement;
             if (e == null)
                 throw new NoSuchElementException();
@@ -148,11 +154,14 @@ abstract class ConcurrentCircularVarHandleUnpaddedArrayQueue<E> extends Concurre
             return e;
         }
 
-        private E getNext() {
-            while (nextIndex < pIndex) {
+        private E getNext()
+        {
+            while (nextIndex < pIndex)
+            {
                 long offset = calcCircularRefElementOffset(nextIndex++, mask);
                 E e = lvRefElement(buffer, offset);
-                if (e != null) {
+                if (e != null)
+                {
                     return e;
                 }
             }

@@ -101,7 +101,8 @@ public class MpscUnboundedXaddUnpaddedArrayQueue<E> extends MpUnboundedXaddUnpad
                 return null;
             }
             final long ccChunkIndex = cChunk.lvIndex();
-            if (lvProducerChunkIndex() == ccChunkIndex) {
+            if (lvProducerChunkIndex() == ccChunkIndex)
+            {
                 // no need to help too much here or the consumer latency will be hurt
                 next = appendNextChunks(cChunk, ccChunkIndex, 1);
             }
@@ -234,7 +235,7 @@ public class MpscUnboundedXaddUnpaddedArrayQueue<E> extends MpUnboundedXaddUnpad
         MpscUnboundedXaddUnpaddedChunk<E> cChunk = this.lpConsumerChunk();
 
         // start of new chunk?
-        if (cChunkOffset == 0 && cIndex !=0)
+        if (cChunkOffset == 0 && cIndex != 0)
         {
             cChunk = cChunk.lvNext();
             if (cChunk == null)

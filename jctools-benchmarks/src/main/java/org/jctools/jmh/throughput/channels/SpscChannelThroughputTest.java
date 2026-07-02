@@ -40,11 +40,12 @@ import java.util.concurrent.locks.LockSupport;
 @Fork(1)
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
-public class SpscChannelThroughputTest {
+public class SpscChannelThroughputTest
+{
 
-	@Param({"32000"})
-	private int capacity;
-	
+    @Param({"32000"})
+    private int capacity;
+
     private ByteBuffer buffer;
     private Channel<Ping> channel;
     private ChannelProducer<Ping> producer;
@@ -55,14 +56,18 @@ public class SpscChannelThroughputTest {
     private long writeValue = 1L;
 
     @Setup
-    public void setup(final Blackhole blackhole) {
-        receiver = new ChannelReceiver<Ping>() {
+    public void setup(final Blackhole blackhole)
+    {
+        receiver = new ChannelReceiver<Ping>()
+        {
             @Override
-            public void accept(Ping element) {
+            public void accept(Ping element)
+            {
                 blackhole.consume(element.getValue());
             }
         };
-        int requiredBufferSize = OffHeapFixedMessageSizeRingBuffer.getRequiredBufferSize(capacity, PortableJvmInfo.CACHE_LINE_SIZE);
+        int requiredBufferSize = OffHeapFixedMessageSizeRingBuffer
+            .getRequiredBufferSize(capacity, PortableJvmInfo.CACHE_LINE_SIZE);
         buffer = UnsafeDirectByteBuffer.allocateAlignedByteBuffer(requiredBufferSize, PortableJvmInfo.CACHE_LINE_SIZE);
         channel = new SpscChannel<Ping>(buffer, capacity, Ping.class);
         producer = channel.producer();
@@ -72,14 +77,17 @@ public class SpscChannelThroughputTest {
     @Benchmark
     @Group("busy")
     @GroupThreads(1)
-    public void writeBusy(Control cnt) {
+    public void writeBusy(Control cnt)
+    {
         ChannelProducer<Ping> lProducer = producer;
-		while (!lProducer.claim()) {
-        	if (cnt.stopMeasurement) {
-        		return;// drop out of spinning if the benchmark iteration is done
-        	}
+        while (!lProducer.claim())
+        {
+            if (cnt.stopMeasurement)
+            {
+                return;// drop out of spinning if the benchmark iteration is done
+            }
         }
-    	Ping element = lProducer.currentElement();
+        Ping element = lProducer.currentElement();
         element.setValue(writeValue);
         lProducer.commit();
     }
@@ -87,8 +95,10 @@ public class SpscChannelThroughputTest {
     @Benchmark
     @Group("busy")
     @GroupThreads(1)
-    public void readBusy(Control cnt) {
-        while (!consumer.read() && !cnt.stopMeasurement) {
+    public void readBusy(Control cnt)
+    {
+        while (!consumer.read() && !cnt.stopMeasurement)
+        {
 
         }
     }
@@ -96,15 +106,18 @@ public class SpscChannelThroughputTest {
     @Benchmark
     @Group("backoffOneNano")
     @GroupThreads(1)
-    public void write(Control cnt) {
-    	ChannelProducer<Ping> lProducer = producer;
-		while (!lProducer.claim()) {
-        	if (cnt.stopMeasurement) {
-        		return;// drop out of spinning if the benchmark iteration is done
-        	}
-        	LockSupport.parkNanos(1L);
+    public void write(Control cnt)
+    {
+        ChannelProducer<Ping> lProducer = producer;
+        while (!lProducer.claim())
+        {
+            if (cnt.stopMeasurement)
+            {
+                return;// drop out of spinning if the benchmark iteration is done
+            }
+            LockSupport.parkNanos(1L);
         }
-    	Ping element = lProducer.currentElement();
+        Ping element = lProducer.currentElement();
         element.setValue(writeValue);
         lProducer.commit();
     }
@@ -112,8 +125,10 @@ public class SpscChannelThroughputTest {
     @Benchmark
     @Group("backoffOneNano")
     @GroupThreads(1)
-    public void read(Control cnt) {
-        while (!consumer.read() && !cnt.stopMeasurement) {
+    public void read(Control cnt)
+    {
+        while (!consumer.read() && !cnt.stopMeasurement)
+        {
             LockSupport.parkNanos(1L);
         }
     }

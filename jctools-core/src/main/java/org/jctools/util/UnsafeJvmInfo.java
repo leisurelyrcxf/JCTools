@@ -14,6 +14,7 @@
 package org.jctools.util;
 
 @InternalAPI
-public interface UnsafeJvmInfo {
+public interface UnsafeJvmInfo
+{
     int PAGE_SIZE = UnsafeAccess.UNSAFE.pageSize();
 }

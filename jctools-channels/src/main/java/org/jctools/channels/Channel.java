@@ -23,14 +23,15 @@ package org.jctools.channels;
  *
  * @param <E> element type
  */
-public interface Channel<E> {
+public interface Channel<E>
+{
 
     /**
      * @param callback the accept function for this consumer
      * @return a consumer instance to be used for this particular thread.
      */
     ChannelConsumer consumer(ChannelReceiver<E> callback);
-    
+
     /**
      * @return a producer instance to be used for this particular thread.
      */

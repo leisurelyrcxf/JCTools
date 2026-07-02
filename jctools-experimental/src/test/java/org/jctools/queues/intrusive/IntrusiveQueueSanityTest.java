@@ -37,7 +37,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 
-public class IntrusiveQueueSanityTest {
+public class IntrusiveQueueSanityTest
+{
 
     static final int SIZE = 8192 * 2;
 
@@ -48,8 +49,10 @@ public class IntrusiveQueueSanityTest {
 
 
     @Before
-    public void clear() {
-        for (int i = 0; i < SIZE; i++) {
+    public void clear()
+    {
+        for (int i = 0; i < SIZE; i++)
+        {
             nodes[i] = new TestNode();
             nodes[i].value = i;
         }
@@ -57,8 +60,10 @@ public class IntrusiveQueueSanityTest {
     }
 
     @Test
-    public void sanity() {
-        for (int i = 0; i < SIZE; i++) {
+    public void sanity()
+    {
+        for (int i = 0; i < SIZE; i++)
+        {
             assertNull(queue.poll());
             assertTrue(queue.isEmpty());
             assertEquals(0, queue.size());
@@ -67,23 +72,28 @@ public class IntrusiveQueueSanityTest {
         while (i < SIZE && queue.offer(nodes[i])) i++;
         int size = i;
         assertEquals(size, queue.size());
-        if (spec.ordering == Ordering.FIFO) {
+        if (spec.ordering == Ordering.FIFO)
+        {
             // expect FIFO
             i = 0;
             Node p;
             TestNode e;
-            while ((p = queue.peek()) != null) {
+            while ((p = queue.peek()) != null)
+            {
                 e = (TestNode) queue.poll();
                 assertEquals(p, e);
                 assertEquals(size - (i + 1), queue.size());
                 assertEquals(i++, e.value);
             }
             assertEquals(size, i);
-        } else {
+        }
+        else
+        {
             // expect sum of elements is (size - 1) * size / 2 = 0 + 1 + .... + (size - 1)
             int sum = (size - 1) * size / 2;
             TestNode e;
-            while ((e = (TestNode) queue.poll()) != null) {
+            while ((e = (TestNode) queue.poll()) != null)
+            {
                 assertEquals(--size, queue.size());
                 sum -= e.value;
             }
@@ -92,20 +102,24 @@ public class IntrusiveQueueSanityTest {
     }
 
     @Test
-    public void testSizeIsTheNumberOfOffers() {
+    public void testSizeIsTheNumberOfOffers()
+    {
         int currentSize = 0;
-        while (currentSize < SIZE && queue.offer(nodes[currentSize])) {
+        while (currentSize < SIZE && queue.offer(nodes[currentSize]))
+        {
             currentSize++;
             assertEquals(currentSize, queue.size());
         }
     }
 
     @Test
-    public void whenFirstInThenFirstOut() {
+    public void whenFirstInThenFirstOut()
+    {
         assumeThat(spec.ordering, is(Ordering.FIFO));
 
         // Arrange
-        for (int i = 0; i < SIZE; i++) {
+        for (int i = 0; i < SIZE; i++)
+        {
             nodes[i].value = i;
             queue.offer(nodes[i]);
         }
@@ -114,7 +128,8 @@ public class IntrusiveQueueSanityTest {
         // Act
         int i = 0;
         Node prev;
-        while ((prev = queue.peek()) != null) {
+        while ((prev = queue.peek()) != null)
+        {
             final TestNode item = (TestNode) queue.poll();
 
             assertThat(item, is(prev));
@@ -127,13 +142,15 @@ public class IntrusiveQueueSanityTest {
         assertThat(i, is(size));
     }
 
-    @Test(expected=NullPointerException.class)
-    public void offerNullResultsInNPE(){
+    @Test(expected = NullPointerException.class)
+    public void offerNullResultsInNPE()
+    {
         queue.offer(null);
     }
 
     @Test
-    public void whenOfferItemAndPollItemThenSameInstanceReturnedAndQueueIsEmpty() {
+    public void whenOfferItemAndPollItemThenSameInstanceReturnedAndQueueIsEmpty()
+    {
         assertTrue(queue.isEmpty());
         assertEquals(0, queue.size());
 
@@ -156,31 +173,39 @@ public class IntrusiveQueueSanityTest {
     }
 
     @Test
-    public void testPowerOf2Capacity() {
+    public void testPowerOf2Capacity()
+    {
         assumeThat(spec.isBounded(), is(true));
         int n = Pow2.roundToPowerOfTwo(spec.capacity);
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++)
+        {
             assertTrue("Failed to insert:" + i, queue.offer(nodes[i]));
         }
         assertFalse(queue.offer(new TestNode()));
         fail();
     }
 
-    static final class Val {
+    static final class Val
+    {
         public int value;
     }
 
     @Test
-    public void testHappensBefore() throws Exception {
+    public void testHappensBefore() throws Exception
+    {
         final AtomicBoolean stop = new AtomicBoolean();
         final MpscIntrusiveLinkedQueue q = queue;
         final Val fail = new Val();
-        Thread t1 = new Thread(new Runnable() {
+        Thread t1 = new Thread(new Runnable()
+        {
             @Override
-            public void run() {
-                while (!stop.get()) {
-                    for (int i = 1; i <= 10; i++) {
+            public void run()
+            {
+                while (!stop.get())
+                {
+                    for (int i = 1; i <= 10; i++)
+                    {
                         TestNode v = new TestNode();
                         v.value = i;
                         q.offer(v);
@@ -190,13 +215,18 @@ public class IntrusiveQueueSanityTest {
                 }
             }
         });
-        Thread t2 = new Thread(new Runnable() {
+        Thread t2 = new Thread(new Runnable()
+        {
             @Override
-            public void run() {
-                while (!stop.get()) {
-                    for (int i = 0; i < 10; i++) {
+            public void run()
+            {
+                while (!stop.get())
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
                         TestNode v = (TestNode) q.peek();
-                        if (v != null && v.value == 0) {
+                        if (v != null && v.value == 0)
+                        {
                             fail.value = 1;
                             stop.set(true);
                             System.out.println("v = " + v);
@@ -217,25 +247,33 @@ public class IntrusiveQueueSanityTest {
     }
 
     @Test
-    public void testSize() throws Exception {
+    public void testSize() throws Exception
+    {
         final AtomicBoolean stop = new AtomicBoolean();
         final MpscIntrusiveLinkedQueue q = queue;
         final Val fail = new Val();
-        Thread t1 = new Thread(new Runnable() {
+        Thread t1 = new Thread(new Runnable()
+        {
             @Override
-            public void run() {
-                while (!stop.get()) {
+            public void run()
+            {
+                while (!stop.get())
+                {
                     q.offer(nodes[0]);
                     q.poll();
                 }
             }
         });
-        Thread t2 = new Thread(new Runnable() {
+        Thread t2 = new Thread(new Runnable()
+        {
             @Override
-            public void run() {
-                while (!stop.get()) {
+            public void run()
+            {
+                while (!stop.get())
+                {
                     int size = q.size();
-                    if(size != 0 && size != 1) {
+                    if (size != 0 && size != 1)
+                    {
                         fail.value = size;
                     }
                 }
@@ -251,21 +289,32 @@ public class IntrusiveQueueSanityTest {
         assertEquals("Unexpected size observed", 0, fail.value);
     }
 
-    public static Object[] makeQueue(int producers, int consumers, int capacity, Ordering ordering, Queue<Integer> q) {
-        ConcurrentQueueSpec spec = new ConcurrentQueueSpec(producers, consumers, capacity, ordering,
-                Preference.NONE);
-        if(q == null) {
+    public static Object[] makeQueue(int producers, int consumers, int capacity, Ordering ordering, Queue<Integer> q)
+    {
+        ConcurrentQueueSpec spec = new ConcurrentQueueSpec(producers,
+            consumers,
+            capacity,
+            ordering,
+            Preference.NONE);
+        if (q == null)
+        {
             q = QueueFactory.newQueue(spec);
         }
-        return new Object[] { spec, q };
+        return new Object[] {spec, q};
     }
-    public static Object[] makeAtomic(int producers, int consumers, int capacity, Ordering ordering, Queue<Integer> q) {
-        ConcurrentQueueSpec spec = new ConcurrentQueueSpec(producers, consumers, capacity, ordering,
-                Preference.NONE);
-        if(q == null) {
+
+    public static Object[] makeAtomic(int producers, int consumers, int capacity, Ordering ordering, Queue<Integer> q)
+    {
+        ConcurrentQueueSpec spec = new ConcurrentQueueSpec(producers,
+            consumers,
+            capacity,
+            ordering,
+            Preference.NONE);
+        if (q == null)
+        {
             q = AtomicQueueFactory.newAtomicQueue(spec);
         }
-        return new Object[] { spec, q };
+        return new Object[] {spec, q};
     }
 
 }

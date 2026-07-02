@@ -17,39 +17,50 @@ import org.junit.Test;
  * To regenerate after an intentional change to a generator, run:
  * {@code mvn -pl jctools-build test -Dgolden.regenerate=true}.
  */
-public class GoldenIntegrationTest {
+public class GoldenIntegrationTest
+{
 
     @Test
-    public void atomicArrayGenerator() throws Exception {
-        GoldenTestSupport.assertGolden(
+    public void atomicArrayGenerator() throws Exception
+    {
+        GoldenTestSupport
+            .assertGolden(
                 new JavaParsingAtomicArrayQueueGenerator("GoldenSampleArrayQueue.java"),
                 "golden/atomic_array");
     }
 
     @Test
-    public void atomicLinkedGenerator() throws Exception {
-        GoldenTestSupport.assertGolden(
+    public void atomicLinkedGenerator() throws Exception
+    {
+        GoldenTestSupport
+            .assertGolden(
                 new JavaParsingAtomicLinkedQueueGenerator("MpscLinkedQueue.java"),
                 "golden/atomic_linked");
     }
 
     @Test
-    public void unpaddedGenerator() throws Exception {
-        GoldenTestSupport.assertGolden(
+    public void unpaddedGenerator() throws Exception
+    {
+        GoldenTestSupport
+            .assertGolden(
                 new JavaParsingUnpaddedQueueGenerator("GoldenSampleArrayQueue.java"),
                 "golden/unpadded");
     }
 
     @Test
-    public void varHandleArrayGenerator() throws Exception {
-        GoldenTestSupport.assertGolden(
+    public void varHandleArrayGenerator() throws Exception
+    {
+        GoldenTestSupport
+            .assertGolden(
                 new JavaParsingVarHandleArrayQueueGenerator("GoldenSampleArrayQueue.java"),
                 "golden/varhandle_array");
     }
 
     @Test
-    public void varHandleLinkedGenerator() throws Exception {
-        GoldenTestSupport.assertGolden(
+    public void varHandleLinkedGenerator() throws Exception
+    {
+        GoldenTestSupport
+            .assertGolden(
                 new JavaParsingVarHandleLinkedQueueGenerator("MpscLinkedQueue.java"),
                 "golden/varhandle_linked");
     }

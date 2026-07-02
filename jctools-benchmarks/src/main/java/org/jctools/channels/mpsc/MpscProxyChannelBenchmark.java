@@ -42,13 +42,15 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @OutputTimeUnit(TimeUnit.SECONDS)
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
-public class MpscProxyChannelBenchmark {
+public class MpscProxyChannelBenchmark
+{
 
     private static final int CAPACITY = 10000;
     private static final int PRODUCER_THREADS = 10;
     private static final int CONSUMER_THREADS = 1;
 
-    public interface BenchIFace {
+    public interface BenchIFace
+    {
 
         void noArgs();
 
@@ -61,149 +63,169 @@ public class MpscProxyChannelBenchmark {
         void oneReferenceArg(CustomType x);
 
         // I'm curious is there's a performance cost of switching between the ref queue and the bytebuffer
-        void tenMixedArgs(int i,
-                Object o,
-                long l,
-                CustomType c0,
-                double d,
-                CustomType c1,
-                float f,
-                CustomType c2,
-                boolean b,
-                CustomType c3);
+        void tenMixedArgs(
+            int i,
+            Object o,
+            long l,
+            CustomType c0,
+            double d,
+            CustomType c1,
+            float f,
+            CustomType c2,
+            boolean b,
+            CustomType c3
+        );
 
         // The first value is 'type':int that is 4 bytes which renders all of this unaligned
         void unalignedPrimitiveArgs(
-                long l1,
-                double d1,
-                long l2,
-                double d2,
-                long l3,
-                double d3,
-                long l4,
-                double d4,
-                long l5,
-                double d5,
-                long l6,
-                double d6,
-                long l7,
-                double d7,
-                long l8,
-                double d8,
-                int i);
+            long l1,
+            double d1,
+            long l2,
+            double d2,
+            long l3,
+            double d3,
+            long l4,
+            double d4,
+            long l5,
+            double d5,
+            long l6,
+            double d6,
+            long l7,
+            double d7,
+            long l8,
+            double d8,
+            int i
+        );
 
         // The first value is 'type':int that is implicit so we start with a 4 byte value first then all 8 bytes, then all 4 bytes, and so on
         void alignedPrimitiveArgs(
-                int i,
-                long l1,
-                double d1,
-                long l2,
-                double d2,
-                long l3,
-                double d3,
-                long l4,
-                double d4,
-                long l5,
-                double d5,
-                long l6,
-                double d6,
-                long l7,
-                double d7,
-                long l8,
-                double d8);
+            int i,
+            long l1,
+            double d1,
+            long l2,
+            double d2,
+            long l3,
+            double d3,
+            long l4,
+            double d4,
+            long l5,
+            double d5,
+            long l6,
+            double d6,
+            long l7,
+            double d7,
+            long l8,
+            double d8
+        );
     }
 
-    public static class CustomType {
+    public static class CustomType
+    {
 
     }
 
-    private static final class BenchImpl implements BenchIFace {
+    private static final class BenchImpl implements BenchIFace
+    {
         private final long tokens;
 
-        public BenchImpl(final long tokens) {
+        public BenchImpl(final long tokens)
+        {
             super();
             this.tokens = tokens;
         }
 
         @Override
-        public void noArgs() {
+        public void noArgs()
+        {
             Blackhole.consumeCPU(this.tokens);
         }
 
         @Override
-        public void onePrimitiveArg(final int x) {
+        public void onePrimitiveArg(final int x)
+        {
             Blackhole.consumeCPU(this.tokens);
         }
 
         @Override
-        public void twoMixedLengthPrimitiveArgs(final int x, final long y) {
+        public void twoMixedLengthPrimitiveArgs(final int x, final long y)
+        {
             Blackhole.consumeCPU(this.tokens);
         }
 
         @Override
-        public void oneObjectArg(final Object x) {
+        public void oneObjectArg(final Object x)
+        {
             Blackhole.consumeCPU(this.tokens);
         }
 
         @Override
-        public void oneReferenceArg(final CustomType x) {
+        public void oneReferenceArg(final CustomType x)
+        {
             Blackhole.consumeCPU(this.tokens);
         }
 
         @Override
-        public void tenMixedArgs(final int i,
-                final Object o,
-                final long l,
-                final CustomType c0,
-                final double d,
-                final CustomType c1,
-                final float f,
-                final CustomType c2,
-                final boolean b,
-                final CustomType c3) {
+        public void tenMixedArgs(
+            final int i,
+            final Object o,
+            final long l,
+            final CustomType c0,
+            final double d,
+            final CustomType c1,
+            final float f,
+            final CustomType c2,
+            final boolean b,
+            final CustomType c3
+        )
+        {
             Blackhole.consumeCPU(this.tokens);
         }
 
         @Override
         public void unalignedPrimitiveArgs(
-                long l1,
-                double d1,
-                long l2,
-                double d2,
-                long l3,
-                double d3,
-                long l4,
-                double d4,
-                long l5,
-                double d5,
-                long l6,
-                double d6,
-                long l7,
-                double d7,
-                long l8,
-                double d8,
-                int i) {
+            long l1,
+            double d1,
+            long l2,
+            double d2,
+            long l3,
+            double d3,
+            long l4,
+            double d4,
+            long l5,
+            double d5,
+            long l6,
+            double d6,
+            long l7,
+            double d7,
+            long l8,
+            double d8,
+            int i
+        )
+        {
             Blackhole.consumeCPU(this.tokens);
         }
 
         @Override
-        public void alignedPrimitiveArgs(int i,
-                long l1,
-                double d1,
-                long l2,
-                double d2,
-                long l3,
-                double d3,
-                long l4,
-                double d4,
-                long l5,
-                double d5,
-                long l6,
-                double d6,
-                long l7,
-                double d7,
-                long l8,
-                double d8) {
+        public void alignedPrimitiveArgs(
+            int i,
+            long l1,
+            double d1,
+            long l2,
+            double d2,
+            long l3,
+            double d3,
+            long l4,
+            double d4,
+            long l5,
+            double d5,
+            long l6,
+            double d6,
+            long l7,
+            double d7,
+            long l8,
+            double d8
+        )
+        {
             Blackhole.consumeCPU(this.tokens);
         }
 
@@ -211,31 +233,37 @@ public class MpscProxyChannelBenchmark {
 
     @AuxCounters
     @State(Scope.Thread)
-    public static class ProcessorCounters {
+    public static class ProcessorCounters
+    {
         public long processed;
         public long processFailed;
     }
 
     @AuxCounters
     @State(Scope.Thread)
-    public static class CallerCounters {
+    public static class CallerCounters
+    {
         public long callsFailed;
     }
 
-    public static final class StoppedException extends RuntimeException {
+    public static final class StoppedException extends RuntimeException
+    {
 
     }
 
     private static final StoppedException STOPPED = new StoppedException();
 
     private static final class MyWaitStrategy
-            implements org.jctools.channels.WaitStrategy {
+        implements org.jctools.channels.WaitStrategy
+    {
         public Control control;
         private int retries;
 
         @Override
-        public int idle(final int idleCounter) {
-            if (this.control.stopMeasurement) {
+        public int idle(final int idleCounter)
+        {
+            if (this.control.stopMeasurement)
+            {
                 throw STOPPED;
             }
             this.retries = idleCounter;
@@ -266,11 +294,12 @@ public class MpscProxyChannelBenchmark {
     float floatArg;
     boolean booleanArg;
 
-    @Param({ "1", "" + CAPACITY })
+    @Param({"1", "" + CAPACITY})
     private int limit;
 
     @Setup(Level.Iteration)
-    public void setupTrial() {
+    public void setupTrial()
+    {
         this.waitStrategy = new MyWaitStrategy();
         this.mpscChannel = ProxyChannelFactory.createMpscProxy(CAPACITY, BenchIFace.class, this.waitStrategy);
         this.proxy = this.mpscChannel.proxy();
@@ -295,7 +324,8 @@ public class MpscProxyChannelBenchmark {
     }
 
     @Benchmark
-    public int oneObjectArgBaseline() {
+    public int oneObjectArgBaseline()
+    {
         this.impl.oneObjectArg(this.objArg);
         return this.waitStrategy.retries;
     }
@@ -303,13 +333,17 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("oneObjectArg")
     @GroupThreads(PRODUCER_THREADS)
-    public boolean oneObjectArgCaller(final Control control, final CallerCounters counters) {
+    public boolean oneObjectArgCaller(final Control control, final CallerCounters counters)
+    {
         this.waitStrategy.control = control;
-        try {
+        try
+        {
             this.proxy.oneObjectArg(this.objArg);
             counters.callsFailed = this.waitStrategy.retries;
             return true;
-        } catch (final StoppedException e) {
+        }
+        catch (final StoppedException e)
+        {
             return false;
         }
     }
@@ -317,12 +351,14 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("oneObjectArg")
     @GroupThreads(CONSUMER_THREADS)
-    public int oneObjectArgProcessor(final ProcessorCounters counters) {
+    public int oneObjectArgProcessor(final ProcessorCounters counters)
+    {
         return doProcess(mpscChannel, counters);
     }
 
     @Benchmark
-    public int oneReferenceArgBaseline() {
+    public int oneReferenceArgBaseline()
+    {
         this.impl.oneReferenceArg(this.customType0);
         return this.waitStrategy.retries;
     }
@@ -330,13 +366,17 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("oneReferenceArg")
     @GroupThreads(PRODUCER_THREADS)
-    public boolean oneReferenceArgCaller(final Control control, final CallerCounters counters) {
+    public boolean oneReferenceArgCaller(final Control control, final CallerCounters counters)
+    {
         this.waitStrategy.control = control;
-        try {
+        try
+        {
             this.proxy.oneReferenceArg(this.customType0);
             counters.callsFailed = this.waitStrategy.retries;
             return true;
-        } catch (final StoppedException e) {
+        }
+        catch (final StoppedException e)
+        {
             return false;
         }
     }
@@ -344,12 +384,14 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("oneReferenceArg")
     @GroupThreads(CONSUMER_THREADS)
-    public int oneReferenceArgProcessor(final ProcessorCounters counters) {
+    public int oneReferenceArgProcessor(final ProcessorCounters counters)
+    {
         return doProcess(mpscChannel, counters);
     }
 
     @Benchmark
-    public int twoMixedLengthPrimitiveArgsBaseline() {
+    public int twoMixedLengthPrimitiveArgsBaseline()
+    {
         this.impl.twoMixedLengthPrimitiveArgs(this.intArg, this.longArg);
         return this.waitStrategy.retries;
     }
@@ -357,13 +399,17 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("twoMixedLengthPrimitiveArgs")
     @GroupThreads(PRODUCER_THREADS)
-    public boolean twoMixedLengthPrimitiveArgsCaller(final Control control, final CallerCounters counters) {
+    public boolean twoMixedLengthPrimitiveArgsCaller(final Control control, final CallerCounters counters)
+    {
         this.waitStrategy.control = control;
-        try {
+        try
+        {
             this.proxy.twoMixedLengthPrimitiveArgs(this.intArg, this.longArg);
             counters.callsFailed = this.waitStrategy.retries;
             return true;
-        } catch (final StoppedException e) {
+        }
+        catch (final StoppedException e)
+        {
             return false;
         }
     }
@@ -371,12 +417,14 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("twoMixedLengthPrimitiveArgs")
     @GroupThreads(CONSUMER_THREADS)
-    public int twoMixedLengthPrimitiveArgsProcessor(final ProcessorCounters counters) {
+    public int twoMixedLengthPrimitiveArgsProcessor(final ProcessorCounters counters)
+    {
         return doProcess(mpscChannel, counters);
     }
 
     @Benchmark
-    public int onePrimitiveArgBaseline() {
+    public int onePrimitiveArgBaseline()
+    {
         this.impl.onePrimitiveArg(this.intArg);
         return this.waitStrategy.retries;
     }
@@ -384,13 +432,17 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("onePrimitiveArg")
     @GroupThreads(PRODUCER_THREADS)
-    public boolean onePrimitiveArgCaller(final Control control, final CallerCounters counters) {
+    public boolean onePrimitiveArgCaller(final Control control, final CallerCounters counters)
+    {
         this.waitStrategy.control = control;
-        try {
+        try
+        {
             this.proxy.onePrimitiveArg(this.intArg);
             counters.callsFailed = this.waitStrategy.retries;
             return true;
-        } catch (final StoppedException e) {
+        }
+        catch (final StoppedException e)
+        {
             return false;
         }
     }
@@ -398,12 +450,14 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("onePrimitiveArg")
     @GroupThreads(CONSUMER_THREADS)
-    public int onePrimitiveArgProcessor(final ProcessorCounters counters) {
+    public int onePrimitiveArgProcessor(final ProcessorCounters counters)
+    {
         return doProcess(mpscChannel, counters);
     }
 
     @Benchmark
-    public int noArgsBaseline() {
+    public int noArgsBaseline()
+    {
         this.impl.noArgs();
         return this.waitStrategy.retries;
     }
@@ -411,13 +465,17 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("noArgs")
     @GroupThreads(PRODUCER_THREADS)
-    public boolean noArgsCaller(final Control control, final CallerCounters counters) {
+    public boolean noArgsCaller(final Control control, final CallerCounters counters)
+    {
         this.waitStrategy.control = control;
-        try {
+        try
+        {
             this.proxy.noArgs();
             counters.callsFailed = this.waitStrategy.retries;
             return true;
-        } catch (final StoppedException e) {
+        }
+        catch (final StoppedException e)
+        {
             return false;
         }
     }
@@ -425,13 +483,16 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("noArgs")
     @GroupThreads(CONSUMER_THREADS)
-    public int noArgsProcessor(final ProcessorCounters counters) {
+    public int noArgsProcessor(final ProcessorCounters counters)
+    {
         return doProcess(mpscChannel, counters);
     }
 
     @Benchmark
-    public int tenMixedArgsBaseline() {
-        this.impl.tenMixedArgs(this.intArg,
+    public int tenMixedArgsBaseline()
+    {
+        this.impl
+            .tenMixedArgs(this.intArg,
                 this.objArg,
                 this.longArg,
                 this.customType0,
@@ -447,10 +508,13 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("tenMixedArgs")
     @GroupThreads(PRODUCER_THREADS)
-    public boolean tenMixedArgsCaller(final Control control, final CallerCounters counters) {
+    public boolean tenMixedArgsCaller(final Control control, final CallerCounters counters)
+    {
         this.waitStrategy.control = control;
-        try {
-            this.proxy.tenMixedArgs(this.intArg,
+        try
+        {
+            this.proxy
+                .tenMixedArgs(this.intArg,
                     this.objArg,
                     this.longArg,
                     this.customType0,
@@ -462,7 +526,9 @@ public class MpscProxyChannelBenchmark {
                     this.customType3);
             counters.callsFailed = this.waitStrategy.retries;
             return true;
-        } catch (final StoppedException e) {
+        }
+        catch (final StoppedException e)
+        {
             return false;
         }
     }
@@ -470,13 +536,16 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("tenMixedArgs")
     @GroupThreads(CONSUMER_THREADS)
-    public int tenMixedArgsProcessor(final ProcessorCounters counters) {
+    public int tenMixedArgsProcessor(final ProcessorCounters counters)
+    {
         return doProcess(mpscChannel, counters);
     }
 
     @Benchmark
-    public int alignedPrimitiveArgsBaseline() {
-        this.impl.alignedPrimitiveArgs(intArg,
+    public int alignedPrimitiveArgsBaseline()
+    {
+        this.impl
+            .alignedPrimitiveArgs(intArg,
                 longArg,
                 doubleArg,
                 longArg2,
@@ -499,10 +568,13 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("alignedPrimitiveArgs")
     @GroupThreads(PRODUCER_THREADS)
-    public boolean alignedPrimitiveArgsCaller(final Control control, final CallerCounters counters) {
+    public boolean alignedPrimitiveArgsCaller(final Control control, final CallerCounters counters)
+    {
         this.waitStrategy.control = control;
-        try {
-            this.proxy.alignedPrimitiveArgs(intArg,
+        try
+        {
+            this.proxy
+                .alignedPrimitiveArgs(intArg,
                     longArg,
                     doubleArg,
                     longArg2,
@@ -521,7 +593,9 @@ public class MpscProxyChannelBenchmark {
                     doubleArg4);
             counters.callsFailed = this.waitStrategy.retries;
             return true;
-        } catch (final StoppedException e) {
+        }
+        catch (final StoppedException e)
+        {
             return false;
         }
     }
@@ -529,13 +603,16 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("alignedPrimitiveArgs")
     @GroupThreads(CONSUMER_THREADS)
-    public int alignedPrimitiveArgsProcessor(final ProcessorCounters counters) {
+    public int alignedPrimitiveArgsProcessor(final ProcessorCounters counters)
+    {
         return doProcess(mpscChannel, counters);
     }
 
     @Benchmark
-    public int unalignedPrimitiveArgsBaseline() {
-        this.impl.unalignedPrimitiveArgs(
+    public int unalignedPrimitiveArgsBaseline()
+    {
+        this.impl
+            .unalignedPrimitiveArgs(
                 longArg,
                 doubleArg,
                 longArg2,
@@ -559,10 +636,13 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("unalignedPrimitiveArgs")
     @GroupThreads(PRODUCER_THREADS)
-    public boolean unalignedPrimitiveArgsCaller(final Control control, final CallerCounters counters) {
+    public boolean unalignedPrimitiveArgsCaller(final Control control, final CallerCounters counters)
+    {
         this.waitStrategy.control = control;
-        try {
-            this.proxy.unalignedPrimitiveArgs(
+        try
+        {
+            this.proxy
+                .unalignedPrimitiveArgs(
                     longArg,
                     doubleArg,
                     longArg2,
@@ -582,7 +662,9 @@ public class MpscProxyChannelBenchmark {
                     intArg);
             counters.callsFailed = this.waitStrategy.retries;
             return true;
-        } catch (final StoppedException e) {
+        }
+        catch (final StoppedException e)
+        {
             return false;
         }
     }
@@ -590,34 +672,40 @@ public class MpscProxyChannelBenchmark {
     @Benchmark
     @Group("unalignedPrimitiveArgs")
     @GroupThreads(CONSUMER_THREADS)
-    public int unalignedPrimitiveArgsProcessor(final ProcessorCounters counters) {
+    public int unalignedPrimitiveArgsProcessor(final ProcessorCounters counters)
+    {
         return doProcess(mpscChannel, counters);
     }
 
-    private int doProcess(ProxyChannel<BenchIFace> proxyChannel, final ProcessorCounters counters) {
+    private int doProcess(ProxyChannel<BenchIFace> proxyChannel, final ProcessorCounters counters)
+    {
         final int processed = proxyChannel.process(this.impl, this.limit);
-        if (processed == 0) {
+        if (processed == 0)
+        {
             counters.processFailed++;
-        } else {
+        }
+        else
+        {
             counters.processed += processed;
         }
         return processed;
     }
 
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception
+    {
 //        final String logFile = SpscProxyChannelBenchmark.class.getSimpleName() + ".log";
         final Options opt = new OptionsBuilder()
-                .include(MpscProxyChannelBenchmark.class.getSimpleName() + ".*tenMixedArgs.*")
-                // .jvmArgsAppend("-XX:+UnlockDiagnosticVMOptions",
-                // "-XX:+TraceClassLoading",
-                // "-XX:+LogCompilation",
-                // "-XX:LogFile=" + logFile,
-                // "-XX:+PrintAssembly")
-                .warmupIterations(5)
-                .measurementIterations(5)
-                .param("limit", "1")
-                .forks(2)
-                .build();
+            .include(MpscProxyChannelBenchmark.class.getSimpleName() + ".*tenMixedArgs.*")
+            // .jvmArgsAppend("-XX:+UnlockDiagnosticVMOptions",
+            // "-XX:+TraceClassLoading",
+            // "-XX:+LogCompilation",
+            // "-XX:LogFile=" + logFile,
+            // "-XX:+PrintAssembly")
+            .warmupIterations(5)
+            .measurementIterations(5)
+            .param("limit", "1")
+            .forks(2)
+            .build();
         new Runner(opt).run();
     }
 }
