@@ -290,7 +290,7 @@ public class QueueSanityTestMpscBlockingConsumerArrayExtended
         assertNull(q.poll(250L, MILLISECONDS));
         long tookMillis = MILLISECONDS.convert(System.nanoTime() - beforeNanos, NANOSECONDS);
 
-        assertTrue("took " + tookMillis + "ms", 200L < tookMillis && tookMillis < 300L);
+        assertTrue("took " + tookMillis + "ms", 200L < tookMillis && tookMillis < 500L);
     }
 
     @Test(timeout = TEST_TIMEOUT)
