@@ -16,8 +16,8 @@ package org.jctools.queues;
 import java.util.Queue;
 
 /**
- * Message passing queues are intended for concurrent method passing. A subset of {@link Queue} methods are provided
- * with the same semantics, while further functionality which accomodates the concurrent usecase is also on offer.
+ * Message passing queues are intended for concurrent message passing. A subset of {@link Queue} methods are provided
+ * with the same semantics, while further functionality which accommodates the concurrent use case is also on offer.
  * <p>
  * Message passing queues provide happens before semantics to messages passed through, namely that writes made
  * by the producer before offering the message are visible to the consuming thread after the message has been
@@ -33,7 +33,7 @@ public interface MessagePassingQueue<T>
     {
         /**
          * This method will return the next value to be written to the queue. As such the queue
-         * implementations are commited to insert the value once the call is made.
+         * implementations are committed to insert the value once the call is made.
          * <p>
          * Users should be aware that underlying queue implementations may upfront claim parts of the queue
          * for batch operations and this will effect the view on the queue from the supplier method. In
