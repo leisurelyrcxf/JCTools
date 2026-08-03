@@ -11,6 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Lock free maps and sets, the bulk of which is Cliff Click's NonBlockingHashMap and its relatives. These offer the
+ * same correctness properties as {@link java.util.concurrent.ConcurrentHashMap} while scaling substantially better for
+ * high update rates - see the {@link org.jctools.maps.NonBlockingHashMap} class documentation for the details.
+ * <ol>
+ * <li>{@link org.jctools.maps.NonBlockingHashMap} - the general purpose lock free map.
+ * <li>{@link org.jctools.maps.NonBlockingHashMapLong} - adds a primitive {@code long} keyed API
+ * ({@code put(long, V)} and friends) next to the boxed {@code Map} view.
+ * <li>{@link org.jctools.maps.NonBlockingIdentityHashMap} - reference equality on keys.
+ * <li>{@link org.jctools.maps.NonBlockingHashSet} and {@link org.jctools.maps.NonBlockingSetInt} - the set flavours.
+ * </ol>
+ * Unlike the queues in {@link org.jctools.queues}, these implement the full {@link java.util.Map} and
+ * {@link java.util.Set} contracts, iterators included.
+ */
 @Export
 package org.jctools.maps;
 

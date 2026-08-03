@@ -24,7 +24,25 @@
  * offer which trades the FIFO ordering(re-ordering is not limited) for reduced contention and increased throughput
  * under contention.
  * <li>Bounded SPMC/MPMC queues
+ * <li>Unbounded MPSC/MPMC linked array queues which use XADD rather than a CAS loop on the producer side, trading
+ * strict FIFO for reduced contention as producer counts grow. See {@link org.jctools.queues.MpscUnboundedXaddArrayQueue}
+ * and {@link org.jctools.queues.MpmcUnboundedXaddArrayQueue}.
+ * <li>A blocking consumer MPSC queue, {@link org.jctools.queues.MpscBlockingConsumerArrayQueue}, for consumers which
+ * would rather park than spin.
  * </ol>
+ * <p>
+ * <br>
+ * <b>Variant packages:</b><br>
+ * The queues in this package are the reference implementations and use {@code sun.misc.Unsafe}. Generated variants are
+ * available for callers with different constraints:
+ * <ol>
+ * <li>{@link org.jctools.queues.atomic} - uses {@code AtomicFieldUpdater} instead of Unsafe.
+ * <li>{@link org.jctools.queues.unpadded} - drops the false sharing padding for a smaller footprint.
+ * <li>{@link org.jctools.queues.atomic.unpadded} - both of the above.
+ * <li>{@code org.jctools.queues.varhandle} (and its {@code unpadded} sibling) - uses {@code VarHandle}, and so lives in
+ * the separate {@code jctools-core-jdk11} artifact.
+ * </ol>
+ * These are generated from the sources in this package, so behaviour tracks the reference implementation.
  * <p>
  * <br>
  * <b>Limited Queue methods support:</b><br>
@@ -65,7 +83,8 @@
  * {@link java.util.concurrent.atomic.AtomicReferenceArray} but choose not to for performance reasons(extra reference
  * chase and redundant boundary checks).
  * </ol>
- * Both use cases should be made obsolete by VarHandles at some point.
+ * Both use cases are addressed by VarHandles on JDK9+, and the {@code jctools-core-jdk11} artifact offers
+ * VarHandle based variants of these queues for callers who would rather not depend on Unsafe.
  * <p>
  * <br>
  * <b>Avoiding redundant loads of fields:</b><br>

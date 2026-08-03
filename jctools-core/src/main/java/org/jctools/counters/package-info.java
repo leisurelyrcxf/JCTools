@@ -11,6 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Concurrent counters for when all you need is a number going up. The implementations here stripe across cache lines to
+ * keep incrementing threads off each other's toes, trading a more expensive {@code get} for a much cheaper
+ * {@code inc}.
+ * <p>
+ * Use {@link org.jctools.counters.CountersFactory} to get an implementation suited to the running JVM rather than
+ * picking one directly.
+ */
 @Export
 package org.jctools.counters;
 
