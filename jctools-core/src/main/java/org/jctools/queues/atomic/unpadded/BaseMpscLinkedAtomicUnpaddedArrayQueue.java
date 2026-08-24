@@ -273,7 +273,9 @@ abstract class BaseMpscLinkedAtomicUnpaddedArrayQueue<E> extends BaseMpscLinkedA
                 // QUEUE_RESIZE
                 resize(mask, buffer, pIndex, e, null);
                 return true;
-            } else if (casProducerIndex(pIndex, pIndex + 2)) {
+            }
+            else if (casProducerIndex(pIndex, pIndex + 2))
+            {
                 break;
             }
         }
